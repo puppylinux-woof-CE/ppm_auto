@@ -56,36 +56,36 @@ export -f check_total_size
 
 install_package () {
  [ "$(cat /tmp/pkgs_to_install)" = "" ] && exit 0
- check_total_size
- NEEDEDK=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size) / 2048 )
- AVAILABLE=$(cat /tmp/pup_event_sizefreem | head -n 1 )
- PACKAGES=$(cat /tmp/pkgs_to_install | cut -f 1 -d '|')
- if [ "$NEEDEDK" -ge "$AVAILABLE" ]; then
-  Xdialog --title "$(gettext 'Space needed')"  --msgbox "$(gettext 'The ') $AVAILABLE $(gettext ' MB of available space is not sufficient to download the\n') $PACKAGES $(gettext '\npackage(s) you selected. Please resize your savefile or delete some files.\n EXITING')" 0 0 &
-  clean_up 
-  exit 0
- fi
- rm -f /tmp/overall_pkg_size
- cat /tmp/pkgs_to_install | tr ' ' '\n' > /tmp/pkgs_left_to_install
- cat /tmp/pkgs_to_install
- echo $(cat /tmp/pkgs_to_install)
- for LINE in $(cat /tmp/pkgs_to_install)
- do 
-  REPO=$(echo $LINE | cut -f 2 -d '|') 
-  echo "$REPO" > /tmp/petget/current-repo-triad
-  TREE1=$(echo $LINE | cut -f 1 -d '|')
-  if [ -f /tmp/install_pets_quietly ];then 
-   rxvt -title "$VTTITLE... Do NOT close" -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
-    -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
-   /usr/local/petget/finduserinstalledpkgs.sh
-   sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
-  else
-   /usr/local/petget/installpreview.sh
-   /usr/local/petget/finduserinstalledpkgs.sh
-   sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
+ if [ -f /tmp/install_pets_quietly ]; then
+  check_total_size
+  NEEDEDK=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size) / 2048 )
+  AVAILABLE=$(cat /tmp/pup_event_sizefreem | head -n 1 )
+  PACKAGES=$(cat /tmp/pkgs_to_install | cut -f 1 -d '|')
+  if [ "$NEEDEDK" -ge "$AVAILABLE" ]; then
+   Xdialog --title "$(gettext 'Space needed')"  --msgbox "$(gettext 'The ') $AVAILABLE $(gettext ' MB of available space is not sufficient to download the\n') $PACKAGES $(gettext '\npackage(s) you selected. Please resize your savefile or delete some files.\n EXITING')" 0 0 &
+   clean_up
+   exit 0
   fi
-  sync
- done
+  rm -f /tmp/overall_pkg_size
+  cat /tmp/pkgs_to_install | tr ' ' '\n' > /tmp/pkgs_left_to_install
+  cat /tmp/pkgs_to_install
+  echo $(cat /tmp/pkgs_to_install)
+  for LINE in $(cat /tmp/pkgs_to_install)
+  do
+   REPO=$(echo $LINE | cut -f 2 -d '|')
+   echo "$REPO" > /tmp/petget/current-repo-triad
+   TREE1=$(echo $LINE | cut -f 1 -d '|')
+   rxvt -title "$VTTITLE... Do NOT close" -fn - misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
+   -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
+   /usr/local/petget/finduserinstalledpkgs.sh
+   sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
+  done
+ else
+  /usr/local/petget/installpreview.sh
+  /usr/local/petget/finduserinstalledpkgs.sh
+  sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
+ fi
+ sync
  /usr/local/petget/reportwindow.sh
  clean_up 
 }
@@ -96,7 +96,7 @@ install_all () {
  rm -f /tmp/download_pets_quietly 2>/dev/null
  rm -f /tmp/download_only_pet_quietly 2>/dev/null
  rm -f /tmp/.auto_flag 2>/dev/null
- touch /tmp/install_pets_quietly 
+ touch /tmp/install_pets_quietly
  cp -a /tmp/pkgs_to_install /tmp/pkgs_to_install_done
  VTTITLE=Installing
  export VTTITLE
