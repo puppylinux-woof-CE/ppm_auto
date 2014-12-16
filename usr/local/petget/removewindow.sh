@@ -43,7 +43,7 @@ report_window () {
 Removed Packages
 $REMOVED_PGKS
 
-Failed to Remone Packages
+Failed to Remove Packages
 $FAILED_TO_REMOVE
 EOF
  
@@ -55,7 +55,7 @@ EOF
  FAILED=""
  if [ "$FAILED_TO_INSTALL" != "" ];then
   FAILED="<vbox>
-  <text><label>$(gettext 'However the following packages failed to be romoved:')</label></text>
+  <text><label>$(gettext 'However the following packages failed to be removed:')</label></text>
    <vbox scrollable=\"true\" height=\"100\">
     <text><label>${FAILED_TO_INSTALL}</label></text>
    </vbox>
