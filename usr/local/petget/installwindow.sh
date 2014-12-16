@@ -75,7 +75,7 @@ install_package () {
   echo "$REPO" > /tmp/petget/current-repo-triad
   TREE1=$(echo $LINE | cut -f 1 -d '|')
   if [ -f /tmp/install_pets_quietly ];then 
-   rxvt -title 'Installing... Do NOT close' -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
+   rxvt -title "$VTTITLE... Do NOT close" -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
     -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
    /usr/local/petget/finduserinstalledpkgs.sh
    sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
@@ -98,7 +98,10 @@ install_all () {
  rm -f /tmp/.auto_flag 2>/dev/null
  touch /tmp/install_pets_quietly 
  cp -a /tmp/pkgs_to_install /tmp/pkgs_to_install_done
+ VTTITLE=Installing
+ export VTTITLE
  install_package
+ unset VTTITLE
 }	
 export -f install_all
 
@@ -110,7 +113,10 @@ download_only () {
  touch /tmp/install_pets_quietly
  touch /tmp/download_only_pet_quietly 
  cp -a /tmp/pkgs_to_install /tmp/pkgs_to_install_done
- install_package	
+ VTTITLE=Downloading
+ export VTTITLE
+ install_package
+ unset VTTITLE
 }	
 export -f download_only
 
@@ -122,7 +128,10 @@ download_all () {
  touch /tmp/install_pets_quietly
  touch /tmp/download_pets_quietly 
  cp -a /tmp/pkgs_to_install /tmp/pkgs_to_install_done
- install_package	
+ VTTITLE=Downloading
+ export VTTITLE
+ install_package
+ unset VTTITLE	
 }	
 export -f download_all
 
@@ -154,7 +163,7 @@ export INSTALL_PETS_DIALOG='<window title="'$(gettext 'Install Puppy Packages')'
     <action signal="button-release-event">refresh:TREE2</action>
   </tree>
   
-  <text space-fill="true"><label>'$(gettext 'PPM now Supports Multiple Unattended Package Installation or Download (faster).')'</label></text> 
+  <text space-fill="true"><label>'$(gettext 'PPM now Supports Unattended Multiple Package Installation or Download (faster).')'</label></text> 
   <text space-fill="true"><label>'$(gettext 'The  'classic' PPM mode is also availabe (slower)')'</label></text>
   
   <text xalign="0" space-fill="false" use-markup="true">
