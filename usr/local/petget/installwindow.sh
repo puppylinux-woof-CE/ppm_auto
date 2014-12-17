@@ -75,8 +75,9 @@ install_package () {
    REPO=$(echo $LINE | cut -f 2 -d '|')
    echo "$REPO" > /tmp/petget/current-repo-triad
    TREE1=$(echo $LINE | cut -f 1 -d '|')
-   rxvt -title "$VTTITLE... Do NOT close" -fn - misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
-   -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
+   rxvt -title "$VTTITLE... Do NOT close" \
+    -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
+    -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
    /usr/local/petget/finduserinstalledpkgs.sh
    sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
   done
