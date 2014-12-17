@@ -2,6 +2,8 @@
 
 #[ -f /tmp/install_pets_quietly ] && set -x ; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
+# Do not allow a second instance
+[ -f /tmp/install_pets_quietly ] && exit 0
 # close older window. Must be a better way...
 OLD_DIALOG=$(ps | grep INSTALL_PETS_DIALOG | grep program | cut -f 1-2 -d ' ')
 kill -9 $OLD_DIALOG

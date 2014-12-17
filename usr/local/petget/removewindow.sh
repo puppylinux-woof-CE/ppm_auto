@@ -2,7 +2,9 @@
 
 #set -x ; mkdir -p /root/LOGs; NAME=$(basename "$0"); exec 1>> /root/LOGs/"$NAME".log 2>&1
 
-# clode older window. Must be a better way...
+# Do not allow a second instance
+[ -f /tmp/remove_pets_quietly ] && exit 0
+# close older window. Must be a better way...
 OLD_DIALOG=$(ps | grep REMOVE_PETS_DIALOG | grep program | cut -f 1-2 -d ' ')
 kill -9 $OLD_DIALOG
 
@@ -53,11 +55,11 @@ EOF
 # Info window/dialogue (display and option to save "missing" info)
 
  FAILED=""
- if [ "$FAILED_TO_INSTALL" != "" ];then
+ if [ "$FAILED_TO_REMOVE" != "" ];then
   FAILED="<vbox>
   <text><label>$(gettext 'However the following packages failed to be removed:')</label></text>
    <vbox scrollable=\"true\" height=\"100\">
-    <text><label>${FAILED_TO_INSTALL}</label></text>
+    <text><label>${FAILED_TO_REMOVE}</label></text>
    </vbox>
   </vbox>"
  fi
@@ -114,7 +116,8 @@ remove_package () {
   sync
  done
  rm -f /tmp/{pkgs_to_remove,pkgs_left_to_remove}
- report_window 
+ report_window
+ rm -f /tmp/remove_pets_quietly
 }
 export -f remove_package
 
