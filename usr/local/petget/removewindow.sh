@@ -2,8 +2,8 @@
 
 #set -x ; mkdir -p /root/LOGs; NAME=$(basename "$0"); exec 1>> /root/LOGs/"$NAME".log 2>&1
 
-# Do not allow a second instance
-[ -f /tmp/remove_pets_quietly ] && exit 0
+# Do not allow a second instance, or simultabeous installation
+[ -f /tmp/remove_pets_quietly -o -f /tmp/install_pets_quietly ] && exit 0
 # close older window. Must be a better way...
 OLD_DIALOG=$(ps | grep REMOVE_PETS_DIALOG | grep program | cut -f 1-2 -d ' ')
 kill -9 $OLD_DIALOG
@@ -117,7 +117,7 @@ remove_package () {
  done
  rm -f /tmp/{pkgs_to_remove,pkgs_left_to_remove}
  report_window
- rm -f /tmp/remove_pets_quietly
+ rm -f /tmp/{remove,install}_pets_quietly
 }
 export -f remove_package
 

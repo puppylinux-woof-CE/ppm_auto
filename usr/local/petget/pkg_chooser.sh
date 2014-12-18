@@ -33,6 +33,9 @@
 #130331 more GUI filter options. See also filterpkgs.sh.
 #130511 need to include devx-only-installed-packages, if loaded.
 
+# Remove in case we crashed
+rm -f /tmp/{remove,install}_pets_quietly
+
 /usr/local/petget/service_pack.sh & #121125 offer download Service Pack.
 
 export TEXTDOMAIN=petget___pkg_chooser.sh
