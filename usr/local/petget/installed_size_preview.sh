@@ -92,13 +92,21 @@ $(gettext "Please cancel installation, close the Puppy Package Manager, then cli
   while read ONELIST
   do
    DEP_NAME="`echo "$ONELIST" | cut -f 1 -d '|'`"
-   DEP_SIZE="`echo "$ONELIST" | cut -f 6 -d '|'`"
-   DEP_DESCR="`echo "$ONELIST" | cut -f 10 -d '|'`"
-   ADDSIZEK=0
-   [ "$DEP_SIZE" != "" ] && ADDSIZEK=`echo "$DEP_SIZE" | rev | cut -c 2-10 | rev`
-   INSTALLEDSIZEK=`expr $INSTALLEDSIZEK + $ADDSIZEK`
-   echo "$INSTALLEDSIZEK" > /tmp/petget_installedsizek
+   if [ -f /tmp/overall_dependencies -a \
+    "$(grep $DEP_NAME /tmp/overall_dependencies)" != "" ]; then
+    echo done that
+   else
+    DEP_SIZE="`echo "$ONELIST" | cut -f 6 -d '|'`"
+    DEP_DESCR="`echo "$ONELIST" | cut -f 10 -d '|'`"
+    ADDSIZEK=0
+    [ "$DEP_SIZE" != "" ] && ADDSIZEK=`echo "$DEP_SIZE" | rev | cut -c 2-10 | rev`
+    INSTALLEDSIZEK=`expr $INSTALLEDSIZEK + $ADDSIZEK`
+    echo "$INSTALLEDSIZEK" > /tmp/petget_installedsizek
+   fi
   done
   INSTALLEDSIZEK=`cat /tmp/petget_installedsizek`
   echo "$INSTALLEDSIZEK" >> /tmp/overall_pkg_size
+  cat /tmp/petget_missing_dbentries-* | cut -f1 -d '|' >> /tmp/dependecies_list
  done
+cat /tmp/dependecies_list | sort | uniq  >> /tmp/overall_dependencies
+rm -f /tmp/dependecies_list

@@ -31,6 +31,7 @@ clean_up () {
  rm -f /tmp/pkgs_to_install_done
  rm -f /tmp/.auto_flag
  rm -f /tmp/overall_pkg_size
+ rm -f /tmp/overall_dependencies
  rm -rf /tmp/PPM_LOGs/
 }
 export -f clean_up
