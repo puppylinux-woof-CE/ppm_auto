@@ -103,18 +103,18 @@ remove_package () {
  do 
   TREE2=$LINE
   if [ -f /tmp/remove_pets_quietly ]; then 
-   urxvt -title 'Removing... Do NOT Close' \
+   rxvt -title 'Removing... Do NOT Close' \
     -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
     -fg grey -geometry 80x5+50+50 -e /usr/local/petget/removepreview.sh
-   /usr/local/petget/finduserinstalledpkgs.sh
    sed -i "/$TREE2/d" /tmp/pkgs_left_to_remove
   else
    /usr/local/petget/removepreview.sh
-   /usr/local/petget/finduserinstalledpkgs.sh
    sed -i "/$TREE2/d" /tmp/pkgs_left_to_remove
   fi
   sync
  done
+ /usr/local/petget/findmissingpkgs.sh
+ /usr/local/petget/finduserinstalledpkgs.sh
  rm -f /tmp/{pkgs_to_remove,pkgs_left_to_remove}
  report_window
  rm -f /tmp/{remove,install}_pets_quietly
