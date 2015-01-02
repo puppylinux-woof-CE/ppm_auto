@@ -60,11 +60,17 @@ install_package () {
  [ "$(cat /tmp/pkgs_to_install)" = "" ] && exit 0
  if [ -f /tmp/install_pets_quietly ]; then
   check_total_size
-  NEEDEDK=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size) / 2048 )
+  if [ -f /tmp/download_pets_quietly -o -f /tmp/download_only_pets_quietly ]; then
+   NEEDEDK=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size) / 512 )
+   ACTION=$(gettext 'download the\n')
+  else
+   NEEDEDK=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size) / 1536 )
+   ACTION=$(gettext 'download and install the\n')
+  fi
   AVAILABLE=$(cat /tmp/pup_event_sizefreem | head -n 1 )
   PACKAGES=$(cat /tmp/pkgs_to_install | cut -f 1 -d '|')
   if [ "$NEEDEDK" -ge "$AVAILABLE" ]; then
-   Xdialog --title "$(gettext 'Space needed')"  --msgbox "$(gettext 'The ') $AVAILABLE $(gettext ' MB of available space is not sufficient to download the\n') $PACKAGES $(gettext '\npackage(s) you selected. Please resize your savefile or delete some files.\n EXITING')" 0 0 &
+   Xdialog --title "$(gettext 'Space needed')"  --msgbox "$(gettext 'The ') $AVAILABLE $(gettext ' MB of available space is not sufficient to ') $ACTION  $PACKAGES $(gettext '\npackage(s) you selected. Please resize your savefile or delete some files.\n EXITING')" 0 0 &
    clean_up
    exit 0
   fi
