@@ -44,7 +44,7 @@ check_total_size () {
    || NEEDEDK_MINUS=0
   [ ! "$NEEDEDK_MINUS" ] && NEEDEDK_MINUS=0
   NEEDEDK=$( expr $NEEDEDK_PLUS + $NEEDEDK_MINUS )
-  ACTION_MSG=$(gettext 'This is not enough space to download the packages (including libs) you have selected.')
+  ACTION_MSG=$(gettext 'This is not enough space to download the packages (including dependencies) you have selected.')
  else
   NEEDEDK_PLUS=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size) / 768 ) # 1.5x for download and install 
   [ -f /tmp/overall_pkg_size_RMV ] && \
@@ -52,7 +52,7 @@ check_total_size () {
    || NEEDEDK_MINUS=0
   [ ! "$NEEDEDK_MINUS" ] && NEEDEDK_MINUS=0
   NEEDEDK=$( expr $NEEDEDK_PLUS + $NEEDEDK_MINUS )
-  ACTION_MSG=$(gettext 'This is not enough space to download and install the packages (including libs) you have selected.')
+  ACTION_MSG=$(gettext 'This is not enough space to download and install the packages (including dependencies) you have selected.')
  fi
  #---
  [ ! -f /tmp/pup_event_sizefreem ] && echo "Free space estimation error. Exiting" \
@@ -71,7 +71,7 @@ check_total_size () {
   if [ "$(cat /tmp/pkgs_to_install /tmp/overall_dependencies)" = "" ]; then
    echo "" > /tmp/petget/install_status
   else
-   echo "$(gettext 'Packages (with libs)'): $(cat /tmp/pkgs_to_install /tmp/overall_dependencies |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}Mb   -   $(gettext 'Available'): ${AVAILABLE}Mb" > /tmp/petget/install_status
+   echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install /tmp/overall_dependencies |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
   fi
  #fi
  #Check if enough space on system
@@ -85,7 +85,7 @@ check_total_size () {
       </hbox>
       <hbox border-width="10" homogeneous="true">
         <vbox space-expand="true" space-fill="true">
-          <text xalign="0" use-markup="true"><label>"'$(gettext 'Available space on your Puppy system is')' '${AVAILABLE}' Mb. <b>'${ACTION_MSG}'</b> '$(gettext 'Please resize your savefile or delete some files.')'"</label></text>
+          <text xalign="0" use-markup="true"><label>"'$(gettext 'Available space on your Puppy system is')' '${AVAILABLE}' MB. <b>'${ACTION_MSG}'</b> '$(gettext 'Please resize your savefile or delete some files.')'"</label></text>
           <vbox scrollable="true" shadow-type="0" height="150" width="350" space-expand="true" space-fill="true">
             <text xalign="0"><label>"'$PACKAGES'"</label></text>
             <text xalign="0"><label>"'$DEPENDENCIES'"</label></text>
