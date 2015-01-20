@@ -232,5 +232,8 @@ Do you want to try again, or give up?')" 0 0
  break
 done
 
+[ -f /tmp/install_pets_quietly ] && echo "PACKAGE: $FILENAME" \
+ >> /tmp/overall_package_status_log
+ 
 exit 0
 ###END###

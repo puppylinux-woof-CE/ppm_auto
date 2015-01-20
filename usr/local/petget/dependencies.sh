@@ -110,7 +110,7 @@ for ONELEVEL in 1 2 3 4 5 6 7 8 9 10 11
 do
  if [ ! -f /tmp/install_pets_quietly ]; then 
   [ $ONELEVEL -gt 1 ] && pupkill $XXPID #120907
-  yaf-splash -bg "#FF8080" -placement top -close never -fontsize large -text "$(gettext 'Number of missing dependencies:') ${SIZE2}" & #120907
+  /usr/lib/gtkdialog/box_splash -placement top -close never -fontsize large -text "$(gettext 'Number of missing dependencies:') ${SIZE2}" & #120907
   XXPID=$!
  fi
  echo "" >> /tmp/petget_deps_visualtreelog #w017

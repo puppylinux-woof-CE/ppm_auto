@@ -60,15 +60,9 @@ esac
 #130507
 xDEFGUIFILTER="$(echo -n "$DEFGUIFILTER" | tr -d ' ' | tr -d '-' | tr -d '+' | tr -d ',')" #ex, translate 'Qt4 GUI apps only' to 'Qt4GUIappsonly'
 
-#alphabetic group...
-PKG_FIRST_CHAR="`cat /tmp/petget_pkg_first_char`" #written in pkg_chooser.sh, ex: 'mn'
-[ "$PKG_FIRST_CHAR" = "ALL" ] && PKG_FIRST_CHAR='a-z0-9'
-
-X1PID=0
-if [ "`cat /tmp/petget_pkg_first_char`" = "ALL" ];then
- yaf-splash -close never -bg orange -text "$(gettext 'Please wait, processing all entries may take awhile...')" &
- X1PID=$!
-fi
+PKG_FIRST_CHAR='a-z0-9'
+yaf-splash -close never -bg orange -text "$(gettext 'Please wait, processing all entries may take awhile...')" &
+X1PID=$!
 
 #which repo...
 FIRST_DB="`ls -1 /root/.packages/Packages-${DISTRO_BINARY_COMPAT}-${DISTRO_COMPAT_VERSION}* | head -n 1 | rev | cut -f 1 -d '/' | rev | cut -f 2-4 -d '-'`"

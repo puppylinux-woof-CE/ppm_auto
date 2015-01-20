@@ -41,39 +41,7 @@ entryPATTERN4="`echo -n "$ENTRY1" | sed -e 's%\\-%\\\\-%g' -e 's%\\.%\\\\.%g' -e
 CURRENTREPO="`cat /tmp/petget/current-repo-triad`" #search here first.
 ALLACTIVEREPOS="`cat /tmp/petget_active_repo_list`"
 
-if [ "`grep -E "all|current" <<< "$1"`" ]; then #ui_ziggy has already set search repo
-	SEARCH_REPOS_FLAG=$1
-else
-	#120504 ask which repos...
-	export ASKREPO_DIALOG="<window title=\"$(gettext 'PPM: search')\" icon-name=\"gtk-about\">
-	<vbox>
-	  <frame $(gettext 'Search only current repository')>
-	    <hbox>
-	      <text><label>\"${CURRENTREPO}\"</label></text>
-	      <vbox>
-	        <button><label>$(gettext 'Search')</label><action type=\"exit\">BUTTON_SEARCH_CURRENT</action></button>
-	      </vbox>
-	    </hbox>
-	  </frame>
-	  <frame $(gettext 'Search all repositories')>
-	    <hbox>
-	      <text><label>\"${ALLACTIVEREPOS}\"</label></text>
-	      <vbox>
-	        <button><label>$(gettext 'Search')</label><action type=\"exit\">BUTTON_SEARCH_ALL</action></button>
-	      </vbox>
-	    </hbox>
-	  </frame>
-	</vbox>
-	</window>
-	"
-	RETPARAMS="`gtkdialog4 --center --program=ASKREPO_DIALOG`"
-	eval "$RETPARAMS"
-	[ "$EXIT" != "BUTTON_SEARCH_CURRENT" -a "$EXIT" != "BUTTON_SEARCH_ALL" ] && exit
-
-	SEARCH_REPOS_FLAG="current"
-	[ "$EXIT" = "BUTTON_SEARCH_ALL" ] && SEARCH_REPOS_FLAG="all"
-fi 
-
+SEARCH_REPOS_FLAG=$1
 if [ "$SEARCH_REPOS_FLAG" = "current" ];then #120504
  REPOLIST="$CURRENTREPO"
 else
@@ -98,10 +66,10 @@ do
   FNDENTRIES="`cat /root/.packages/Packages-${ONEREPO} | cut -f1,2,3,5,10 -d \| | grep -i "$entryPATTERN1"`" #120827
  fi
 
- if [ "$FNDENTRIES" != "" ];then
-  FIRSTCHAR="`echo "$FNDENTRIES" | cut -c 1 | tr '\n' ' ' | sed -e 's% %%g'`"
-  #write these just in case needed...
-  ALPHAPRE="`cat /tmp/petget_pkg_first_char`"
+ if [ "$FNDENTRIES" ];then
+#  FIRSTCHAR="`echo "$FNDENTRIES" | cut -c 1 | tr '\n' ' ' | sed -e 's% %%g'`"
+#  #write these just in case needed...
+#  ALPHAPRE="`cat /tmp/petget_pkg_first_char`"
   #this is read when update TREE1 in pkg_chooser.sh...
   #echo "$FNDENTRIES" | cut -f 1,10 -d '|' > /tmp/petget/filterpkgs.results
   repoPTN="s%$%|${ONEREPO}|%" #note, '|' on the end also, needed below by printcols.
@@ -131,7 +99,7 @@ if [ "$FNDIT" = "no" ];then
  #120909 these files may have been created at previous search, it will upset show_installed_version_diffs.sh if still exist...
  [ -f /tmp/petget/filterpkgs.results.installed ] && rm -f /tmp/petget/filterpkgs.results.installed
  [ -f /tmp/petget/filterpkgs.results.notinstalled ] && rm -f /tmp/petget/filterpkgs.results.notinstalled
- pupmessage -bg red -center -title "$(gettext 'PPM find')" "$(gettext 'Sorry, no matching package name')" & #110223 run as separate process.
+ /usr/lib/gtkdialog/box_ok "$(gettext 'PPM package search')" find.svg "$(gettext 'Sorry, no matching package name')"
 else
  
  #120827 search may find pkgs that are already installed...

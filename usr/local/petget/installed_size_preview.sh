@@ -1,12 +1,17 @@
 #!/bin/sh
 # addapted from installpreview.sh
 
-#set -x ; mkdir -p /root/LOGs; NAME=$(basename "$0"); exec 1>> /root/LOGs/"$NAME".log 2>&1
-#[ -f /tmp/install_pets_quietly ] && exit 0
+REPO=$(echo $1 | cut -f 4 -d '|') 
+[ ! "$REPO" ] && REPO=$(echo $1 | cut -f 2 -d '|')
+echo "$REPO" > /tmp/petget/current-repo-triad
+TREE1=$(echo $1 | cut -f 1 -d '|')
+[ ! "$TREE1" ] && exit 0
+
+echo "$1"
+echo "$2"
 
 export TEXTDOMAIN=petget___installed_size_preview.sh
 export OUTPUT_CHARSET=UTF-8
-[ "$TREE1" = "" ] && exit 0
 
 . /etc/DISTRO_SPECS #has DISTRO_BINARY_COMPAT, DISTRO_COMPAT_VERSION
 . /root/.packages/DISTRO_PKGS_SPECS
@@ -20,6 +25,8 @@ if [ "`grep "$ttPTN" /tmp/petget/filterpkgs.results.post`" != "" ];then
 fi
 
 rm -f /tmp/petget_missing_dbentries-* 2>/dev/null
+rm -f /tmp/petget_missingpkgs_patterns 2>/dev/null
+rm -f /tmp/petget_installedsizek 2>/dev/null 
 
 DB_ENTRY="`grep "$tPATTERN" /root/.packages/$DB_FILE | head -n 1`"
 DB_dependencies="`echo -n "$DB_ENTRY" | cut -f 9 -d '|'`"
@@ -28,7 +35,7 @@ DB_size="`echo -n "$DB_ENTRY" | cut -f 6 -d '|'`"
 SIZEFREEM=`cat /tmp/pup_event_sizefreem | head -n 1` 
 SIZEFREEK=`expr $SIZEFREEM \* 1024`
 
-if [ "$DB_dependencies" != "" ]; then
+if [ "$DB_dependencies" != "" -a ! -f /tmp/download_only_pet_quietly ]; then
  echo "${TREE1}" > /tmp/petget_installpreview_pkgname
  /usr/local/petget/findmissingpkgs.sh "$DB_dependencies"
 fi
@@ -42,12 +49,19 @@ if [ "$MISSINGDEPS_PATTERNS" = "" ]; then
   M) SIZEVAL=$( expr $SIZEVAL \* 1024 ) ;;
   *) SIZEVAL=$( expr $SIZEVAL \/ 1024 ) ;;
  esac
- echo $SIZEVAL >> /tmp/overall_pkg_size
+  if [ "$2" = "RMV" ]; then
+   echo -$SIZEVAL >> /tmp/overall_pkg_size_RMV
+  else
+   echo $SIZEVAL >> /tmp/overall_pkg_size
+  fi
+ sync
+ /usr/local/petget/installwindow.sh check_total_size &
  exit 0
 fi
 
 /usr/local/petget/dependencies.sh
-[ $? -ne 0 ] && exec /usr/local/petget/installed_size_preview.sh # check that!
+[ $? -ne 0 ] &&  kill -9 $(pidof installed_size_preview.sh) \
+ && exec /usr/local/petget/installed_size_preview.sh 
 
 FNDMISSINGDBENTRYFILE="`ls -1 /tmp/petget_missing_dbentries-* 2>/dev/null`"
  
@@ -58,16 +72,7 @@ FNDMISSINGDBENTRYFILE="`ls -1 /tmp/petget_missing_dbentries-* 2>/dev/null`"
    rm -f /tmp/petget_installed_patterns_system #see pkg_chooser.sh
    #create a separate process for the popup, with delay...
    DEVXNAME="devx_${DISTRO_FILE_PREFIX}_${DISTRO_VERSION}.sfs"
-   echo "#!/bin/sh
-sleep 3
-pupdialog --background pink --colors --ok-label \"$(gettext 'OK')\" --backtitle \"$(gettext 'WARNING: devx not installed')\" --msgbox \"$(gettext 'Package:')  \Zb${TREE1}\ZB
-$(gettext "This package has dependencies that are in the 'devx' SFS file, which is Puppy's C/C++/Vala/Genie/BaCon mega-package, a complete compiling environment.")
-
-$(gettext 'The devx file is named:') \Zb${DEVXNAME}\ZB
-
-$(gettext "Please cancel installation, close the Puppy Package Manager, then click the \Zbinstall\ZB icon on the desktop and install the devx SFS file first.")\" 0 0" > /tmp/petget_devx_popup.sh #'geany
-   chmod 755 /tmp/petget_devx_popup.sh
-   /tmp/petget_devx_popup.sh &
+   /usr/lib/gtkdialog/box_ok "PPM $(gettext 'Warning')" warning "<b>$(gettext 'WARNING: devx not installed')</b>" "$(gettext 'Package:')  <b>${TREE1}</b>" "$(gettext "This package has dependencies that are in the 'devx' SFS file, which is Puppy's C/C++/Vala/Genie/BaCon mega-package, a complete compiling environment.")" "$(gettext 'The devx file is named:') <b>${DEVXNAME}</b>" "$(gettext "Please cancel installation, close the Puppy Package Manager, then click the 'install' icon on the desktop and install the devx SFS file first.")"
   fi
  fi
  
@@ -76,8 +81,14 @@ $(gettext "Please cancel installation, close the Puppy Package Manager, then cli
  MAINPKG_NAME="`echo "$DB_ENTRY" | cut -f 1 -d '|'`"
  MAINPKG_SIZE="`echo "$DB_ENTRY" | cut -f 6 -d '|'`"
  INSTALLEDSIZEK=0
- [ "$MAINPKG_SIZE" != "" ] && INSTALLEDSIZEK=`echo "$MAINPKG_SIZE" | rev | cut -c 2-10 | rev`
- 
+ if [ "$MAINPKG_SIZE" != "" ]; then
+  if [ "$2" = "RMV" ]; then
+   INSTALLEDSIZEK=-$(echo "$MAINPKG_SIZE" | rev | cut -c 2-10 | rev)
+   echo "$INSTALLEDSIZEK" > /tmp/petget_installedsizek # In case all deps are needed
+  else
+   INSTALLEDSIZEK=$(echo "$MAINPKG_SIZE" | rev | cut -c 2-10 | rev)
+  fi
+ fi
  echo -n "" > /tmp/petget_moreframes
  echo -n "" > /tmp/petget_tabs
  echo "0" > /tmp/petget_frame_cnt
@@ -92,12 +103,42 @@ $(gettext "Please cancel installation, close the Puppy Package Manager, then cli
   do
    DEP_NAME="`echo "$ONELIST" | cut -f 1 -d '|'`"
    DEP_SIZE="`echo "$ONELIST" | cut -f 6 -d '|'`"
-   DEP_DESCR="`echo "$ONELIST" | cut -f 10 -d '|'`"
    ADDSIZEK=0
-   [ "$DEP_SIZE" != "" ] && ADDSIZEK=`echo "$DEP_SIZE" | rev | cut -c 2-10 | rev`
-   INSTALLEDSIZEK=`expr $INSTALLEDSIZEK + $ADDSIZEK`
-   echo "$INSTALLEDSIZEK" > /tmp/petget_installedsizek
+   if [ -f /tmp/overall_dependencies -a \
+    "$(grep $DEP_NAME /tmp/overall_dependencies)" != "" ]; then
+    if [ "$2" = "ADD" -o "$(grep $DEP_NAME /tmp/overall_dependencies | wc -l)" -gt 1 ]; then
+     echo done that
+    else
+     [ "$DEP_SIZE" != "" ] && ADDSIZEK=`echo "$DEP_SIZE" | rev | cut -c 2-10 | rev`
+     INSTALLEDSIZEK=`expr $INSTALLEDSIZEK - $ADDSIZEK`
+     echo "$INSTALLEDSIZEK" > /tmp/petget_installedsizek_rep
+    fi
+   else
+    [ "$DEP_SIZE" != "" ] && ADDSIZEK=`echo "$DEP_SIZE" | rev | cut -c 2-10 | rev`
+    INSTALLEDSIZEK=`expr $INSTALLEDSIZEK + $ADDSIZEK`
+    echo "$INSTALLEDSIZEK" > /tmp/petget_installedsizek_rep
+   fi
   done
-  INSTALLEDSIZEK=`cat /tmp/petget_installedsizek`
-  echo "$INSTALLEDSIZEK" >> /tmp/overall_pkg_size
+  cat /tmp/petget_installedsizek_rep >> /tmp/petget_installedsizek
  done
+rm -f /tmp/petget_installedsizek_rep
+INSTALLEDSIZEK=`cat /tmp/petget_installedsizek`
+if [ "$2" = "RMV" ]; then
+   echo "$INSTALLEDSIZEK" >> /tmp/overall_pkg_size_RMV
+   cat /tmp/overall_dependencies
+   cat /tmp/petget_missing_dbentries-*
+   for LINE in $(cat /tmp/petget_missing_dbentries-* | sort | uniq | cut -f1 -d '|')
+   do
+    sed -i "0,/$LINE/{//d;}" /tmp/overall_dependencies
+   done
+else
+   echo "$INSTALLEDSIZEK" >> /tmp/overall_pkg_size
+   cat /tmp/petget_missing_dbentries-* | cut -f1 -d '|' >> /tmp/dependecies_list
+fi
+
+if [ "$2" = "ADD" ]; then
+  cat /tmp/dependecies_list | sort | uniq  >> /tmp/overall_dependencies
+  rm -f /tmp/dependecies_list
+fi
+sync
+/usr/local/petget/installwindow.sh check_total_size &

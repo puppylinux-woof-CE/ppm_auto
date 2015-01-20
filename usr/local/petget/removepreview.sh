@@ -156,7 +156,7 @@ fi
 if [ "$PUPMODE" = "2" ]; then
 #any user-installed deps?...
 remPATTERN='^'"$DB_pkgname"'|'
-DEP_PKGS="`grep "$remPATTERN" /root/.packages/user-installed-packages | cut -f 9 -d '|' | tr ',' '\n' | grep -v '^\\-' | sed -e 's%^+%%'`" #names-only, one each line.
+DEP_PKGS="`grep "$remPATTERN" /root/.packages/user-installed-packages | cut -f 9 -d '|' | tr ',' '\n' | grep -v '^\\-' | sed -e 's%^+%%' |cut -f1 -d '&'`" #names-only, one each line. 
 
 #131222 do not uninstall if other-installed depend on it...
 echo -n '' > /tmp/petget/other-installed-deps
@@ -356,8 +356,7 @@ fi
 #what about any user-installed deps...
 remPATTERN='^'"$DB_pkgname"'|'
 #110211 shinobar: was the dependency logic inverted...
-DEP_PKGS="`grep "$remPATTERN" /root/.packages/user-installed-packages | cut -f 9 -d '|' | tr ',' '\n' | grep -v '^\\-' | sed -e 's%^+%%'`"
-
+DEP_PKGS="`grep "$remPATTERN" /root/.packages/user-installed-packages | cut -f 9 -d '|' | tr ',' '\n' | grep -v '^\\-' | sed -e 's%^+%%' | cut -f1 -d '&'`"
 #remove records of pkg...
 rm -f /root/.packages/${DB_pkgname}.files
 grep -v "$remPATTERN" /root/.packages/user-installed-packages > /tmp/petget-user-installed-pkgs-rem
@@ -396,7 +395,7 @@ fi
 
 #announce success...
 if [ ! -f /tmp/remove_pets_quietly ]; then
-export REM_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
+ export REM_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
   <vbox>
   <pixmap><input file>/usr/local/lib/X11/pixmaps/ok.xpm</input></pixmap>
    <text><label>$(gettext 'Package') '$DB_pkgname' $(gettext 'has been removed.')</label></text>
@@ -406,10 +405,16 @@ export REM_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-nam
    </hbox>
   </vbox>
  </window>
-" 
-if [ "$DISPLAY" != "" ];then
- gtkdialog3 --program=REM_DIALOG
-fi
+ " 
+ if [ "$DISPLAY" != "" ];then
+  gtkdialog -p REM_DIALOG
+ fi
+elif [ -s /tmp/petget-deps-maybe-rem ];then
+ for MAYBEREM in $(cat /tmp/petget-deps-maybe-rem)
+ do
+   [ "$(grep $MAYBEREM /tmp/pkgs_to_remove)" = "" ] \
+    && echo $MAYBEREM >> /tmp/overall_petget-deps-maybe-rem
+ done
 fi
 ###+++2011-12-27 KRG
 #emitting exitcode for some windowmanager depending on dbus
