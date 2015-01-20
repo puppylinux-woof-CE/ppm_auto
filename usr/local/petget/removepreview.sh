@@ -365,7 +365,8 @@ cp -f /tmp/petget-user-installed-pkgs-rem /root/.packages/user-installed-package
 #v424 .pet pckage may have post-uninstall script, which was originally named puninstall.sh
 #but /usr/local/petget/installpkg.sh moved it to /root/.packages/$DB_pkgname.remove
 if [ -f /root/.packages/${DB_pkgname}.remove ];then
- /bin/sh /root/.packages/${DB_pkgname}.remove
+ nohup /bin/sh /root/.packages/${DB_pkgname}.remove &
+ sleep 0.2
  rm -f /root/.packages/${DB_pkgname}.remove
 fi
 
@@ -421,6 +422,7 @@ fi
 #emitting exitcode for some windowmanager depending on dbus
 #popup a message window saying the program stopped unexpectedly
 #ie (old) enlightenment
+rm -f $HOME/nohup.out
 exit 0
 ###+++2011-12-27 KRG
 ###END###

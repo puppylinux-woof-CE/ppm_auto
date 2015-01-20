@@ -136,7 +136,33 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
         <variable>CATEGORY_BB</variable>'
         [ "$(</var/local/petget/bb_category)" = "true" ] && S=$S'<default>true</default>'
       S=$S'</checkbox>
-    </frame>
+      <checkbox>
+        <label>'$(gettext "Use traditional, non-auto, user interface")'</label>'
+        [ "$(</var/local/petget/ui_choice)" = "Classic" ] && S=$S'<default>true</default>'
+        S=$S'<action>if true echo Classic > /var/local/petget/ui_choice</action>
+        <action>if false echo Ziggy > /var/local/petget/ui_choice</action>
+      </checkbox>
+      <checkbox>
+        <label>'$(gettext "Skip package size check when more than 4GB of storage is available")'</label>
+        <variable>CATEGORY_SC</variable>'
+        [ "$(</var/local/petget/sc_category)" = "true" ] && S=$S'<default>true</default>'
+      S=$S'</checkbox>
+      <checkbox>
+        <label>'$(gettext "Do not show the terminal with PPM actions")'</label>
+        <variable>CATEGORY_NT</variable>'
+        [ "$(</var/local/petget/nt_category)" = "true" ] && S=$S'<default>true</default>'
+      S=$S'</checkbox>
+      <checkbox>
+        <label>'$(gettext "Always redownload packages when they preexist")'</label>
+        <variable>CATEGORY_RD</variable>'
+        [ "$(</var/local/petget/rd_category)" = "true" ] && S=$S'<default>true</default>'
+      S=$S'</checkbox>
+      <checkbox>
+        <label>'$(gettext "Do not delete downloaded packages after installation")'</label>
+        <variable>CATEGORY_ND</variable>'
+        [ "$(</var/local/petget/nd_category)" = "true" ] && S=$S'<default>true</default>'
+      S=$S'</checkbox>
+     </frame>
   </vbox>
 </notebook>
 
@@ -177,6 +203,10 @@ RETPARAMS="`gtkdialog -p PPM_CONFIG`"
 
 [ "`echo -n "$RETPARAMS" | grep 'EXIT' | grep 'OK'`" = "" ] && exit
 echo -n "$RETPARAMS" | grep 'CATEGORY_BB' | cut -d= -f2 | tr -d '"' > /var/local/petget/bb_category
+echo -n "$RETPARAMS" | grep 'CATEGORY_SC' | cut -d= -f2 | tr -d '"' > /var/local/petget/sc_category
+echo -n "$RETPARAMS" | grep 'CATEGORY_NT' | cut -d= -f2 | tr -d '"' > /var/local/petget/nt_category
+echo -n "$RETPARAMS" | grep 'CATEGORY_RD' | cut -d= -f2 | tr -d '"' > /var/local/petget/rd_category
+echo -n "$RETPARAMS" | grep 'CATEGORY_ND' | cut -d= -f2 | tr -d '"' > /var/local/petget/nd_category
 enabledrepos=" "
 #repocnt=1
 for ONEREPO in `echo "$DBFILESLIST" | tr '\n' ' '` #121129
@@ -193,7 +223,8 @@ grep -v '^PKG_REPOS_ENABLED' /root/.packages/PKGS_MANAGEMENT > /tmp/pkgs_managem
 mv -f /tmp/pkgs_management_tmp2 /root/.packages/PKGS_MANAGEMENT
 echo "PKG_REPOS_ENABLED='${enabledrepos}'" >> /root/.packages/PKGS_MANAGEMENT
 
-for I in `grep -E "PPM_GUI|pkg_chooser" <<< "$(ps -eo pid,command)" | awk '{print $1}' `; do kill -9 $I; done
+for I in `grep -E "PPM_GUI|pkg_chooser|/usr/local/bin/ppm" <<< "$(ps -eo pid,command)" | awk '{print $1}' `; do kill -9 $I; done
+sleep 0.5
 /usr/local/petget/pkg_chooser.sh &
 
 ###END###

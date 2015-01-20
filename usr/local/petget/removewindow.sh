@@ -126,26 +126,39 @@ EOF
  rm -f /tmp/pgks_failed_to_remove
  rm -f /tmp/pkgs_to_remove_done
  rm -f /tmp/overall_remove_deport
- rm -f /tmp/overall_petget-deps-maybe-rem 
+ rm -f /tmp/overall_petget-deps-maybe-rem
+ echo 100 > /tmp/petget/install_status_percent
  }
 export -f report_window
 
 remove_package () {
- [ "$(cat /tmp/pkgs_to_remove)" = "" ] && exit 0
+ [ ! "$(</tmp/pkgs_to_remove)" ] && exit 0
+ TOTAL="$(grep -c "[a-z]" /tmp/pkgs_to_remove)"
+ COUNT=0
  cp /tmp/pkgs_to_remove /tmp/pkgs_left_to_remove
 # cat /tmp/pkgs_to_remove
  for LINE in $(cat /tmp/pkgs_to_remove)
  do 
   TREE2=$LINE
-  if [ -f /tmp/remove_pets_quietly ]; then 
-   rxvt -title "$(gettext 'Removing... Do NOT Close')" \
-    -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
-    -fg grey -geometry 80x5+50+50 -e /usr/local/petget/removepreview.sh
-   sed -i "/$TREE2/d" /tmp/pkgs_left_to_remove
+  #output to progressbar
+  COUNT=$(($COUNT+1))
+  PERCENT=$(($COUNT*100/$TOTAL))
+  [ $PERCENT = 100 ] && PERCENT=99
+  echo $PERCENT > /tmp/petget/install_status_percent
+  echo "$(gettext 'Removing'): $LINE" > /tmp/petget/install_status
+  #---
+  if [ -f /tmp/remove_pets_quietly ]; then
+   if [ "$(cat /var/local/petget/nt_category)" = "true" ]; then
+    /usr/local/petget/removepreview.sh
+   else 
+    rxvt -title "$(gettext 'Removing... Do NOT Close')" \
+     -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
+     -fg grey -geometry 80x5+50+50 -e /usr/local/petget/removepreview.sh
+   fi
   else
    /usr/local/petget/removepreview.sh
-   sed -i "/$TREE2/d" /tmp/pkgs_left_to_remove
   fi
+  sed -i "/$TREE2/d" /tmp/pkgs_left_to_remove
   sync
  done
  /usr/local/petget/findmissingpkgs.sh

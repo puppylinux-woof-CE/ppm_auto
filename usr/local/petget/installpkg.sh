@@ -70,6 +70,7 @@ export LANG=C
 DLPKG="$1"
 DLPKG_BASE="`basename $DLPKG`" #ex: scite-1.77-i686-2as.tgz
 DLPKG_PATH="`dirname $DLPKG`"  #ex: /root
+DL_SAVE_FLAG=$(cat /var/local/petget/nd_category)
 
 clean_and_die () {
   rm -f /root/.packages/${DLPKG_NAME}.files
@@ -193,7 +194,7 @@ elif [ $PUPMODE -eq 3 -o $PUPMODE -eq 7 -o $PUPMODE -eq 13 ];then
 fi
 
 if [ $DISPLAY -a ! -f /tmp/install_quietly ];then #131222
- yaf-splash -bg orange -fg black -close never -fontsize large -text "$(gettext 'Please wait, processing...')" &
+ /usr/lib/gtkdialog/box_splash -close never -fontsize large -text "$(gettext 'Please wait, processing...')" &
  YAFPID1=$!
  trap 'pupkill $YAFPID1' EXIT #140318
 fi
@@ -389,7 +390,7 @@ if [ "$PUPMODE" = "2" ]; then #from BK's quirky6.1
  #end 131220
  rm -rf ${DIRECTSAVEPATH} #131229 131230
 
-rm -f $DLPKG_BASE 2>/dev/null
+[ "$DL_SAVE_FLAG" != "true" ] && rm -f $DLPKG_BASE 2>/dev/null
 rm -f $DLPKG_MAIN.tar.gz 2>/dev/null
 
 #pkgname.files may need to be fixed...
@@ -399,7 +400,7 @@ echo "$FIXEDFILES" > /root/.packages/${DLPKG_NAME}.files
 else
 
 
-rm -f $DLPKG_BASE 2>/dev/null
+[ "$DL_SAVE_FLAG" != "true" ] &&  rm -f $DLPKG_BASE 2>/dev/null
 rm -f $DLPKG_MAIN.tar.${EXT} 2>/dev/null #131122
 
 #pkgname.files may need to be fixed...
@@ -524,18 +525,21 @@ ls -dl /tmp | grep -q '^drwxrwxrwt' || chmod 1777 /tmp #130305 rerwin.
 if [ -f /pinstall.sh ];then #pet pkgs.
  chmod +x /pinstall.sh
  cd /
-  LANG=$LANG_USER sh /pinstall.sh
+  LANG=$LANG_USER nohup sh /pinstall.sh &
+  sleep 0.2
  rm -f /pinstall.sh
 fi
 if [ -f /install/doinst.sh ];then #slackware pkgs.
  chmod +x /install/doinst.sh
  cd /
- LANG=$LANG_USER sh /install/doinst.sh
+ LANG=$LANG_USER nohup sh /install/doinst.sh &
+ sleep 0.2
  rm -rf /install
 fi
 if [ -e /DEBIAN/postinst ];then #130112 deb post-install script.
  cd /
- LANG=$LANG_USER sh DEBIAN/postinst
+ LANG=$LANG_USER nohup sh DEBIAN/postinst &
+ sleep 0.2
  rm -rf /DEBIAN
 fi
 #130314 run arch linux pkg post-install script...
@@ -837,5 +841,7 @@ fi
 if [ "`grep '/usr/lib/gio/modules' /root/.packages/${DLPKG_NAME}.files`" != "" ];then
  [ -e /usr/bin/gio-querymodules ] && /usr/bin/gio-querymodules /usr/lib/gio/modules
 fi
+
+rm -f $HOME/nohup.out
 
 ###END###

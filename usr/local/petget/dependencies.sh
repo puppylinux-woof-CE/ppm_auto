@@ -58,7 +58,7 @@ fi
 #dependencies and the dependencies of those have to be looked for.
 
 if [ ! -f /tmp/install_quietly ];then
- yaf-splash -bg orange -close never -text "$(gettext 'Please wait, processing package database files...')" &
+ /usr/lib/gtkdialog/box_splash -close never -text "$(gettext 'Please wait, processing package database files...')" &
  X1PID=$!
 fi
 

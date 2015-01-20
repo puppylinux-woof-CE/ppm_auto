@@ -3,13 +3,26 @@
 #2009 Lesser GPL licence v2 (/usr/share/doc/legal/lgpl-2.1.txt).
 #The Puppy Package Manager main GUI window.
 
+VERSION=1.1
+
+#wait for indexgen.sh to finish
+while [ "$(ps | grep indexgen | grep -v grep)" != "" ];do sleep 0.5;done
+
 # Do not allow another instance
 sleep 0.3
-[ "$(ps | grep -E 'pkg_chooser|ppm' | grep -v grep | wc -l)" -gt 2 ] \
+[ "$( ps | grep -E '/usr/local/bin/ppm|/usr/local/petget/pkg_chooser' | grep -v -E 'grep|geany|leafpad' | wc -l)" -gt 2 ] \
 	&& /usr/lib/gtkdialog/box_splash -timeout 3 -bg orange -text "$(gettext 'PPM is already running. Exiting.')" \
 		&& exit 0
+# Set the skip-space flag
+if [ "$(cat /var/local/petget/sc_category)" = "true" ] && \
+	[ "$(cat /tmp/pup_event_sizefreem | head -n 1 )" -gt 4000 ]; then
+	touch /root/.packages/skip_space_check
+else
+	rm -f /root/.packages/skip_space_check
+	echo false > /var/local/petget/sc_category
+fi
  
-/usr/lib/gtkdialog/box_splash -close never -bg orange -text "$(gettext 'Loading Puppy Package Manager...')" &
+/usr/lib/gtkdialog/box_splash -close never -text "$(gettext 'Loading Puppy Package Manager...')" &
 SPID=$!
 
 # Remove in case we crashed
@@ -50,6 +63,7 @@ touch /tmp/install_pets_quietly
 
 
 add_item (){
+	# Make sure that we have atleast one mode flag
 	[ ! -f /tmp/install_pets_quietly -a ! -f  /tmp/download_only_pet_quietly \
 	 -a ! -f /tmp/download_pets_quietly -a ! -f /tmp/install_classic ] \
 	 && touch /tmp/install_pets_quietly
@@ -63,8 +77,10 @@ add_item (){
 		fi
 	fi 
 	if [ "$TREE1" ] && [ ! "$(grep -F $TREE1 /tmp/pkgs_to_install)" ]; then
-		echo 0 > /tmp/petget/install_status_percent
-		echo "$(gettext "Calculating...")" > /tmp/petget/install_status
+		if [ ! -f /root/.packages/skip_space_check ]; then
+			echo 0 > /tmp/petget/install_status_percent
+			echo "$(gettext "Calculating...")" > /tmp/petget/install_status
+		fi
 		NEWPACKAGE="$(grep -F $TREE1 /tmp/petget/filterpkgs.results.post)"
 		echo "$NEWPACKAGE" >> /tmp/pkgs_to_install
 		add_item2 &
@@ -82,8 +98,10 @@ add_item2(){
 
 remove_item (){
 	if [ "$TREE_INSTALL" ]; then
-		echo 0 > /tmp/petget/install_status_percent
-		echo "$(gettext "Calculating...")" > /tmp/petget/install_status
+		if [ ! -f /root/.packages/skip_space_check ]; then
+			echo 0 > /tmp/petget/install_status_percent
+			echo "$(gettext "Calculating...")" > /tmp/petget/install_status
+		fi
 		REMVPACKAGE="$(grep "$TREE_INSTALL" /tmp/pkgs_to_install)"
 		grep -v "$TREE_INSTALL" /tmp/pkgs_to_install > /tmp/pkgs_to_install2
 		mv -f /tmp/pkgs_to_install2 /tmp/pkgs_to_install
@@ -321,8 +339,14 @@ echo $1 > /tmp/petget/current-repo-triad
 ' > /tmp/filterversion.sh
 chmod 777 /tmp/filterversion.sh
 
+#run the traditional ui if set in config
+if [ "$(</var/local/petget/ui_choice)" = "Classic" ]; then
+	. /usr/local/petget/ui_Classic
+	exit 0
+fi
 
-S='<window title="'$(gettext 'Puppy Package Manager')'" width-request="750" icon-name="gtk-about" default_height="440">
+
+S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-request="750" icon-name="gtk-about" default_height="440">
 <vbox space-expand="true" space-fill="true">
   <vbox space-expand="true" space-fill="true">
     <vbox space-expand="false" space-fill="false">
@@ -345,8 +369,8 @@ S='<window title="'$(gettext 'Puppy Package Manager')'" width-request="750" icon
           <label>" '$(gettext 'Uninstall')' "</label>
           '"`/usr/lib/gtkdialog/xml_button-icon package_remove`"'
           <variable>BUTTON_UNINSTALL</variable>
-          <action>if true launch:PPM_remove</action>
-          <action>if false closewindow:PPM_remove</action>
+          <action>if true show:VBOX_REMOVE</action>
+          <action>if false hide:VBOX_REMOVE</action>
         </togglebutton>
       
         <text space-expand="true" space-fill="true"><label>""</label></text>
@@ -376,7 +400,7 @@ S='<window title="'$(gettext 'Puppy Package Manager')'" width-request="750" icon
           '"`/usr/lib/gtkdialog/xml_button-icon package_add`"'
           <label>" '$(gettext 'Install')' "</label>
           <sensitive>false</sensitive>
-          <action>disable:VBOX_MAIN; fi</action>
+          <action condition="command_is_true(if [ \"$(cat /tmp/pkgs_to_install)\" != \"\" ];then echo true;fi)">disable:VBOX_MAIN</action>
           <action>if [ "$(cat /tmp/forced_install)" != "" ]; then touch /tmp/force_install; else rm -f /tmp/force_install; fi </action>
           <action>cut -d"|" -f1,4 /tmp/pkgs_to_install > /tmp/pkgs_to_install_tmp; mv -f /tmp/pkgs_to_install_tmp /tmp/pkgs_to_install</action>
           <action condition="command_is_true(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">/usr/local/petget/installwindow.sh "$INSTALL_MODE" &</action>
@@ -386,6 +410,42 @@ S='<window title="'$(gettext 'Puppy Package Manager')'" width-request="750" icon
     </vbox>
 
     <hbox space-expand="true" space-fill="true">
+      <vbox visible="false" space-expand="true" space-fill="true">
+        <eventbox name="frame_remove">
+          <vbox margin="2" space-expand="true" space-fill="true">
+            <notebook name="frame_remove" show-tabs="false" show-border="true">
+              <vbox margin="2" space-expand="true" space-fill="true">
+                <notebook show-tabs="false" show-border="true">
+                  <vbox margin="2" space-expand="true" space-fill="true">
+                    <tree rubber-banding="true" selection-mode="3" space-expand="true" space-fill="true">
+                      <label>'$(gettext 'Installed Package')'|'$(gettext 'Description')'</label>
+                      <variable>TREE2</variable>
+                      <width>350</width><height>100</height>
+                      <input file icon-column="1">/tmp/petget/installedpkgs.results.post</input>
+                      <action signal="button-release-event" condition="command_is_true([[ `echo $TREE2` ]] && echo true)">enable:BUTTON_UNINSTALL</action>
+                    </tree>
+                    <comboboxtext space-expand="false" space-fill="false">
+                      <variable>REMOVE_MODE</variable>
+                      <item>'$(gettext 'Auto remove')'</item>
+                      <item>'$(gettext 'Step by step remove (classic mode)')'</item>
+                    </comboboxtext>
+                    <button space-expand="false" space-fill="false">
+                      <variable>BUTTON_UNINSTALL</variable>
+                      '"`/usr/lib/gtkdialog/xml_button-icon package_remove`"'
+                      <label>" '$(gettext 'Remove package')' "</label>
+                      <sensitive>false</sensitive>
+                      <action>disable:VBOX_MAIN</action>
+                      <action>echo "$TREE2" > /tmp/pkgs_to_remove; /usr/local/petget/removewindow.sh "$REMOVE_MODE" &</action>
+                    </button>
+                  </vbox>
+                </notebook>
+              </vbox>
+            </notebook>
+          </vbox>
+        </eventbox>
+        <variable>VBOX_REMOVE</variable>
+      </vbox>
+
       <hbox space-expand="false" space-fill="false">
         <vbox space-expand="true" space-fill="true">
           <frame '$(gettext 'Repositories')'>
@@ -482,7 +542,7 @@ S='<window title="'$(gettext 'Puppy Package Manager')'" width-request="750" icon
           </hbox>
           <hbox space-expand="true" space-fill="true">
             <tree column-resizeable="true|false" space-expand="true" space-fill="true">
-              <label>'$(gettext 'Package|Description')'</label>
+              <label>'$(gettext 'Package')'|'$(gettext 'Description')'</label>
               <variable>TREE1</variable>
               <width>210</width>
               <input file icon-column="1">/tmp/petget/filterpkgs.results.post</input>
@@ -527,45 +587,8 @@ S='<window title="'$(gettext 'Puppy Package Manager')'" width-request="750" icon
 <action signal="show">kill -9 '$SPID'</action>
 <action signal="delete-event">rm /tmp/pkgs_to_install</action>
 <action signal="delete-event">rm /tmp/petget/install_status</action>
-<action signal="delete-event" function="closewindow">PPM_remove</action>
 </window>'
 export PPM_GUI="$S"
-
-
-
-
-export PPM_remove='<window title="'$(gettext 'Remove installed packages')'" icon-name="gtk-about">
-<vbox space-expand="true" space-fill="true">
-  '"`/usr/lib/gtkdialog/xml_info fixed package_remove.svg 60 "$(gettext "Uninstall programs from your system. Select program(s) and click the Remove-button.")"`"'
-  <vbox space-expand="true" space-fill="true">
-    <tree rubber-banding="true" selection-mode="3" space-expand="true" space-fill="true">
-      <label>'$(gettext 'Installed Package|Description')'</label>
-      <height>300</height>
-      <width>450</width>
-      <variable>TREE2</variable>
-      <input file icon-column="1">/tmp/petget/installedpkgs.results.post</input>
-    </tree>
-  </vbox>
-  <hbox space-expand="false" space-fill="false">
-    <comboboxtext>
-      <variable>REMOVE_MODE</variable>
-      <item>'$(gettext 'Auto remove')'</item>
-      <item>'$(gettext 'Step by step remove (classic mode)')'</item>
-    </comboboxtext>
-    <button space-expand="false" space-fill="false">
-      '"`/usr/lib/gtkdialog/xml_button-icon package_remove`"'
-      <label>" '$(gettext 'Remove package')' "</label>
-      <action>echo "$TREE2" > /tmp/pkgs_to_remove; /usr/local/petget/removewindow.sh "$REMOVE_MODE"</action>
-      <action>refresh:TREE2</action>
-      <action>/usr/local/petget/filterpkgs.sh $CATEGORY</action>
-      <action>refresh:TREE1</action>
-    </button>
-    '"`/usr/lib/gtkdialog/xml_scalegrip`"'
-  </hbox>
-</vbox>
-<variable>PPM_remove</variable>
-<action signal="delete-event">activate:BUTTON_UNINSTALL</action>
-</window>' 
 
 mkdir -p /tmp/puppy_package_manager
 ln -s /usr/local/lib/X11/pixmaps/*48.png /tmp/puppy_package_manager 2>/dev/null
@@ -577,6 +600,10 @@ widget "*category" style "category"
 style "bg_report" {
 	bg[NORMAL]="#222" }
 widget "*bg_report" style "bg_report"
+
+style "frame_remove" {
+	bg[NORMAL]="#222" }
+widget "*frame_remove" style "frame_remove"
 
 style "icon-style" {
 	GtkStatusbar::shadow_type = GTK_SHADOW_NONE

@@ -1,6 +1,8 @@
 #!/bin/sh
 # addapted from installpreview.sh
 
+[ -f /root/.packages/skip_space_check ] && exit 0
+
 REPO=$(echo $1 | cut -f 4 -d '|') 
 [ ! "$REPO" ] && REPO=$(echo $1 | cut -f 2 -d '|')
 echo "$REPO" > /tmp/petget/current-repo-triad

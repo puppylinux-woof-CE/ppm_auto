@@ -42,6 +42,9 @@ FLAGPET="" #101016
 . /root/.packages/DISTRO_PET_REPOS #has PET_REPOS, PACKAGELISTS_PET_ORDER
 . /root/.packages/DISTRO_COMPAT_REPOS #v431 has REPOS_DISTRO_COMPAT
 
+DL_PATH=/root
+DL_SAVE_FLAG=$(cat /var/local/petget/nd_category)
+
 echo -n "" > /tmp/petget-installed-pkgs-log
 
 PKGCNT=0 ; FAILCNT=0 ; EXITVAL=0 #101118
@@ -168,7 +171,7 @@ fi
  fi
  
  #now download and install them...
- cd /root
+ cd "$DL_PATH"
  
  #121123 first test that they all exist online...
  if [ ! -f /tmp/install_quietly ];then
@@ -248,10 +251,10 @@ fi
   if [ -f $DLPKG -a "$DLPKG" != "" ];then
    if [ "$PASSEDPARAM" = "DOWNLOADONLY" ];then
     echo "$(gettext 'Verifying'): ${ONEFILE}" > /tmp/petget/install_status
-    /usr/local/petget/verifypkg.sh /root/$DLPKG
+    /usr/local/petget/verifypkg.sh $DLPKG
    else
     echo "$(gettext 'Installing'): ${ONEFILE}" > /tmp/petget/install_status
-    /usr/local/petget/installpkg.sh /root/$DLPKG
+    /usr/local/petget/installpkg.sh $DLPKG
     #...appends pkgname and category to /tmp/petget-installed-pkgs-log if successful.
    fi
    if [ $? -ne 0 ];then
@@ -268,7 +271,7 @@ fi
     FAILCNT=`expr $FAILCNT + 1` #101118
    fi
    #already removed, but take precautions...
-   [ "$PASSEDPARAM" != "DOWNLOADONLY" ] && rm -f /root/$DLPKG 2>/dev/null
+  [ "$PASSEDPARAM" != "DOWNLOADONLY" -a "$DL_SAVE_FLAG" != "true" ] && rm -f $DLPKG 2>/dev/null
   else
    export FAIL_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
   <vbox>
@@ -295,14 +298,14 @@ if [ "$PASSEDPARAM" = "DOWNLOADONLY" -a ! -f /tmp/download_pets_quietly \
  export DL_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
   <vbox>
   <pixmap><input file>/usr/local/lib/X11/pixmaps/ok.xpm</input></pixmap>
-   <text><label>$(gettext 'Finished. The packages have been downloaded to') /root $(gettext 'directory.')</label></text>
+   <text><label>$(gettext 'Finished. The packages have been downloaded to') \"$PWD\"  $(gettext 'directory.')</label></text>
    <hbox>
     <button ok></button>
    </hbox>
   </vbox>
  </window>
 " 
- gtkdialog3 --program=DL_DIALOG
+ [ -f "$DLPKG" ] && gtkdialog --program=DL_DIALOG
 
  exit $EXITVAL
 fi
@@ -416,7 +419,7 @@ fi
   eval "$RETPARAMS"
   [ "$EXIT" != "OK" ] && exit $EXITVAL
   if [ ! -f /tmp/install_quietly ]; then
-   yaf-splash -bg orange -text "$(gettext 'Please wait, trimming fat from packages...')" &
+   /usr/lib/gtkdialog/box_splash -text "$(gettext 'Please wait, trimming fat from packages...')" &
    X4PID=$!
   fi
   elPATTERN="`echo -n "$ENTRY_LOCALE" | tr ',' '\n' | sed -e 's%^%/%' -e 's%$%/%' | tr '\n' '|'`"

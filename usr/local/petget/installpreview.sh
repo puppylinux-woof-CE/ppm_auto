@@ -31,7 +31,7 @@ export OUTPUT_CHARSET=UTF-8
 . /root/.packages/DISTRO_PKGS_SPECS
 
 if [ ! -f /tmp/install_quietly ]; then 
- yaf-splash -close never -bg orange -text "$(gettext 'Please wait, processing package database files...')" &
+ /usr/lib/gtkdialog/box_splash -close never -text "$(gettext 'Please wait, processing package database files...')" &
  X1PID=$!
 fi
 
@@ -445,7 +445,7 @@ if [ "`pidof jwm`" != "" ];then #120101
 fi
 [ "$INSTALLEDCAT" = "none" ] &&  RESTARTMSG="$(gettext 'Please wait, updating help page...')"
  if [ ! -f /tmp/install_quietly ]; then
-  yaf-splash -bg orange -text "${RESTARTMSG}" &
+  /usr/lib/gtkdialog/box_splash -text "${RESTARTMSG}" &
   X3PID=$!
  fi
 fi

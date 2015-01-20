@@ -150,16 +150,20 @@ install_package () {
   rm -f /tmp/overall_package_status_log 
   echo 0 > /tmp/petget/install_status_percent
   echo "$(gettext "Calculating total required space...")" > /tmp/petget/install_status
-  check_total_size
+  [ ! -f /root/.packages/skip_space_check ] && check_total_size
   cat /tmp/pkgs_to_install | tr ' ' '\n' > /tmp/pkgs_left_to_install
   status_bar_func &
   while read LINE; do
    REPO=$(echo $LINE | cut -f 2 -d '|')
    echo "$REPO" > /tmp/petget/current-repo-triad
    TREE1=$(echo $LINE | cut -f 1 -d '|')
-   rxvt -title "$VTTITLE... Do NOT close" \
-   -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
-   -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
+   if [ "$(cat /var/local/petget/nt_category)" = "true" ]; then
+    /usr/local/petget/installpreview.sh
+   else
+	rxvt -title "$VTTITLE... Do NOT close" \
+	 -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
+     -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
+   fi
    #---
    /usr/local/petget/finduserinstalledpkgs.sh
    sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
@@ -191,7 +195,7 @@ recalculate_sizes () {
 export -f recalculate_sizes
 
 wait_func () {
-	/usr/lib/gtkdialog/box_splash -close never -bg orange -text "$(gettext 'Please wait, calculating total required space for the installation...')" &
+	/usr/lib/gtkdialog/box_splash -close never -text "$(gettext 'Please wait, calculating total required space for the installation...')" &
 	X1PID=$!
 	recalculate_sizes
 	while true ; do

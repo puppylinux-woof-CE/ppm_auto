@@ -94,7 +94,7 @@ dependcheckfunc() {
  #entered with ex: APKGNAME=abiword-1.2.3
  
  if [ ! -f /tmp/install_quietly ]; then
-  yaf-splash -close never -bg orange -placement center -text "$(gettext 'Checking') ${APKGNAME} $(gettext 'for missing shared library files...')" &
+  /usr/lib/gtkdialog/box_splash -close never -placement center -text "$(gettext 'Checking') ${APKGNAME} $(gettext 'for missing shared library files...')" &
   X1PID=$!
  fi
  
@@ -140,7 +140,7 @@ dependcheckfunc() {
 #searches deps of all user-installed pkgs...
 missingpkgsfunc() {
  if [ ! -f /tmp/install_quietly ]; then
-  yaf-splash -close never -bg orange -text "$(gettext 'Checking all user-installed packages for any missing dependencies...')" &
+  /usr/lib/gtkdialog/box_splash -close never -text "$(gettext 'Checking all user-installed packages for any missing dependencies...')" &
   X2PID=$!
  fi
   USER_DB_dependencies="`cat /root/.packages/user-installed-packages | cut -f 9 -d '|' | tr ',' '\n' | sort -u | tr '\n' ','`"
