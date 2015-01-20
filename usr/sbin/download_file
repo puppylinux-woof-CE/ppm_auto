@@ -16,7 +16,7 @@
 #120908 revert 120220.
 #121019 extra msg if missing-url, when called from ppm (refer /usr/local/petget/downloadpkgs.sh).
 
-[ -f /tmp/install_pets_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ -f /tmp/install_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 BG='#2F2F2F'
 FG='#E3DB8B'
@@ -58,7 +58,7 @@ fi
 #test url... -t 2 means try 2 times, -T 20 means timeout in 20 seconds
 while [ 1 ];do
  echo -n "" > /tmp/download_file_spider.log1
- if [ ! -f /tmp/install_pets_quietly ]; then
+ if [ ! -f /tmp/install_quietly ]; then
   rxvt -geometry 130x10+0+0 -bg "$BG" -fg "$FG" -title "$(gettext 'Testing file exists:') ${URLSPEC}" -e tail -f /tmp/download_file_spider.log1 & #120908 restored.
   PID1=$!
  fi
@@ -71,7 +71,7 @@ Do you want to test again, or give up?')${PPM_NO_URL_MSG}" 0 0
   [ $REPLY1 -eq 0 ] && continue
   exit 1
  fi
- [ ! -f /tmp/install_pets_quietly ] && kill $PID1 || echo
+ [ ! -f /tmp/install_quietly ] && kill $PID1 || echo
  break
 done
 #LANG=C # i18n
@@ -205,7 +205,7 @@ entire file again?\"`" 0 0
  fi
 
  echo -n "" > /tmp/download_file_spider.log2
- if [ ! -f /tmp/install_pets_quietly ]; then
+ if [ ! -f /tmp/install_quietly ]; then
   rxvt -geometry 130x10+0+0 -bg "$BG" -fg "$FG" -title "$(gettext 'Downloading file:') ${URLSPEC}" -e tail -f /tmp/download_file_spider.log2 & #120908 restored.
   PID1=$!
  fi
@@ -220,7 +220,7 @@ Do you want to try again, or give up?')" 0 0
   rm -f "$FILENAME"
   exit 2
  fi
- [ ! -f /tmp/install_pets_quietly ] && kill $PID1 || echo 
+ [ ! -f /tmp/install_quietly ] && kill $PID1 || echo 
  
  #paranoid, check size of downloaded file...
  SIZEB_LOCAL=`stat --format=%s "${FILENAME}"`
@@ -232,7 +232,7 @@ Do you want to try again, or give up?')" 0 0
  break
 done
 
-[ -f /tmp/install_pets_quietly ] && echo "PACKAGE: $FILENAME" \
+[ -f /tmp/install_quietly ] && echo "PACKAGE: $FILENAME" \
  >> /tmp/overall_package_status_log
  
 exit 0

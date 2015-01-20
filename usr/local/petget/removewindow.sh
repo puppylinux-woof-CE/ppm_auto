@@ -2,12 +2,6 @@
 
 #set -x ; mkdir -p /root/LOGs; NAME=$(basename "$0"); exec 1>> /root/LOGs/"$NAME".log 2>&1
 
-# Do not allow a second instance, or simultabeous installation
-[ -f /tmp/remove_pets_quietly -o -f /tmp/install_pets_quietly ] && exit 0
-# close older window. Must be a better way...
-OLD_DIALOG=$(ps | grep REMOVE_PETS_DIALOG | grep program | cut -f 1-2 -d ' ')
-kill -9 $OLD_DIALOG
-
 export TEXTDOMAIN=petget__removewindow.sh
 export OUTPUT_CHARSET=UTF-8
 
@@ -23,7 +17,6 @@ else
 fi
 
 report_window () {
- exec 1>> /tmp/PPM_LOGs/report_window_func.log 2>&1 
  [ ! -f /tmp/remove_pets_quietly ] && exit 0
  /usr/local/petget/finduserinstalledpkgs.sh 
  sync
@@ -107,7 +100,7 @@ EOF
          <eventbox name="bg_report" space-expand="true" space-fill="true">
            <vbox margin="5" hscrollbar-policy="2" vscrollbar-policy="2" space-expand="true" space-fill="true">
              '"`/usr/lib/gtkdialog/xml_pixmap building_block.svg 32`"'
-             <text angle="90" wrap="false" yalign="0" use-markup="true" space-expand="true" space-fill="true"><label>"<big><b><span color='"'#bbb'"'>Libs</span></b></big> "</label></text>
+             <text angle="90" wrap="false" yalign="0" use-markup="true" space-expand="true" space-fill="true"><label>"<big><b><span color='"'#bbb'"'>Depends</span></b></big> "</label></text>
            </vbox>
          </eventbox>
        </hbox>
@@ -159,7 +152,7 @@ remove_package () {
  /usr/local/petget/finduserinstalledpkgs.sh
  rm -f /tmp/{pkgs_to_remove,pkgs_left_to_remove}
  report_window
- rm -f /tmp/{remove,install}_pets_quietly
+ rm -f /tmp/remove_pets_quietly
 }
 export -f remove_package
 

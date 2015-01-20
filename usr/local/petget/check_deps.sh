@@ -13,7 +13,7 @@
 #120905 vertical scrollbars, fix window too high.
 #130511 need to include devx-only-installed-packages, if loaded.
 
-[ -f /tmp/install_pets_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ -f /tmp/install_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 export TEXTDOMAIN=petget___check_deps.sh
 export OUTPUT_CHARSET=UTF-8
@@ -93,7 +93,7 @@ echo "$xPKG_NAME_IGNORE" > /tmp/petget_pkg_name_ignore_patterns
 dependcheckfunc() {
  #entered with ex: APKGNAME=abiword-1.2.3
  
- if [ ! -f /tmp/install_pets_quietly ]; then
+ if [ ! -f /tmp/install_quietly ]; then
   yaf-splash -close never -bg orange -placement center -text "$(gettext 'Checking') ${APKGNAME} $(gettext 'for missing shared library files...')" &
   X1PID=$!
  fi
@@ -134,12 +134,12 @@ dependcheckfunc() {
   done
   cp -f /tmp/missinglibs_cut.txt /tmp/missinglibs.txt
  fi
- [ ! -f /tmp/install_pets_quietly ] && kill $X1PID || echo 
+ [ ! -f /tmp/install_quietly ] && kill $X1PID || echo 
 }
 
 #searches deps of all user-installed pkgs...
 missingpkgsfunc() {
- if [ ! -f /tmp/install_pets_quietly ]; then
+ if [ ! -f /tmp/install_quietly ]; then
   yaf-splash -close never -bg orange -text "$(gettext 'Checking all user-installed packages for any missing dependencies...')" &
   X2PID=$!
  fi
@@ -147,7 +147,7 @@ missingpkgsfunc() {
   /usr/local/petget/findmissingpkgs.sh "$USER_DB_dependencies"
   #...returns /tmp/petget_installed_patterns_all, /tmp/petget_pkg_deps_patterns, /tmp/petget_missingpkgs_patterns
   MISSINGDEPS_PATTERNS="`cat /tmp/petget_missingpkgs_patterns`" #v431
-  [ ! -f /tmp/install_pets_quietly ] && kill $X2PID || echo 
+  [ ! -f /tmp/install_quietly ] && kill $X2PID || echo 
 }
 
 if [ $1 ];then
@@ -206,10 +206,8 @@ else
 fi
 
 if [ -f /tmp/install_pets_quietly ]; then
- if [ ! -f /tmp/download_pets_quietly -a ! -f /tmp/download_only_pet_quietly ]; then
-  LEFT=$(cat /tmp/pkgs_left_to_install | wc -l)
-  [ "$LEFT" -le 1 ] && missingpkgsfunc
- fi
+ LEFT=$(cat /tmp/pkgs_left_to_install | wc -l)
+ [ "$LEFT" -le 1 ] && missingpkgsfunc
 else 
  missingpkgsfunc
 fi
@@ -237,7 +235,7 @@ PKGS="$APKGNAME"
 [ $1 ] && PKGS="`echo -n "${1}" | tr '|' ' '`"
 
 #120905 vertical scrollbars, fix window too high...
-if [ ! -f /tmp/install_pets_quietly ]; then
+if [ ! -f /tmp/install_quietly ]; then
 export DEPS_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
   <vbox>
    <text><label>$(gettext 'Puppy has searched for any missing shared libraries of these packages:')</label></text>

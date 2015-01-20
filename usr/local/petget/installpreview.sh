@@ -20,7 +20,7 @@
 #120907 max frames increase 5 to 10. Note, precise puppy gave 72 deps for vlc, which would require 10 frames.
 #130511 popup warning if a dep in devx but devx not loaded.
 
-[ -f /tmp/install_pets_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ -f /tmp/install_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 export TEXTDOMAIN=petget___installpreview.sh
 export OUTPUT_CHARSET=UTF-8
@@ -30,7 +30,7 @@ export OUTPUT_CHARSET=UTF-8
 . /etc/DISTRO_SPECS #has DISTRO_BINARY_COMPAT, DISTRO_COMPAT_VERSION
 . /root/.packages/DISTRO_PKGS_SPECS
 
-if [ ! -f /tmp/install_pets_quietly ]; then 
+if [ ! -f /tmp/install_quietly ]; then 
  yaf-splash -close never -bg orange -text "$(gettext 'Please wait, processing package database files...')" &
  X1PID=$!
 fi
@@ -142,8 +142,8 @@ else
  fi 
 fi
 
-[ ! -f /tmp/install_pets_quietly ] && kill $X1PID || echo 
-if [ ! -f /tmp/install_pets_quietly ]; then
+[ ! -f /tmp/install_quietly ] && kill $X1PID || echo 
+if [ ! -f /tmp/install_quietly ]; then
 export PREVIEW_DIALOG="<window title=\"$(gettext 'Puppy Package Manager: preinstall')\" icon-name=\"gtk-about\">
 <vbox>
  <text><label>$(gettext 'You have chosen to install package') '${TREE1}'. $(gettext 'A short description of this package is:')</label></text>
@@ -426,10 +426,8 @@ fi
 [ "$PASSEDPRM" = "DOWNLOADONLY" ] && exit
 
 if [ -f /tmp/install_pets_quietly ]; then
- if [ ! -f /tmp/download_pets_quietly -a ! -f /tmp/download_only_pet_quietly ]; then
-  LEFT=$(cat /tmp/pkgs_left_to_install | wc -l)
-  [ "$LEFT" -le 1 ] && UPDATE_MENUS=yes
- fi
+ LEFT=$(cat /tmp/pkgs_left_to_install | wc -l)
+ [ "$LEFT" -le 1 ] && UPDATE_MENUS=yes
 else 
   UPDATE_MENUS=yes
 fi
@@ -446,7 +444,7 @@ if [ "`pidof jwm`" != "" ];then #120101
  fi
 fi
 [ "$INSTALLEDCAT" = "none" ] &&  RESTARTMSG="$(gettext 'Please wait, updating help page...')"
- if [ ! -f /tmp/install_pets_quietly ]; then
+ if [ ! -f /tmp/install_quietly ]; then
   yaf-splash -bg orange -text "${RESTARTMSG}" &
   X3PID=$!
  fi
@@ -484,7 +482,7 @@ if [ "$UPDATE_MENUS" = "yes" -a "$INSTALLEDCAT" != "none" ];then
   fi
  fi
 fi
-[ ! -f /tmp/install_pets_quietly ] && kill $X3PID || echo 
+[ ! -f /tmp/install_quietly ] && kill $X3PID || echo 
 
 #120905 restore...
 #120903 ubuntu, have lots pkgs installed, this takes ages. remove for now, need to rewrite in C...

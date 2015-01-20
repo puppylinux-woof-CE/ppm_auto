@@ -1,12 +1,12 @@
 #!/bin/bash
 
-#[ -f /tmp/install_pets_quietly ] && set -x ; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+#[ -f /tmp/install_quietly ] && set -x ; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 export TEXTDOMAIN=petget__reportwindow.sh
 export OUTPUT_CHARSET=UTF-8
 
 # Check if we are needed
-[ ! -f /tmp/install_pets_quietly ] && exit 0
+[ ! -f /tmp/install_quietly ] && exit 0
 
 # Info source files
 /usr/local/petget/finduserinstalledpkgs.sh #make sure...
@@ -21,6 +21,7 @@ do
   REALLY=$(ls "$DOWN_PATH"/"$LINE"*)
  else
   REALLY=$(grep $LINE /tmp/petget/installedpkgs.results)
+  [ "$(grep $LINE /tmp/pgks_failed_to_install_forced | sort | uniq )" != "" ] && REALLY=''
  fi 
  if [ "$REALLY" != "" ]; then
   echo $LINE >> /tmp/pgks_really_installed
@@ -28,6 +29,7 @@ do
   echo $LINE >> /tmp/pgks_failed_to_install
  fi
 done
+rm -f /tmp/pgks_failed_to_install_forced
 
 INSTALLED_PGKS="$(</tmp/pgks_really_installed)"
 FAILED_TO_INSTALL="$(</tmp/pgks_failed_to_install)"
@@ -131,8 +133,6 @@ RETPARAMS="`gtkdialog --center -p REPORT_DIALOG`"
 
 # Clean up
 rm -f /tmp/pkgs_to_install_done
-rm -f /tmp/download_pets_quietly 
-rm -f /tmp/download_only_pet_quietly
 rm -f /tmp/pgks_really_installed
 rm -f /tmp/pgks_failed_to_install
 rm -f /tmp/overall_petget_missingpkgs_patterns.txt

@@ -377,6 +377,7 @@ rm -f /tmp/petget_fltrd_repo_?${FIRSTCHAR}* 2>/dev/null
 
 #announce any deps that might be removable...
 echo -n "" > /tmp/petget-deps-maybe-rem
+echo -n "" > /tmp/petget-deps-maybe-remove
 cut -f 1,2,10 -d '|' /root/.packages/user-installed-packages |
 while read ONEDB
 do
@@ -384,12 +385,12 @@ do
  ONE_nameonly="`echo -n "$ONEDB" | cut -f 2 -d '|'`"
  ONE_description="`echo -n "$ONEDB" | cut -f 3 -d '|'`"
  opPATTERN='^'"$ONE_nameonly"'$'
- [ "`echo "$DEP_PKGS" | grep "$opPATTERN"`" != "" ] && echo "$ONE_pkgname DESCRIPTION: $ONE_description" >> /tmp/petget-deps-maybe-rem
+ [ "`echo "$DEP_PKGS" | grep "$opPATTERN"`" != "" ] && echo "$ONE_pkgname DESCRIPTION: $ONE_description" >> /tmp/petget-deps-maybe-rem && echo "$ONE_pkgname" >> /tmp/petget-deps-maybe-remove
 done
 EXTRAMSG=""
 if [ -s /tmp/petget-deps-maybe-rem ];then
  #nah, just list the names, not descriptions...
- MAYBEREM="`cat /tmp/petget-deps-maybe-rem | cut -f 1 -d ' ' | tr '\n' ' '`"
+ MAYBEREM="`cat /tmp/petget-deps-maybe-rem | cut -f 1 -d ' ' | tr '\n' ' '` "
  EXTRAMSG="<text><label>$(gettext 'Perhaps you do not need these dependencies that you had also installed:')</label></text> <text use-markup=\"true\"><label>\"<b>${MAYBEREM}</b>\"</label></text><text><label>$(gettext "...if you do want to remove them, you will have to do so back on the main window, after clicking the 'Ok' button below (perhaps make a note of the package names on a scrap of paper right now)")</label></text>"
 fi
 
@@ -410,7 +411,7 @@ if [ ! -f /tmp/remove_pets_quietly ]; then
   gtkdialog -p REM_DIALOG
  fi
 elif [ -s /tmp/petget-deps-maybe-rem ];then
- for MAYBEREM in $(cat /tmp/petget-deps-maybe-rem)
+ for MAYBEREM in $(cat /tmp/petget-deps-maybe-remove)
  do
    [ "$(grep $MAYBEREM /tmp/pkgs_to_remove)" = "" ] \
     && echo $MAYBEREM >> /tmp/overall_petget-deps-maybe-rem

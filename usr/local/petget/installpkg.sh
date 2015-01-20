@@ -51,7 +51,7 @@
 #130314 install arch linux pkgs. run arch linux pkg post-install script.
 #131122 support xz compressed pets (see dir2pet, pet2tgz), changed file test
 
-[ -f /tmp/install_pets_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ -f /tmp/install_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 export TEXTDOMAIN=petget___installpkg.sh
 export OUTPUT_CHARSET=UTF-8
@@ -122,12 +122,12 @@ DLPKG_NAME="`cat /tmp/petget_missing_dbentries-Packages-* | grep "$dbPATTERN" | 
 
 #131222 do not allow duplicate installs...
 PTN1='^'"$DLPKG_NAME"'|'
-if [ "`grep "$PTN1" /root/.packages/user-installed-packages`" != "" -a \
- ! -f /tmp/install_pets_quietly ];then
+if [ "`grep "$PTN1" /root/.packages/user-installed-packages`" != "" ];then
  if [ ! $DISPLAY ];then
   echo "$(gettext 'Sorry, this package is already installed. Aborting.')"
  else
   pupmessage -bg '#ff8080' -fg black -title "$(gettext 'Package:') ${DLPKG_NAME}" "$(gettext 'Sorry, but this package is already installed. Cannot install it twice.')"
+  echo ${DLPKG_NAME} >> /tmp/pgks_failed_to_install_forced
  fi
  exit 1
 fi
@@ -192,7 +192,7 @@ elif [ $PUPMODE -eq 3 -o $PUPMODE -eq 7 -o $PUPMODE -eq 13 ];then
   fi
 fi
 
-if [ $DISPLAY -a ! -f /tmp/install_pets_quietly ];then #131222
+if [ $DISPLAY -a ! -f /tmp/install_quietly ];then #131222
  yaf-splash -bg orange -fg black -close never -fontsize large -text "$(gettext 'Please wait, processing...')" &
  YAFPID1=$!
  trap 'pupkill $YAFPID1' EXIT #140318

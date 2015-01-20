@@ -34,7 +34,7 @@
 #121102 Packages-puppy-${DISTRO_FILE_PREFIX}- (or Packages-puppy-${DISTRO_COMPAT_VERSION}-) is now Packages-puppy-${DISTRO_DB_SUBNAME}-. refer /etc/DISTRO_SPECS.
 #130511 vercmp failed this test: if vercmp 2.2.1 ge 2.2~2011week36; then echo 'greater'; fi -- have solved this in woof, support debdb2pupdb.bac
 
-[ -f /tmp/install_pets_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ -f /tmp/install_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 export TEXTDOMAIN=petget___dependencies.sh
 export OUTPUT_CHARSET=UTF-8
@@ -57,7 +57,7 @@ fi
 #databases have all dependencies up-front, whereas some only list the higher-level
 #dependencies and the dependencies of those have to be looked for.
 
-if [ ! -f /tmp/install_pets_quietly ];then
+if [ ! -f /tmp/install_quietly ];then
  yaf-splash -bg orange -close never -text "$(gettext 'Please wait, processing package database files...')" &
  X1PID=$!
 fi
@@ -108,7 +108,7 @@ echo "$(gettext 'HIERARCHY OF MISSING DEPENDENCIES OF PACKAGE') $TREE1" > /tmp/p
 echo "$(gettext "Format of each line: 'a-missing-dependent-pkg: missing dependencies of a-missing-dependent-pkg'")" >> /tmp/petget_deps_visualtreelog #w017
 for ONELEVEL in 1 2 3 4 5 6 7 8 9 10 11
 do
- if [ ! -f /tmp/install_pets_quietly ]; then 
+ if [ ! -f /tmp/install_quietly ]; then 
   [ $ONELEVEL -gt 1 ] && pupkill $XXPID #120907
   /usr/lib/gtkdialog/box_splash -placement top -close never -fontsize large -text "$(gettext 'Number of missing dependencies:') ${SIZE2}" & #120907
   XXPID=$!
@@ -161,7 +161,7 @@ do
  SIZE2=$(cat /tmp/petget_missingpkgs_patterns_acc | wc -l)
  [ $SIZE1 -eq $SIZE2 ] && break
 done
-[ ! -f /tmp/install_pets_quietly ] && pupkill $XXPID
+[ ! -f /tmp/install_quietly ] && pupkill $XXPID
 
 #120903 bring back the versioning info from level1 (/tmp/petget_missingpkgs_patterns_with_versioning is created in findmissingpkgs.sh)...
 #restore the format ex |abiword|gt3.4| becomes |abiword&gt3.4| ...
@@ -232,7 +232,7 @@ do
  fi
 done
 
-[ ! -f /tmp/install_pets_quietly ] && kill $X1PID || exit 0 
+[ ! -f /tmp/install_quietly ] && kill $X1PID || exit 0 
 
 ###END###
 

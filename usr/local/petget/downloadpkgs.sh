@@ -27,7 +27,7 @@
 #121123 first test that all pkgs exist online before downloading any.
 #121130 fix 121123.
 
-[ -f /tmp/install_pets_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ -f /tmp/install_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 export TEXTDOMAIN=petget___downloadpkgs.sh
 export OUTPUT_CHARSET=UTF-8
@@ -104,7 +104,7 @@ do
  [ "$PKGNAMES" = "" -o "$PKGNAMES" = " " ] && continue #100921
   
  #120907 scrollbar...
-if [ ! -f /tmp/install_pets_quietly ]; then
+if [ ! -f /tmp/install_quietly ]; then
  export DEPS_DIALOG="<window title=\"$(gettext 'Puppy Package Manager: download')\" icon-name=\"gtk-about\">
 <vbox>
  <text><label>$(gettext 'You have chosen to download these packages:')</label></text>
@@ -171,7 +171,7 @@ fi
  cd /root
  
  #121123 first test that they all exist online...
- if [ ! -f /tmp/install_pets_quietly ];then
+ if [ ! -f /tmp/install_quietly ];then
   yaf-splash -bg '#FFD600' -close never -fontsize large -text "$(gettext 'Please wait, testing that packages exist in repository...')" &
   testPID=$!
  fi
@@ -201,7 +201,7 @@ fi
    fi
   fi 
  done
- [ ! -f /tmp/install_pets_quietly ] && pupkill $testPID || echo
+ [ ! -f /tmp/install_quietly ] && pupkill $testPID || echo
  if [ "$DL_BAD_LIST" ];then
   BADMSG1="$(gettext 'Unfortunately, these packages are not available:')"
   BADMSG2="$(gettext "It may be that the local package database needs to be updated. In some cases, the packages in the online package repository change, so you may be trying to download a package that no longer exists.")"
@@ -310,7 +310,7 @@ fi
 #announce summary of successfully installed pkgs...
 #installpkg.sh will have logged to /tmp/petget-installed-pkgs-log
 if [ -s /tmp/petget-installed-pkgs-log ];then
- [ -f /tmp/install_pets_quietly ] && FLAGPET='yes'
+ [ -f /tmp/install_quietly ] && FLAGPET='yes'
  if [ "$FLAGPET" != "yes" ];then #101016 do not offer to trim-the-fat if pet pkg(s)
   BUTTONS9="<text><label>$(gettext "NOTE: If you are concerned about the large size of the installed packages, Puppy has some clever code to delete files that are not likely to be needed for the application to actually run. If you would like to try this, click 'Trim the fat' button (otherwise just click 'OK'):")</label></text>
    <hbox>
@@ -364,7 +364,7 @@ if [ -s /tmp/petget-installed-pkgs-log ];then
  CAT_MSG="$(gettext 'Note: the package(s) do not have a menu entry.')"
  [ "`echo "$INSTALLEDMSG" | grep -o 'CATEGORY.*' | grep -v 'none'`" != "" ] && CAT_MSG="$(gettext '...look in the appropriate category in the menu (bottom-left of screen) to run the application. Note, some packages do not have a menu entry.')" #424 fix. 101016 fix.
  #120904 vertical scrollbar...
-if [ ! -f /tmp/install_pets_quietly ]; then
+if [ ! -f /tmp/install_quietly ]; then
  export INSTALL_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
   <vbox>
    <pixmap><input file>/usr/local/lib/X11/pixmaps/ok.xpm</input></pixmap>
@@ -415,7 +415,7 @@ fi
   RETPARAMS="`gtkdialog3 --program=TRIM_DIALOG`"
   eval "$RETPARAMS"
   [ "$EXIT" != "OK" ] && exit $EXITVAL
-  if [ ! -f /tmp/install_pets_quietly ]; then
+  if [ ! -f /tmp/install_quietly ]; then
    yaf-splash -bg orange -text "$(gettext 'Please wait, trimming fat from packages...')" &
    X4PID=$!
   fi
@@ -462,7 +462,7 @@ fi
     fi
    done
   done
-  [ ! -f /tmp/install_pets_quietly ] && kill $X4PID || echo 
+  [ ! -f /tmp/install_quietly ] && kill $X4PID || echo 
  fi
 
 fi

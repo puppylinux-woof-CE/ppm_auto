@@ -6,15 +6,27 @@ export OUTPUT_CHARSET=UTF-8
 [ "`whoami`" != "root" ] && exec sudo -A ${0} ${@} #110505
 
 clean_up () {
+ if [ "$(ls /tmp/*_pet{,s}_quietly /tmp/install_classic |wc -l)" -eq 1 ]; then
+  for MODE in $(ls /tmp/*_pet{,s}_quietly /tmp/install_classic)
+  do
+   mv $MODE $MODE.bak
+  done
+ fi
+ mv /tmp/install_quietly /tmp/install_quietly.bak
  echo -n > /tmp/pkgs_to_install
- rm -f /tmp/{install,remove}_pets_quietly
+ rm -f /tmp/{install,remove}{,_pets}_quietly
+ rm -f /tmp/install_classic
  rm -f /tmp/download_pets_quietly
  rm -f /tmp/download_only_pet_quietly
  rm -f /tmp/pkgs_left_to_install
  rm -f /tmp/pkgs_to_install_done
  rm -f /tmp/overall_pkg_size*
  rm -f /tmp/overall_dependencies
+ rm -f /tmp/mode_changed
+ rm -f /tmp/force*_install
  rm -rf /tmp/PPM_LOGs/
+ mv $MODE.bak $MODE
+ mv /tmp/install_quietly.bak /tmp/install_quietly
 }
 export -f clean_up
 
@@ -86,17 +98,31 @@ check_total_size () {
   </vbox>
   </window>'
   gtkdialog --center -p PPM_error
-  echo "" > /tmp/petget/install_status
   killall yaf-splash
-  if [ -f /tmp/install_pets_quietly -o -f /tmp/download_pets_quietly \
-   -o -f /tmp/download_only_pet_quietly ]; then
+  if [ ! -f /tmp/install_classic ]; then
+   echo "" > /tmp/petget/install_status
    echo 0 > /tmp/petget/install_status_percent
+   if [ "$(ls /tmp/*_pet{,s}_quietly /tmp/install_classic |wc -l)" -eq 1 ]; then
+	for MODE in $(ls /tmp/*_pet{,s}_quietly /tmp/install_classic)
+	do
+	 mv $MODE $MODE.bak
+	done
+   fi
    clean_up
+   mv $MODE.bak $MODE
   else
    . /usr/lib/gtkdialog/box_yesno "$(gettext 'Last warning')" "$NEEDEDK $(gettext 'of the ') $AVAILABLE $(gettext ' available MB will be used to install the package(s) you selected.')" "<b>$(gettext 'It is NOT sufficent. Please exit now.')</b>"  "$(gettext 'However, if you are sure about the spep-by-step process, take a risk.')" "$(gettext 'Do you want to cancel installation?')"
-   if ["$EXIT" = "yes" ]; then
+   if [ "$EXIT" = "yes" ]; then
     echo 0 > /tmp/petget/install_status_percent
+    echo "" > /tmp/petget/install_status
+    if [ "$(ls /tmp/*_pet{,s}_quietly /tmp/install_classic |wc -l)" -eq 1 ]; then
+	 for MODE in $(ls /tmp/*_pet{,s}_quietly /tmp/install_classic)
+	 do
+	  mv $MODE $MODE.bak
+	 done
+    fi
     clean_up
+    mv $MODE.bak $MODE
    else
     echo "good luck"
    fi
@@ -120,7 +146,7 @@ export -f status_bar_func
  
 install_package () {
  [ "$(cat /tmp/pkgs_to_install)" = "" ] && exit 0
- if [ -f /tmp/install_pets_quietly ]; then
+ if [ -f /tmp/install_pets_quietly -o -f /tmp/install_quietly ]; then
   rm -f /tmp/overall_package_status_log 
   echo 0 > /tmp/petget/install_status_percent
   echo "$(gettext "Calculating total required space...")" > /tmp/petget/install_status
@@ -151,7 +177,6 @@ install_package () {
 export -f install_package
 
 recalculate_sizes () {
-	exec 1>> /tmp/PPM_LOGs/recalculate_sizes_func.log 2>&1
 	if [ "$(grep changed /tmp/mode_changed)" != "" ]; then
 		rm -f /tmp/overall_*
 		for LINE in $(cat /tmp/pkgs_to_install)
@@ -179,15 +204,16 @@ export -f wait_func
 
 case "$1" in
 	check_total_size)
-		touch /tmp/install_pets_quietly #avoid splashes
+		touch /tmp/install_quietly #avoid splashes
 		check_total_size
-#		rm /tmp/install_pets_quietly
 		;;
 	"$(gettext 'Auto install')")
 		wait_func
 		rm -f /tmp/install_pets_quietly
+		rm -f /tmp/install_classic 2>/dev/null
 		rm -f /tmp/download_pets_quietly 2>/dev/null
 		rm -f /tmp/download_only_pet_quietly 2>/dev/null
+		touch /tmp/install_quietly
 		touch /tmp/install_pets_quietly
 		cp -a /tmp/pkgs_to_install /tmp/pkgs_to_install_done
 		VTTITLE=Installing
@@ -198,9 +224,10 @@ case "$1" in
 	"$(gettext 'Download packages (no install)')")
 		wait_func
 		rm -f /tmp/install_pets_quietly
+		rm -f /tmp/install_classic 2>/dev/null
 		rm -f /tmp/download_pets_quietly 2>/dev/null
 		rm -f /tmp/download_only_pet_quietly 2>/dev/null
-		touch /tmp/install_pets_quietly
+		touch /tmp/install_quietly
 		touch /tmp/download_only_pet_quietly 
 		cp -a /tmp/pkgs_to_install /tmp/pkgs_to_install_done
 		VTTITLE=Downloading
@@ -211,9 +238,10 @@ case "$1" in
 	"$(gettext 'Download all (packages and dependencies)')")
 		wait_func
 		rm -f /tmp/install_pets_quietly
+		rm -f /tmp/install_classic 2>/dev/null
 		rm -f /tmp/download_pets_quietly 2>/dev/null
 		rm -f /tmp/download_only_pet_quietly 2>/dev/null
-		touch /tmp/install_pets_quietly
+		touch /tmp/install_quietly
 		touch /tmp/download_pets_quietly 
 		cp -a /tmp/pkgs_to_install /tmp/pkgs_to_install_done
 		VTTITLE=Downloading
@@ -222,9 +250,11 @@ case "$1" in
 		unset VTTITLE
 		;;
 	"$(gettext 'Step by step installation (classic mode)')")
-		rm -f /tmp/install_pets_quietly
+		wait_func
+		rm -f /tmp/install{,_pets}_quietly
 		rm -f /tmp/download_pets_quietly 2>/dev/null
 		rm -f /tmp/download_only_pet_quietly 2>/dev/null
+		touch /tmp/install_classic
 		install_package
 		;;
 esac
