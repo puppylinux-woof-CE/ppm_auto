@@ -41,33 +41,38 @@ entryPATTERN4="`echo -n "$ENTRY1" | sed -e 's%\\-%\\\\-%g' -e 's%\\.%\\\\.%g' -e
 CURRENTREPO="`cat /tmp/petget/current-repo-triad`" #search here first.
 ALLACTIVEREPOS="`cat /tmp/petget_active_repo_list`"
 
-#120504 ask which repos...
-export ASKREPO_DIALOG="<window title=\"$(gettext 'PPM: search')\" icon-name=\"gtk-about\">
-<vbox>
- <frame $(gettext 'Search only current repository')>
-  <hbox>
-   <text><label>\"${CURRENTREPO}\"</label></text>
-   <vbox>
-    <button><label>$(gettext 'Search')</label><action type=\"exit\">BUTTON_SEARCH_CURRENT</action></button>
-   </vbox>
-  </hbox>
- </frame>
- <frame $(gettext 'Search all repositories')>
-  <hbox>
-   <text><label>\"${ALLACTIVEREPOS}\"</label></text>
-   <vbox>
-    <button><label>$(gettext 'Search')</label><action type=\"exit\">BUTTON_SEARCH_ALL</action></button>
-   </vbox>
-  </hbox>
- </frame>
-</vbox>
-</window>
-"
-RETPARAMS="`gtkdialog4 --center --program=ASKREPO_DIALOG`"
-eval "$RETPARAMS"
-[ "$EXIT" != "BUTTON_SEARCH_CURRENT" -a "$EXIT" != "BUTTON_SEARCH_ALL" ] && exit
-SEARCH_REPOS_FLAG="current"
-[ "$EXIT" = "BUTTON_SEARCH_ALL" ] && SEARCH_REPOS_FLAG="all"
+if [ "`grep -E "all|current" <<< "$1"`" ]; then #ui_ziggy has already set search repo
+	SEARCH_REPOS_FLAG=$1
+else
+	#120504 ask which repos...
+	export ASKREPO_DIALOG="<window title=\"$(gettext 'PPM: search')\" icon-name=\"gtk-about\">
+	<vbox>
+	  <frame $(gettext 'Search only current repository')>
+	    <hbox>
+	      <text><label>\"${CURRENTREPO}\"</label></text>
+	      <vbox>
+	        <button><label>$(gettext 'Search')</label><action type=\"exit\">BUTTON_SEARCH_CURRENT</action></button>
+	      </vbox>
+	    </hbox>
+	  </frame>
+	  <frame $(gettext 'Search all repositories')>
+	    <hbox>
+	      <text><label>\"${ALLACTIVEREPOS}\"</label></text>
+	      <vbox>
+	        <button><label>$(gettext 'Search')</label><action type=\"exit\">BUTTON_SEARCH_ALL</action></button>
+	      </vbox>
+	    </hbox>
+	  </frame>
+	</vbox>
+	</window>
+	"
+	RETPARAMS="`gtkdialog4 --center --program=ASKREPO_DIALOG`"
+	eval "$RETPARAMS"
+	[ "$EXIT" != "BUTTON_SEARCH_CURRENT" -a "$EXIT" != "BUTTON_SEARCH_ALL" ] && exit
+
+	SEARCH_REPOS_FLAG="current"
+	[ "$EXIT" = "BUTTON_SEARCH_ALL" ] && SEARCH_REPOS_FLAG="all"
+fi 
 
 if [ "$SEARCH_REPOS_FLAG" = "current" ];then #120504
  REPOLIST="$CURRENTREPO"

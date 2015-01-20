@@ -1,3 +1,4 @@
+#!/bin/bash
 #alternate user interface designed by zigbert.
 #120203 rodin.s: internationalized.
 #120224 more gettext's required. icons were missing.
@@ -14,231 +15,332 @@
 export TEXTDOMAIN=petget___ui_Ziggy
 export OUTPUT_CHARSET=UTF-8
 
-ALLITEM='' ; ALLSTOCK='' ; CATHEIGHT='100' ; WINHEIGHT='380'
+echo -n > /tmp/pkgs_to_install
+echo 0 > /tmp/petget/install_status_percent
+echo "" > /tmp/petget/install_status
+
+ALLITEM='' ; ALLSTOCK='' ; CATHEIGHT='100' ; WINHEIGHT='420'
 if [ "$ALLCATEGORY" != "" ];then
- ALLITEM="<item stock=\"gtk-ALL\">$(gettext 'ALL')</item>"
+ ALLITEM="<item stock=\"gtk-ALL\">$(gettext 'All')|All</item>"
  ALLSTOCK='stock["gtk-ALL"] = {{ "pet24.png", *, *, *}}'
  CATHEIGHT='112'
- WINHEIGHT='388'
+ WINHEIGHT='428'
 fi
 
 touch /var/local/petget/bb_category
 if [ "`cat /var/local/petget/bb_category`" = "true" ]; then
-  BBITEM="<item stock=\"gtk-BB\">$(gettext 'BuildingBlock')</item>"
+  BBITEM="<item stock=\"gtk-BB\">$(gettext 'BuildingBlock')|BuildingBlock</item>"
 else
   BBITEM=""
 fi
-
-APPICONXMLINSERT=' icon-column="1"' #120811 each line is format: abiword0-1.2.3|subcategory|description of abiword|stuff
 
 #120224 handle translated help.htm
 LANG1="${LANG%_*}" #ex: de
 HELPFILE="/usr/local/petget/help.htm"
 [ -f /usr/local/petget/help-${LANG1}.htm ] && HELPFILE="/usr/local/petget/help-${LANG1}.htm"
 
-#120225 fix translated categories...
-CATTRANSTABLE="Desktop:$(gettext 'Desktop') 
-System:$(gettext 'System')
-Setup:$(gettext 'Setup')
-Utility:$(gettext 'Utility')
-Filesystem:$(gettext 'Filesystem')
-Graphic:$(gettext 'Graphic')
-Document:$(gettext 'Document')
-Business:$(gettext 'Business')
-Personal:$(gettext 'Personal')
-Network:$(gettext 'Network')
-Internet:$(gettext 'Internet')
-Multimedia:$(gettext 'Multimedia')
-Fun:$(gettext 'Fun')
-BuildingBlock:$(gettext 'BuildingBlock')
-ALL:$(gettext 'ALL')"
-echo "#!/bin/sh
-CATTRANSTABLE='${CATTRANSTABLE}'" > /tmp/ppm-ui-ziggy-fix
-echo 'CATEGORY="`echo "$CATTRANSTABLE" | grep "$1" | head -n 1 | cut -f 1 -d ':'`"
-[ ! "$CATEGORY" ] && CATEGORY="Desktop"
-echo "$CATEGORY"
-' >> /tmp/ppm-ui-ziggy-fix
-chmod 755 /tmp/ppm-ui-ziggy-fix
-
 DEFGUIFILTER="$(cat /var/local/petget/gui_filter)" #130330 see pkg_chooser.sh, and below.
 
+
+kill_check (){
+	TMP="`ps -eo pid,command`"
+	for I in `grep -F findmissingpkgs <<< "$TMP" | awk '{print $1}' `; do kill -9 $I; done
+	for I in `grep -F dependencies <<< "$TMP" | awk '{print $1}' `; do kill -9 $I; done
+	for I in `grep -F check_total_size <<< "$TMP" | grep -vF rxvt | awk '{print $1}' `; do kill -9 $I; done
+	for I in `grep -F installed_size_preview <<< "$TMP" | awk '{print $1}' `; do kill -9 $I; done
+}
+
+add_item (){
+	kill_check
+	[ ! "$(grep -F $TREE1 /tmp/pkgs_to_install)" ] && echo "$(grep -F $TREE1 /tmp/petget/filterpkgs.results.post)" >> /tmp/pkgs_to_install
+	/usr/local/petget/installwindow.sh check_total_size &
+}
+
+remove_item (){
+	kill_check
+	if [ "$TREE_INSTALL" ]; then
+		grep -v "$TREE_INSTALL" /tmp/pkgs_to_install > /tmp/pkgs_to_install2
+		mv -f /tmp/pkgs_to_install2 /tmp/pkgs_to_install
+	fi
+	touch /tmp/install_pets_quietly #avoid splashes
+	/usr/local/petget/installwindow.sh check_total_size &
+}
+export -f kill_check add_item remove_item
+
+
 #130330 $GUIONLYSTR $ANYTYPESTR are exported from pkg_chooser.sh.  130331 also $GUIEXCSTR $NONGUISTR
-export MAIN_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\" default_height=\"${WINHEIGHT}\" default_width=\"680\">
-<hbox>
- <vbox>
-  <hbox>
-   <button tooltip-text=\"$(gettext 'Uninstall packages')\">
-    <label>$(gettext 'Uninstall')</label>
-    <input file icon=\"mini-trash\"></input>
-    <action>launch:INSTALLED_DIALOG</action>
-   </button>
-   <button tooltip-text=\"$(gettext 'Configure package manager')\">
-    <input file stock=\"gtk-preferences\"></input>
-    <action>/usr/local/petget/configure.sh</action>
-    <action>/usr/local/petget/filterpkgs.sh</action>
-    <action>refresh:TREE1</action>
-   </button>
-   <button tooltip-text=\"$(gettext 'Help')\">
-    <input file stock=\"gtk-help\"></input>
-    <action>defaulthtmlviewer file://${HELPFILE} & </action>
-   </button>
-   <button type=\"exit\"  tooltip-text=\"$(gettext 'Quit package manager')\">
-    <input file stock=\"gtk-quit\"></input>
-   </button>
-   </hbox>
+export MAIN_DIALOG='<window title="'$(gettext 'Puppy Package Manager')'" width-request="750" icon-name="gtk-about" default_height="'${WINHEIGHT}'">
+<vbox space-expand="true" space-fill="true">
+  <vbox space-expand="true" space-fill="true">
+    <vbox space-expand="false" space-fill="false">
+      <hbox spacing="1" space-expand="true" space-fill="true">
+        <button tooltip-text="'$(gettext 'Quit package manager')'" space-expand="false" space-fill="false">
+          '"`/usr/lib/gtkdialog/xml_button-icon quit`"'
+          <action>exit:EXIT</action>
+        </button>
+        <button tooltip-text="'$(gettext 'Help')'" space-expand="false" space-fill="false">
+          '"`/usr/lib/gtkdialog/xml_button-icon help`"'
+          <action>defaulthtmlviewer file://'${HELPFILE}' & </action>
+        </button>
+        <button tooltip-text="'$(gettext 'Configure package manager')'" space-expand="false" space-fill="false">
+          '"`/usr/lib/gtkdialog/xml_button-icon preferences`"'
+          <action>/usr/local/petget/configure.sh</action>
+          <action>/usr/local/petget/filterpkgs.sh</action>
+          <action>refresh:TREE1</action>
+        </button>
+        <button tooltip-text="'$(gettext 'Uninstall packages')'" space-expand="false" space-fill="false">
+          <label>" '$(gettext 'Uninstall')' "</label>
+          '"`/usr/lib/gtkdialog/xml_button-icon package_remove`"'
+          <action>launch:INSTALLED_DIALOG</action>
+        </button>
+      
+        <text space-expand="true" space-fill="true"><label>""</label></text>
 
+        <entry width-request="80" activates-default="true" is-focus="true" secondary-icon-stock="gtk-find">
+          <variable>ENTRY1</variable>
+          <action signal="activate">/usr/local/petget/findnames.sh all</action>
+          <action signal="activate">refresh:TREE1</action>
+          <action signal="activate">/usr/local/petget/show_installed_version_diffs.sh & </action>
+          <action signal="secondary-icon-release">/usr/local/petget/findnames.sh all</action>
+          <action signal="secondary-icon-release">refresh:TREE1</action>
+          <action signal="secondary-icon-release">/usr/local/petget/show_installed_version_diffs.sh & </action>
+        </entry>
+      
+        <text space-expand="true" space-fill="true"><label>""</label></text>
 
- <frame $(gettext 'Repositories')>
-  <vbox scrollable=\"true\">
-   ${DB_ORDERED}
-   <height>128</height>
-  </vbox>
- </frame>
- 
-   
- <frame $(gettext 'Package types')>
- <hbox>
-  <vbox>
-   <checkbox>
-    <default>${DEF_CHK_EXE}</default>
-    <label>EXE</label>
-    <variable>CHK_EXE</variable>
-    <action>/usr/local/petget/postfilterpkgs.sh EXE \$CHK_EXE</action>
-    <action>refresh:TREE1</action>
-   </checkbox>
-   <checkbox>
-    <default>${DEF_CHK_DEV}</default>
-    <label>DEV</label>
-    <variable>CHK_DEV</variable>
-    <action>/usr/local/petget/postfilterpkgs.sh DEV \$CHK_DEV</action>
-    <action>refresh:TREE1</action>
-   </checkbox>
-   <checkbox>
-    <default>${DEF_CHK_DOC}</default>
-    <label>DOC</label>
-    <variable>CHK_DOC</variable>
-    <action>/usr/local/petget/postfilterpkgs.sh DOC \$CHK_DOC</action>
-    <action>refresh:TREE1</action>
-   </checkbox>
-   <checkbox>
-    <default>${DEF_CHK_NLS}</default>
-    <label>NLS</label>
-    <variable>CHK_NLS</variable>
-    <action>/usr/local/petget/postfilterpkgs.sh NLS \$CHK_NLS</action>
-    <action>refresh:TREE1</action>
-   </checkbox>
-  </vbox>
-  <vbox>
-   <comboboxtext width-request=\"140\">
-    <variable>FILTERCOMBOBOX</variable>
-    <default>$DEFGUIFILTER</default>
-    <item>$ANYTYPESTR</item>
-    <item>$GUIONLYSTR</item>
-    <item>GTK+2 $GUIONLYSTR</item>
-    <item>GTK+3 $GUIONLYSTR</item>
-    <item>Qt4 $GUIONLYSTR</item>
-    <item>Qt4 $GUIEXCSTR KDE</item>
-    <item>Qt5 $GUIONLYSTR</item>
-    <item>Qt5 $GUIEXCSTR KDE</item>
-    <item>$NONGUISTR</item>
-    <action>echo -n \"\$FILTERCOMBOBOX\" > /var/local/petget/gui_filter</action>
-    <action>/usr/local/petget/filterpkgs.sh</action>
-    <action>refresh:TREE1</action>
-   </comboboxtext>
-  </vbox>
- </hbox> 
- </frame>
+        <hbox space-expand="false" space-fill="false">
+          <comboboxtext width-request="150" space-expand="false" space-fill="false">
+            <variable>INSTALL_MODE</variable>
+            <item>'$(gettext 'Auto install')'</item>
+            <item>'$(gettext 'Step by step installation (classic mode)')'</item>
+            <item>'$(gettext 'Download packages (no install)')'</item>
+            <item>'$(gettext 'Download all (packages and dependencies)')'</item>
+          </comboboxtext>
+          <button space-expand="false" space-fill="false">
+            '"`/usr/lib/gtkdialog/xml_button-icon package_add`"'
+            <label>" '$(gettext 'Install')' "</label>
+            <action>kill_check</action>
+            <action>disable:VBOX_MAIN</action>
+            <action>cut -d"|" -f1,4 /tmp/pkgs_to_install > /tmp/pkgs_to_install_tmp; mv -f /tmp/pkgs_to_install_tmp /tmp/pkgs_to_install</action>
+            <action>/usr/local/petget/installwindow.sh "$INSTALL_MODE" &</action>
+          </button> 
+          <sensitive>false</sensitive>
+          <variable>HBOX_INSTALL</variable>
+        </hbox>
+      </hbox>
+    </vbox>
 
-  <hbox width-request=\"100\">
-   <text><label>$(gettext 'Find:')</label></text>
-   <entry activates-default=\"true\">
-    <variable>ENTRY1</variable>
-   </entry>
-   <button can-default=\"true\" has-default=\"true\" use-stock=\"true\">
-    <label>$(gettext 'Go')</label>
-    <action>/usr/local/petget/findnames.sh</action>
-    <action>refresh:TREE1</action>
-    <action>/usr/local/petget/show_installed_version_diffs.sh & </action>
-   </button>
+    <hbox space-expand="true" space-fill="true">
+      <hbox space-expand="false" space-fill="false">
+        <vbox space-expand="true" space-fill="true">
+          <frame '$(gettext 'Repositories')'>
+            <vbox scrollable="true" shadow-type="0" hscrollbar-policy="2" space-expand="true" space-fill="true">
+              '${DB_ORDERED}'
+              <text height-request="1" space-expand="true" space-fill="true"><label>""</label></text>
+              <height>128</height>
+              <width>50</width>
+            </vbox>
+          </frame>
+          <vbox space-expand="false" space-fill="false">
+            <frame '$(gettext 'package types')'>
+              <hbox>
+                <vbox>
+                  <checkbox>
+                    <default>'${DEF_CHK_EXE}'</default>
+                    <label>EXE</label>
+                    <variable>CHK_EXE</variable>
+                    <action>/usr/local/petget/postfilterpkgs.sh EXE $CHK_EXE</action>
+                    <action>refresh:TREE1</action>
+                  </checkbox>
+                  <checkbox>
+                    <default>'${DEF_CHK_DEV}'</default>
+                    <label>DEV</label>
+                    <variable>CHK_DEV</variable>
+                    <action>/usr/local/petget/postfilterpkgs.sh DEV $CHK_DEV</action>
+                    <action>refresh:TREE1</action>
+                  </checkbox>
+                  <checkbox>
+                    <default>'${DEF_CHK_DOC}'</default>
+                    <label>DOC</label>
+                    <variable>CHK_DOC</variable>
+                    <action>/usr/local/petget/postfilterpkgs.sh DOC $CHK_DOC</action>
+                    <action>refresh:TREE1</action>
+                  </checkbox>
+                  <checkbox>
+                    <default>'${DEF_CHK_NLS}'</default>
+                    <label>NLS</label>
+                    <variable>CHK_NLS</variable>
+                    <action>/usr/local/petget/postfilterpkgs.sh NLS $CHK_NLS</action>
+                    <action>refresh:TREE1</action>
+                  </checkbox>
+                </vbox>
+                <hbox space-expand="true" space-fill="true">
+                  <vbox space-expand="false" space-fill="false">
+                    <comboboxtext width-request="120">
+                      <variable>FILTERCOMBOBOX</variable>
+                      <default>'$DEFGUIFILTER'</default>
+                      <item>'$ANYTYPESTR'</item>
+                      <item>'$GUIONLYSTR'</item>
+                      <item>GTK+2 '$GUIONLYSTR'</item>
+                      <item>GTK+3 '$GUIONLYSTR'</item>
+                      <item>Qt4 '$GUIONLYSTR'</item>
+                      <item>Qt4 '$GUIEXCSTR' KDE</item>
+                      <item>Qt5 '$GUIONLYSTR'</item>
+                      <item>Qt5 '$GUIEXCSTR' KDE</item>
+                      <item>'$NONGUISTR'</item>
+                      <action>echo -n "$FILTERCOMBOBOX" > /var/local/petget/gui_filter</action>
+                      <action>/usr/local/petget/filterpkgs.sh</action>
+                      <action>refresh:TREE1</action>
+                    </comboboxtext>
+                  </vbox>
+                </hbox>
+              </hbox>
+            </frame>
+          </vbox>
+        </vbox>  
+      </hbox>
+
+      <vbox space-expand="true" space-fill="true">
+        <hbox spacing="1" space-expand="true" space-fill="true">
+          <hbox space-expand="false" space-fill="false">
+            <tree name="category" selected-row="0" exported_column="1" column-visible="true|false" space-expand="false" space-fill="false">
+              <label>'$(gettext 'Category')'|command</label>
+              <variable>CATEGORY</variable>
+              <item stock="gtk-Desktop">'$(gettext 'Desktop')'|Desktop</item>
+              <item stock="gtk-System">'$(gettext 'System')'|System</item>
+              <item stock="gtk-Setup">'$(gettext 'Setup')'|Setup</item>
+              <item stock="gtk-Utility">'$(gettext 'Utility')'|Utility</item>
+              <item stock="gtk-Filesystem">'$(gettext 'Filesystem')'|Filesystem</item>
+              <item stock="gtk-Graphic">'$(gettext 'Graphic')'|Graphic</item>
+              <item stock="gtk-Document">'$(gettext 'Document')'|Document</item>
+              <item stock="gtk-Business">'$(gettext 'Business')'|Business</item>
+              <item stock="gtk-Personal">'$(gettext 'Personal')'|Personal</item>
+              <item stock="gtk-Network">'$(gettext 'Network')'|Network</item>
+              <item stock="gtk-Internet">'$(gettext 'Internet')'|Internet</item>
+              <item stock="gtk-Multimedia">'$(gettext 'Multimedia')'|Multimedia</item>
+              <item stock="gtk-Fun">'$(gettext 'Fun')'|Fun</item>
+              '${BBITEM}'
+              '${ALLITEM}'
+              <width>140</width><height>'${CATHEIGHT}'</height>
+              <action signal="changed">/usr/local/petget/filterpkgs.sh $CATEGORY</action>
+              <action signal="changed">refresh:TREE1</action>
+            </tree>
+          </hbox>
+          <hbox space-expand="true" space-fill="true">
+            <tree column-resizeable="true|false" space-expand="true" space-fill="true">
+              <label>'$(gettext 'Package|Description')'</label>
+              <variable>TREE1</variable>
+              <width>210</width>
+              <input file icon-column="1">/tmp/petget/filterpkgs.results.post</input>
+              <action signal="button-release-event">add_item $TREE1</action>
+              <action signal="button-release-event">refresh:TREE_INSTALL</action>
+              <action signal="button-release-event">enable:HBOX_INSTALL</action>
+            </tree>
+          </hbox>
+          <hbox space-expand="true" space-fill="true">
+            <tree hscrollbar-policy="1" column-visible="true|false|true" tooltip-text="'$(gettext 'Remove item from list by click on it')'" space-expand="false" space-fill="false">
+              <label>'$(gettext 'Packages to install')'|'$(gettext 'Description')'|'$(gettext 'Repository')'</label>
+              <variable>TREE_INSTALL</variable>
+              <input file icon-column="1">/tmp/pkgs_to_install</input>
+              <width>160</width>
+              <action signal="button-release-event">remove_item $TREE_INSTALL</action>
+              <action signal="button-release-event">refresh:TREE_INSTALL</action>
+            </tree>
+          </hbox>
+        </hbox>
+      </vbox>
+    </hbox>
+    <variable>VBOX_MAIN</variable>
+  </vbox>
+  <hbox space-expand="false" space-fill="false">
+    <progressbar height-request="25" space-expand="true" space-fill="true">
+      <input>while [ -s /tmp/petget/install_status ]; do cat /tmp/petget/install_status_percent; cat /tmp/petget/install_status; sleep 0.3; done</input>
+      <action>enable:VBOX_MAIN</action>
+      <action>disable:HBOX_INSTALL</action>
+      <action>rm /tmp/pkgs_to_install</action>
+      <action>refresh:TREE_INSTALL</action>
+      <action>/usr/local/petget/filterpkgs.sh</action>
+      <action>refresh:TREE1</action>
+      <action>/usr/local/petget/finduserinstalledpkgs.sh</action>
+      <action>refresh:TREE2</action>
+      <action>echo 0 > /tmp/petget/install_status_percent</action>
+      <action>echo "" > /tmp/petget/install_status</action>
+    </progressbar>
+    '"`/usr/lib/gtkdialog/xml_scalegrip`"'
   </hbox>
-</vbox>  
-  
-<vbox>
-   <tree>
-   <label>$(gettext 'Category')</label>
-   <variable>CATEGORY</variable>
-   <item stock=\"gtk-Desktop\">$(gettext 'Desktop')</item>
-   <item stock=\"gtk-System\">$(gettext 'System')</item>
-   <item stock=\"gtk-Setup\">$(gettext 'Setup')</item>
-   <item stock=\"gtk-Utility\">$(gettext 'Utility')</item>
-   <item stock=\"gtk-Filesystem\">$(gettext 'Filesystem')</item>
-   <item stock=\"gtk-Graphic\">$(gettext 'Graphic')</item>
-   <item stock=\"gtk-Document\">$(gettext 'Document')</item>
-   <item stock=\"gtk-Business\">$(gettext 'Business')</item>
-   <item stock=\"gtk-Personal\">$(gettext 'Personal')</item>
-   <item stock=\"gtk-Network\">$(gettext 'Network')</item>
-   <item stock=\"gtk-Internet\">$(gettext 'Internet')</item>
-   <item stock=\"gtk-Multimedia\">$(gettext 'Multimedia')</item>
-   <item stock=\"gtk-Fun\">$(gettext 'Fun')</item>
-   ${BBITEM}
-   ${ALLITEM}
-   <width>140</width><height>${CATHEIGHT}</height>
-   <action signal=\"changed\">/tmp/ppm-ui-ziggy-fix \$CATEGORY | xargs -I CATINSERT /usr/local/petget/filterpkgs.sh CATINSERT</action>
-   <action signal=\"changed\">refresh:TREE1</action>
-  </tree>
 </vbox>
-  <tree column-resizeable=\"false|false\">
-    <label>$(gettext 'Package|Description')</label>
-    <variable>TREE1</variable>
-    <input${APPICONXMLINSERT}>cat /tmp/petget/filterpkgs.results.post</input>
-    <action>/usr/local/petget/installwindow.sh &</action>
-    <action>/usr/local/petget/finduserinstalledpkgs.sh $</action>
-    <action>refresh:TREE2</action>
-    <action signal=\"button-release-event\">/usr/local/petget/installwindow.sh &</action>
-    <action signal=\"button-release-event\">/usr/local/petget/finduserinstalledpkgs.sh &</action>
-    <action signal=\"button-release-event\">refresh:TREE2</action>
-  </tree>
+<action signal="delete-event">rm /tmp/pkgs_to_install</action>
+<action signal="delete-event">rm /tmp/petget/install_status</action>
+</window>'
 
-</hbox>
-</window>"
 
-export INSTALLED_DIALOG='<window title="'$(gettext 'Uninstall Puppy Package')'" icon-name="gtk-about" default_height="380" default_width="450">
- <vbox>
-  <text><label>'$(gettext 'Click on an item in the list to uninstall package')'</label></text>  
-  <tree column-resizeable="false|false">
-    <label>'$(gettext 'Installed Package|Description')'</label>
-    <variable>TREE2</variable>
-    <input'${APPICONXMLINSERT}'>cat /tmp/petget/installedpkgs.results.post</input>
-    <action>/usr/local/petget/removewindow.sh &</action>
-    <action>/usr/local/petget/finduserinstalledpkgs.sh &</action>
-    <action>refresh:TREE2</action>
-    <action signal="button-release-event">/usr/local/petget/removewindow.sh &</action>
-    <action signal="button-release-event">/usr/local/petget/finduserinstalledpkgs.sh &</action>
-    <action signal="button-release-event">refresh:TREE2</action>
-  </tree>
+
+
+export INSTALLED_DIALOG='<window title="'$(gettext 'Uninstall Puppy Package')'" icon-name="gtk-about">
+<vbox space-expand="true" space-fill="true">
+  '"`/usr/lib/gtkdialog/xml_info fixed package_remove.svg 60 "$(gettext "Uninstall programs from your system. Select program(s) and click the Remove-button.")"`"'
+  <vbox space-expand="true" space-fill="true">
+    <tree rubber-banding="true" selection-mode="3" space-expand="true" space-fill="true">
+      <label>'$(gettext 'Installed Package|Description')'</label>
+      <height>300</height>
+      <width>450</width>
+      <variable>TREE2</variable>
+      <input file icon-column="1">/tmp/petget/installedpkgs.results.post</input>
+    </tree>
   </vbox>
+  <hbox space-expand="false" space-fill="false">
+    <comboboxtext>
+      <variable>REMOVE_MODE</variable>
+      <item>'$(gettext 'Auto remove')'</item>
+      <item>'$(gettext 'Step by step remove (classic mode)')'</item>
+    </comboboxtext>
+    <button space-expand="false" space-fill="false">
+      '"`/usr/lib/gtkdialog/xml_button-icon package_remove`"'
+      <label>" '$(gettext 'Remove package')' "</label>
+      <action>echo "$TREE2" > /tmp/pkgs_to_remove; /usr/local/petget/removewindow.sh "$REMOVE_MODE"</action>
+      <action>refresh:TREE2</action>
+      <action>/usr/local/petget/filterpkgs.sh $CATEGORY</action>
+      <action>refresh:TREE1</action>
+    </button>
+    '"`/usr/lib/gtkdialog/xml_scalegrip`"'
+  </hbox>
+</vbox>
 </window>' 
 
 mkdir -p /tmp/puppy_package_manager
 ln -s /usr/local/lib/X11/pixmaps/*48.png /tmp/puppy_package_manager 2>/dev/null
-echo 'style "icon-style" {
-	stock["gtk-Desktop"] = {{ "x48.png", *, *, *}}
-	stock["gtk-System"]	= {{ "pc48.png", *, *, *}}
-	stock["gtk-Setup"] = {{ "configuration48.png", *, *, *}}
-	stock["gtk-Utility"] = {{ "utility48.png", *, *, *}}
+echo '
+style "category" {
+	font_name="bold" }
+widget "*category" style "category"
+
+style "bg_report" {
+	bg[NORMAL]="#222" }
+widget "*bg_report" style "bg_report"
+
+style "status_bar" {
+	font_name="normal 8" }
+widget_class "*.GtkStatusbar*" style "status_bar"
+
+style "icon-style" {
+	GtkStatusbar::shadow_type	= GTK_SHADOW_NONE
+
+	stock["gtk-Desktop"]  = {{ "x48.png", *, *, *}}
+	stock["gtk-System"]	  = {{ "pc48.png", *, *, *}}
+	stock["gtk-Setup"]    = {{ "configuration48.png", *, *, *}}
+	stock["gtk-Utility"]  = {{ "utility48.png", *, *, *}}
 	stock["gtk-Filesystem"] = {{ "folder48.png", *, *, *}}
-	stock["gtk-Graphic"] = {{ "paint48.png", *, *, *}}
+	stock["gtk-Graphic"]  = {{ "paint48.png", *, *, *}}
 	stock["gtk-Document"] = {{ "word48.png", *, *, *}}
 	stock["gtk-Business"] = {{ "spread48.png", *, *, *}}
 	stock["gtk-Personal"] = {{ "date48.png", *, *, *}}
-	stock["gtk-Network"] = {{ "connect48.png", *, *, *}}
+	stock["gtk-Network"]  = {{ "connect48.png", *, *, *}}
 	stock["gtk-Internet"] = {{ "www48.png", *, *, *}}
 	stock["gtk-Multimedia"] = {{ "multimedia48.png", *, *, *}}
-	stock["gtk-Fun"] = {{ "games48.png", *, *, *}}
-	stock["gtk-BB"] = {{ "pet48.png", *, *, *}}
+	stock["gtk-Fun"]      = {{ "games48.png", *, *, *}}
+	stock["gtk-BB"]       = {{ "pet48.png", *, *, *}}
 	'${ALLSTOCK}'}
 class "GtkWidget" style "icon-style"' > /tmp/puppy_package_manager/gtkrc_ppm
 
 export GTK2_RC_FILES=/root/.gtkrc-2.0:/tmp/puppy_package_manager/gtkrc_ppm
-
-export TEXTDOMAIN=petget___pkg_chooser.sh
+. /usr/lib/gtkdialog/xml_info gtk #build bg_pixmap for gtk-theme

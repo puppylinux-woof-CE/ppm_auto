@@ -6,7 +6,6 @@
 
 export TEXTDOMAIN=petget___installed_size_preview.sh
 export OUTPUT_CHARSET=UTF-8
-
 [ "$TREE1" = "" ] && exit 0
 
 . /etc/DISTRO_SPECS #has DISTRO_BINARY_COMPAT, DISTRO_COMPAT_VERSION

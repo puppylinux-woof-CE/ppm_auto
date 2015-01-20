@@ -29,8 +29,8 @@ do
  fi
 done
 
-INSTALLED_PGKS=$(cat /tmp/pgks_really_installed | tr '\n' ' ')
-FAILED_TO_INSTALL=$(cat /tmp/pgks_failed_to_install | tr '\n' ' ')
+INSTALLED_PGKS="$(</tmp/pgks_really_installed)"
+FAILED_TO_INSTALL="$(</tmp/pgks_failed_to_install)"
 #MISSING_PKGS=$(cat /tmp/overall_petget_missingpkgs_patterns.txt |sort|uniq )
 MISSING_LIBS=$(cat /tmp/overall_missing_libs.txt | tr ' ' '\n' | sort | uniq )
 NOT_IN_PATH_LIBS=$(cat /tmp/overall_missing_libs_hidden.txt | tr ' ' '\n' | sort | uniq )
@@ -48,54 +48,86 @@ Existing Libraries but not in Path
 $NOT_IN_PATH_LIBS
 EOF
 
-[ "$INSTALLED_PGKS" = "" ] && INSTALLED_PGKS="Bummer :("
-[ "$FAILED_TO_INSTALL" = "" ] && FAILED_TO_INSTALL="Just kidding :)"
+[ "$INSTALLED_PGKS" = "" ] && INSTALLED_PGKS="$(gettext 'Bummer :(')"
+[ "$FAILED_TO_INSTALL" = "" ] && FAILED_TO_INSTALL="$(gettext 'No errors')"
 
 # Info window/dialogue (display and option to save "missing" info)
-MISSINGMSG1="<text use-markup=\"true\"><label>\"<b>$(gettext 'No missing shared libraries')</b>\"</label></text>"
-if [ "$MISSING_LIBS" != "" ];then
- MISSINGMSG1="<text><label>$(gettext 'These libraries are missing:')</label></text><text use-markup=\"true\"><label>\"<b>${MISSING_LIBS}</b>\"</label></text>"
+MISSINGMSG1="<i><b>$(gettext 'No missing shared libraries')</b></i>"
+if [ "$MISSING_LIBS" ];then
+ MISSINGMSG1="<i><b>$(gettext 'These libraries are missing:')
+${MISSING_LIBS}</b></i>"
 fi
-if [ "$NOT_IN_PATH_LIBS" != "" ];then #100830
- MISSINGMSG1="${MISSINGMSG1} <text><label>$(gettext 'These needed libraries exist but are not in the library search path (it is assumed that a startup script in the package makes these libraries loadable by the application):')</label></text><text use-markup=\"true\"><label>\"<b>${NOT_IN_PATH_LIBS}</b>\"</label></text>"
-fi
-
-FAILED=""
-if [ "$FAILED_TO_INSTALL" != "" ];then
- FAILED="<vbox>
-  <text><label>$(gettext 'However the following packages failed to install/download:')</label></text>
-   <vbox scrollable=\"true\" height=\"100\">
-    <text><label>${FAILED_TO_INSTALL}</label></text>
-   </vbox>
-  </vbox>"
-fi
-   
-DETAILSBUTTON="<button><label>$(gettext 'View details')</label>
-  <action>defaulttextviewer /tmp/overall_install_deport & </action>
-  </button>"
+if [ "$NOT_IN_PATH_LIBS" ];then #100830
+ MISSINGMSG1="<i><b>${MISSINGMSG1}</b></i>
  
- 
-export REPORT_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
-  <vbox>
-   <text><label>$(gettext 'The following packages have been succesfully installed or downloaded:')</label></text>
-   <vbox scrollable=\"true\" height=\"150\">
-    <text><label>${INSTALLED_PGKS}</label></text>
-   </vbox>
-   ${FAILED}   
-   <vbox scrollable=\"true\" height=\"100\">
-    ${MISSINGMSG1}
-   </vbox>
+$(gettext 'These needed libraries exist but are not in the library search path (it is assumed that a startup script in the package makes these libraries loadable by the application):')
+<i><b>${NOT_IN_PATH_LIBS}</b></i>"
+fi
 
-   <hbox>
-    ${DETAILSBUTTON}
-    <button ok></button>
-   </hbox>
-  </vbox>
- </window>
-" 
-RETPARAMS="`gtkdialog4 --center --program=REPORT_DIALOG`"
+export REPORT_DIALOG='
+<window title="'$(gettext 'Puppy Package Manager')'" icon-name="gtk-about" default_height="550">
+<vbox>
+  '"`/usr/lib/gtkdialog/xml_info fixed package_add.svg 60 " " "$(gettext "Package install/download report")"`"'
+  <hbox space-expand="true" space-fill="true">
+    <hbox scrollable="true" hscrollbar-policy="2" vscrollbar-policy="2" space-expand="true" space-fill="true">
+      <hbox space-expand="false" space-fill="false">
+        <eventbox name="bg_report" space-expand="true" space-fill="true">
+          <vbox margin="5" hscrollbar-policy="2" vscrollbar-policy="2" space-expand="true" space-fill="true">
+            '"`/usr/lib/gtkdialog/xml_pixmap dialog-complete.svg 32`"'
+            <text angle="90" wrap="false" yalign="0" use-markup="true" space-expand="true" space-fill="true"><label>"<big><b><span color='"'#15BC15'"'>'$(gettext 'Success')'</span></b></big> "</label></text>
+          </vbox>
+        </eventbox>
+      </hbox>
+      <vbox scrollable="true" shadow-type="0" hscrollbar-policy="2" vscrollbar-policy="1" space-expand="true" space-fill="true">
+        <text ypad="5" xpad="5" yalign="0" xalign="0" use-markup="true" space-expand="true" space-fill="true"><label>"<i><b>'${INSTALLED_PGKS}' </b></i>"</label></text>
+      </vbox>
+    </hbox>
+  </hbox>
 
+  <hbox space-expand="true" space-fill="true">
+    <hbox scrollable="true" hscrollbar-policy="2" vscrollbar-policy="2" space-expand="true" space-fill="true">
+      <hbox space-expand="false" space-fill="false">
+        <eventbox name="bg_report" space-expand="true" space-fill="true">
+          <vbox margin="5" hscrollbar-policy="2" vscrollbar-policy="2" space-expand="true" space-fill="true">
+            '"`/usr/lib/gtkdialog/xml_pixmap dialog-error.svg 32`"'
+            <text angle="90" wrap="false" yalign="0" use-markup="true" space-expand="true" space-fill="true"><label>"<big><b><span color='"'#DB1B1B'"'>'$(gettext 'Failed')'</span></b></big> "</label></text>
+          </vbox>
+        </eventbox>
+      </hbox>
+      <vbox scrollable="true" shadow-type="0" hscrollbar-policy="2" vscrollbar-policy="1" space-expand="true" space-fill="true">
+        <text ypad="5" xpad="5" yalign="0" xalign="0" use-markup="true" space-expand="true" space-fill="true"><label>"<i><b>'${FAILED_TO_INSTALL}' </b></i>"</label></text>
+      </vbox>
+    </hbox>
+  </hbox>
 
+  <hbox space-expand="true" space-fill="true">
+    <hbox scrollable="true" hscrollbar-policy="2" vscrollbar-policy="2" space-expand="true" space-fill="true">
+      <hbox space-expand="false" space-fill="false">
+        <eventbox name="bg_report" space-expand="true" space-fill="true">
+          <vbox margin="5" hscrollbar-policy="2" vscrollbar-policy="2" space-expand="true" space-fill="true">
+            '"`/usr/lib/gtkdialog/xml_pixmap building_block.svg 32`"'
+            <text angle="90" wrap="false" yalign="0" use-markup="true" space-expand="true" space-fill="true"><label>"<big><b><span color='"'#bbb'"'>Libs</span></b></big> "</label></text>
+          </vbox>
+        </eventbox>
+      </hbox>
+      <vbox scrollable="true" shadow-type="0" hscrollbar-policy="1" vscrollbar-policy="1" space-expand="true" space-fill="true">
+        <text ypad="5" xpad="5" yalign="0" xalign="0" use-markup="true" space-expand="true" space-fill="true"><label>"'${MISSINGMSG1}'"</label></text>
+      </vbox>
+    </hbox>
+  </hbox>
+
+  <hbox space-expand="false" space-fill="false">
+    <button>
+      <label>'$(gettext 'View details')'</label>
+      '"`/usr/lib/gtkdialog/xml_button-icon document_viewer`"'
+      <action>defaulttextviewer /tmp/overall_install_deport &</action>
+     </button>
+     <button ok></button>
+     '"`/usr/lib/gtkdialog/xml_scalegrip`"'
+  </hbox>
+</vbox>
+</window>'
+RETPARAMS="`gtkdialog --center -p REPORT_DIALOG`"
 
 # Clean up
 rm -f /tmp/pkgs_to_install_done

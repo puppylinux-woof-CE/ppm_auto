@@ -46,9 +46,9 @@ if [ "$DB_pkgname" = "" -a "`cat /root/.packages/user-installed-packages`" = "" 
  [ "$DISPLAY" != "" ] && gtkdialog3 --program=REM_DIALOG
  exit 0
 fi
-if [ "$DB_pkgname" = "" ];then #fix for ziggi moved here problem is  #2011-12-27 KRG
-exit 0                         #clicking an empty line in the gui would have
-fi                             #thrown the above REM_DIALOG even if pkgs are installed
+#if [ "$DB_pkgname" = "" ];then #fix for ziggi moved here problem is  #2011-12-27 KRG
+#exit 0                         #clicking an empty line in the gui would have
+#fi                             #thrown the above REM_DIALOG even if pkgs are installed
 
 if [ ! -f /tmp/remove_pets_quietly ]; then
 export REM_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">

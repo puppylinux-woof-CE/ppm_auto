@@ -184,7 +184,7 @@ do
  REPOCUT="`echo -n "$ONEREPO" | cut -f 2-4 -d '-'`"
  [ "$REPOS_RADIO" = "" ] && FIRST_DB="$REPOCUT"
  xREPOCUT="$(echo -n "$REPOCUT" | sed -e 's%\-official$%%')" #120905 window too wide.
- REPOS_RADIO="${REPOS_RADIO}<radiobutton><label>${xREPOCUT}</label><action>/tmp/filterversion.sh ${REPOCUT}</action><action>/usr/local/petget/filterpkgs.sh</action><action>refresh:TREE1</action></radiobutton>"
+ REPOS_RADIO="${REPOS_RADIO}<radiobutton space-expand=\"false\" space-fill=\"false\"><label>${xREPOCUT}</label><action>/tmp/filterversion.sh ${REPOCUT}</action><action>/usr/local/petget/filterpkgs.sh</action><action>refresh:TREE1</action></radiobutton>"
  echo "$REPOCUT" >> /tmp/petget_active_repo_list #120903 needed in findnames.sh
  repocnt=`expr $repocnt + 1`
  #[ $repocnt -ge 5 ] && break	# SFR: no limit
@@ -263,7 +263,7 @@ UI="`cat /var/local/petget/ui_choice`"
 . /usr/local/petget/ui_${UI}
 
 
-RETPARAMS="`gtkdialog4 --program=MAIN_DIALOG`"
+RETPARAMS="`gtkdialog -p MAIN_DIALOG`"
 
 # Run indexgen after we exit the GUI
 /usr/sbin/indexgen.sh

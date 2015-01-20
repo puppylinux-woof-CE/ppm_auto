@@ -203,19 +203,12 @@ fi
  done
  [ ! -f /tmp/install_pets_quietly ] && pupkill $testPID || echo
  if [ "$DL_BAD_LIST" ];then
-  BADTITLE="$(gettext 'ERROR: Packages not available')"
   BADMSG1="$(gettext 'Unfortunately, these packages are not available:')"
   BADMSG2="$(gettext "It may be that the local package database needs to be updated. In some cases, the packages in the online package repository change, so you may be trying to download a package that no longer exists.")"
   BADMSG3="$(gettext "SOLUTION: From the main PPM window, click the 'Configure' BUTTON and click the 'Update' button to update the local package database.")"
   BADMSG4="$(gettext 'The installation has been aborted!')"
   
-  pupmessage -bg '#FF8080' -title "${BADTITLE}" "${BADMSG1}
-${DL_BAD_LIST}
-
-${BADMSG4}
-
-${BADMSG2}
-${BADMSG3}"
+  /usr/lib/gtkdialog/box_ok "$(gettext 'Packages not available')" error "${BADMSG1}" "<b>${DL_BAD_LIST}</b>" "${BADMSG4}" "${BADMSG2} ${BADMSG3}"
   exit 1
  fi
  
@@ -241,6 +234,7 @@ ${BADMSG3}"
     fi
    fi
    #101116 now have a download utility...
+   echo "$(gettext 'downloading'): ${ONEFILE}" > /tmp/petget/install_status
    export DL_F_CALLED_FROM='ppm' #121019
    download_file ${DOWNLOADFROM}/${ONEFILE}
    if [ $? -ne 0 ];then #101116
@@ -253,8 +247,10 @@ ${BADMSG3}"
   DLPKG="`basename $ONEFILE`"
   if [ -f $DLPKG -a "$DLPKG" != "" ];then
    if [ "$PASSEDPARAM" = "DOWNLOADONLY" ];then
+    echo "$(gettext 'Verifying'): ${ONEFILE}" > /tmp/petget/install_status
     /usr/local/petget/verifypkg.sh /root/$DLPKG
    else
+    echo "$(gettext 'Installing'): ${ONEFILE}" > /tmp/petget/install_status
     /usr/local/petget/installpkg.sh /root/$DLPKG
     #...appends pkgname and category to /tmp/petget-installed-pkgs-log if successful.
    fi

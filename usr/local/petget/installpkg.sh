@@ -105,7 +105,7 @@ install_path_check() {
   </hbox>
   </vbox>
   </window>"
-  RETPARAMS=`gtkdialog3 --program=DIALOG` || echo "$DIALOG" >&2
+  RETPARAMS=`gtkdialog -p DIALOG` || echo "$DIALOG" >&2
   eval "$RETPARAMS"
   LANG=C
   [ "$EXIT" = "INSTALL" ]  && return 0
