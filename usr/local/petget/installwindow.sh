@@ -55,9 +55,13 @@ check_total_size () {
   ACTION_MSG=$(gettext 'This is not enough space to download and install the packages (including libs) you have selected.')
  fi
  #---
+ [ ! -f /tmp/pup_event_sizefreem ] && echo "Free space estimation error. Exiting" \
+	> /tmp/petget/install_status && clean_up
  AVAILABLE=$(cat /tmp/pup_event_sizefreem | head -n 1 )
  PACKAGES=$(cat /tmp/pkgs_to_install | cut -f 1 -d '|')
  DEPENDENCIES=$(cat /tmp/overall_dependencies | sort | uniq)
+ [ "$AVAILABLE" = "0" -o  "$AVAILABLE" = "" ] && echo "No space left on device. Exiting" \
+	> /tmp/petget/install_status && clean_up
  #statusbar in main gui
  #if [ "$(</tmp/petget/install_status)" = "$(gettext "Digging...")" ]; then
   PERCENT=$((${NEEDEDK}*100/${AVAILABLE}))
