@@ -541,7 +541,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
             </tree>
           </hbox>
           <hbox space-expand="true" space-fill="true">
-            <tree hover-selection="true" selection-mode="1" column-resizeable="true|false" space-expand="true" space-fill="true">
+            <tree hover-selection="true" selection-mode="1" column-resizeable="false" space-expand="true" space-fill="true">
               <label>'$(gettext 'Package')'|'$(gettext 'Description')'</label>
               <variable>TREE1</variable>
               <width>210</width>
