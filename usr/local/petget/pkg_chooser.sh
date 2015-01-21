@@ -11,7 +11,7 @@ while [ "$(ps | grep indexgen | grep -v grep)" != "" ];do sleep 0.5;done
 # Do not allow another instance
 sleep 0.3
 [ "$( ps | grep -E '/usr/local/bin/ppm|/usr/local/petget/pkg_chooser' | grep -v -E 'grep|geany|leafpad' | wc -l)" -gt 2 ] \
-	&& /usr/lib/gtkdialog/box_splash -timeout 3 -bg orange -text "$(gettext 'PPM is already running. Exiting.')" \
+	&& /usr/lib/gtkdialog/box_splash -timeout 3 -bg red -text "$(gettext 'PPM is already running. Exiting.')" \
 		&& exit 0
 # Set the skip-space flag
 if [ "$(cat /var/local/petget/sc_category)" = "true" ] && \
