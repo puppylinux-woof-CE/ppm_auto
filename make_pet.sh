@@ -6,7 +6,7 @@ if [ "$(df -T `pwd`/make_pet.sh | awk '{print $2}' | tail -n1 | cut -c 1-3)" != 
 fi
 
 if [ "$(which dir2pet)" = "" ]; then
- yaf-splash -bg orange -timeout 5 -text "You need should be running puppylinux. Exitig"
+ yaf-splash -bg orange -timeout 5 -text "You need to be running puppylinux. Exitig"
  exit 0
 fi
 
