@@ -150,34 +150,31 @@ export -f status_bar_func
  
 install_package () {
  [ "$(cat /tmp/pkgs_to_install)" = "" ] && exit 0
- if [ -f /tmp/install_pets_quietly -o -f /tmp/install_quietly ]; then
-  rm -f /tmp/overall_package_status_log 
-  echo 0 > /tmp/petget/install_status_percent
-  echo "$(gettext "Calculating total required space...")" > /tmp/petget/install_status
-  [ ! -f /root/.packages/skip_space_check ] && check_total_size
-  cat /tmp/pkgs_to_install | tr ' ' '\n' > /tmp/pkgs_left_to_install
-  status_bar_func &
-  while read LINE; do
+ cat /tmp/pkgs_to_install | tr ' ' '\n' > /tmp/pkgs_left_to_install
+ while read LINE; do
    REPO=$(echo $LINE | cut -f 2 -d '|')
    echo "$REPO" > /tmp/petget/current-repo-triad
    TREE1=$(echo $LINE | cut -f 1 -d '|')
-   if [ "$(cat /var/local/petget/nt_category)" = "true" ]; then
-    /usr/local/petget/installpreview.sh
+   if [ -f /tmp/install_quietly ]; then
+    rm -f /tmp/overall_package_status_log 
+    echo 0 > /tmp/petget/install_status_percent
+    echo "$(gettext "Calculating total required space...")" > /tmp/petget/install_status
+    [ ! -f /root/.packages/skip_space_check ] && check_total_size
+    status_bar_func &
+    if [ "$(cat /var/local/petget/nt_category)" = "true" ]; then
+     /usr/local/petget/installpreview.sh
+    else
+	 rxvt -title "$VTTITLE... Do NOT close" \
+	  -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
+      -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
+    fi
    else
-	rxvt -title "$VTTITLE... Do NOT close" \
-	 -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
-     -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
+    /usr/local/petget/installpreview.sh
    fi
-   #---
    /usr/local/petget/finduserinstalledpkgs.sh
    sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
-  done < /tmp/pkgs_to_install
-  /usr/local/petget/reportwindow.sh
- else
-  /usr/local/petget/installpreview.sh
-  /usr/local/petget/finduserinstalledpkgs.sh
-  sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
- fi
+ done < /tmp/pkgs_to_install
+ /usr/local/petget/reportwindow.sh
  sync
  clean_up
  echo 100 > /tmp/petget/install_status_percent

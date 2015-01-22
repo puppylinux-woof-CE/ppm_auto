@@ -206,8 +206,7 @@ if [ "$EXIT" = "BUTTON_EXAMINE_DEPS" ];then
  
  #120904
  FNDMISSINGDBENTRYFILE="`ls -1 /tmp/petget_missing_dbentries-* 2>/dev/null`"
- if [ "$FNDMISSINGDBENTRYFILE" = "" -a ! -f /tmp/install_pets_quietly \
-  -a ! -f /tmp/download_only_pet_quietly ];then
+ if [ "$FNDMISSINGDBENTRYFILE" = "" -a ! -f /tmp/install_quietly ];then
   pupdialog --title "$(gettext 'PPM: examine dependencies')" --background LightYellow --msgbox "$(gettext 'There seem to be no missing dependencies.')
 
 $(gettext 'Note: if the previous window indicated that there are missing dependencies, they were not found. Sometimes, a package database lists a dependency that does not actually exist anymore and is not required.')" 0 0
@@ -312,7 +311,7 @@ $(gettext "Please cancel installation, close the Puppy Package Manager, then cli
  testSIZEK=`expr $INSTALLEDSIZEK + $testSIZEK`
  testSIZEK=`expr $testSIZEK + 8000`
  [ $testSIZEK -gt $SIZEFREEK ] && MSGWARN2="$(gettext "Not too good! recommend that you make more space before installing -- see 'Resize personal storage file' in the 'Utility' menu.")"
-if [ ! -f /tmp/install_pets_quietly -a ! -f /tmp/download_only_pet_quietly ]; then
+if [ ! -f /tmp/install_quietly ]; then
  export DEPS_DIALOG="<window title=\"$(gettext 'Puppy Package Manager: dependencies')\" icon-name=\"gtk-about\">
 <vbox>
  
