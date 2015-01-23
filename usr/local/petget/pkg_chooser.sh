@@ -3,7 +3,7 @@
 #2009 Lesser GPL licence v2 (/usr/share/doc/legal/lgpl-2.1.txt).
 #The Puppy Package Manager main GUI window.
 
-VERSION=1.2
+VERSION=1.3
 
 #wait for indexgen.sh to finish
 while [ "$(ps | grep indexgen | grep -v grep)" != "" ];do sleep 0.5;done
@@ -63,6 +63,8 @@ touch /tmp/install_pets_quietly
 
 
 add_item (){
+	# Exit if called spuriously
+	[ "$TREE1" = "" ] && exit 0
 	# Make sure that we have atleast one mode flag
 	[ ! -f /tmp/install_pets_quietly -a ! -f  /tmp/download_only_pet_quietly \
 	 -a ! -f /tmp/download_pets_quietly -a ! -f /tmp/install_classic ] \
