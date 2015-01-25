@@ -181,20 +181,8 @@ PKGPATH=/root
 cd "$PKGPATH" #well, this is /root
 
 #confirm want to install...
-export INSTALL_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
-  <vbox>
-  <pixmap><input file>/usr/local/lib/X11/pixmaps/question.xpm</input></pixmap>
-   <text><label>$(gettext "Click 'OK' button to confirm that you wish to install this package:")</label></text>
-   <text use-markup=\"true\"><label>\"<b>${FULLPKGNAME}</b>\"</label></text>
-   <hbox>
-    <button ok></button>
-    <button cancel></button>
-   </hbox>
-  </vbox>
- </window>" 
-RETPARAMS="`gtkdialog3 --program=INSTALL_DIALOG`"
-eval "$RETPARAMS"
-[ "$EXIT" != "OK" ] && exit
+. /usr/lib/gtkdialog/box_yesno "$(gettext 'Puppy Package Manager')" "$(gettext 'Do you want to install this package:')" "<b>${FULLPKGNAME}</b>"
+[ "$EXIT" != "yes" ] && exit
 
 #find entry in databases...
 #pkgname|nameonly|version|pkgrelease|category|size|path|fullfilename|dependencies|description|
