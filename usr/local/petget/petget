@@ -266,30 +266,18 @@ MENUMSG=""
 INSTALLEDCAT="`echo -n "$INSTALLEDMSG" | rev | cut -f 1 -d ' ' | rev`"
 ZINSTALLEDCAT="`echo -n "$ZINSTALLEDMSG" | rev | cut -f 1 -d ' ' | rev`" #121011
 if [ "$INSTALLEDCAT" = "none" ];then
- MENUMSG="<text><label>$(gettext '...note, this package does not have a menu entry.')</label></text>"
+ MENUMSG="$(gettext '...note, this package does not have a menu entry.')"
 else
- MENUMSG="<text><label>$(gettext '...look in') '${ZINSTALLEDCAT}' $(gettext 'in the menu (bottom-left of screen) to run the application.')</label></text>" #121011
+ MENUMSG="$(gettext '...look in') '${ZINSTALLEDCAT}' $(gettext 'in the menu (bottom-left of screen) to run the application.')" #121011
 fi
 
 #120819 having a category does not mean there will also be a menu entry...
 if [ "`grep '/usr/.*share/applications/.*\.desktop$' /root/.packages/${PKGNAME}.files`" = "" ];then
- MENUMSG="<text><label>$(gettext '...note, this package does not have a menu entry.')</label></text>"
+ MENUMSG="$(gettext '...note, this package does not have a menu entry.')"
 fi
 
 #installpkg.sh will have logged to /tmp/petget-installed-pkgs-log
-export INSTALL_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
- <vbox>
- <pixmap><input file>/usr/local/lib/X11/pixmaps/ok.xpm</input></pixmap>
-  <text><label>$(gettext 'The following package has been successfully installed:')</label></text>
-  <text use-markup=\"true\"><label>\"<b>${ZINSTALLEDMSG}</b>\"</label></text>
-  ${MENUMSG}
-  <hbox>
-   <button ok></button>
-  </hbox>
- </vbox>
-</window>
-"
-gtkdialog3 --program=INSTALL_DIALOG
+/usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" complete "$(gettext 'The following package has been successfully installed:')" "<b>${ZINSTALLEDMSG}</b>" "${MENUMSG}"
 
 RESTARTMSG="$(gettext 'Please wait, updating help page and menu...')"
 if [ "`pidof jwm`" != "" ];then #120101
