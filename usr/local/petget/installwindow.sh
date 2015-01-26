@@ -155,7 +155,7 @@ install_package () {
    REPO=$(echo $LINE | cut -f 2 -d '|')
    echo "$REPO" > /tmp/petget/current-repo-triad
    TREE1=$(echo $LINE | cut -f 1 -d '|')
-   if [ -f /tmp/install_quietly ]; then
+   if [  "$(grep $TREE1 /root/.packages/user-installed-packages 2>/dev/null)" = "" -a -f /tmp/install_quietly ]; then
     rm -f /tmp/overall_package_status_log 
     echo 0 > /tmp/petget/install_status_percent
     echo "$(gettext "Calculating total required space...")" > /tmp/petget/install_status
@@ -169,7 +169,8 @@ install_package () {
       -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
     fi
    else
-    /usr/local/petget/installpreview.sh
+    [  "$(grep $TREE1 /root/.packages/user-installed-packages 2>/dev/null)" = "" ] \
+     && /usr/local/petget/installpreview.sh
    fi
    /usr/local/petget/finduserinstalledpkgs.sh
    sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
