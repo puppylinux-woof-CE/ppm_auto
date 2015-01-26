@@ -108,7 +108,7 @@ do
   
  #120907 scrollbar...
 if [ ! -f /tmp/install_quietly ]; then
- export DEPS_DIALOG="<window title=\"$(gettext 'Puppy Package Manager: download')\" icon-name=\"gtk-about\">
+ export PPM_DEPS_DIALOG="<window title=\"$(gettext 'Puppy Package Manager: download')\" icon-name=\"gtk-about\">
 <vbox>
  <text><label>$(gettext 'You have chosen to download these packages:')</label></text>
  <vbox scrollable=\"true\" height=\"100\">
@@ -136,7 +136,7 @@ if [ ! -f /tmp/install_quietly ]; then
 </window>
 " 
 
- RETPARAMS="`gtkdialog4 --program=DEPS_DIALOG`"
+ RETPARAMS="`gtkdialog -p PPM_DEPS_DIALOG`"
 else
  RETPARAMS='EXIT="BUTTON_PKGS_DOWNLOAD"'
 fi 
@@ -362,7 +362,7 @@ fi
   #101013 improvement suggested by L18L...
   CURRLOCALES="`locale -a | grep _ | cut -d '_' -f 1`"
   LISTLOCALES="`echo -e -n "en\n${CURRLOCALES}" | sort -u | tr -s '\n' | tr '\n' ',' | sed -e 's%,$%%'`"
-  export TRIM_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
+  export PPM_TRIM_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
   <vbox>
    <pixmap><input file>/usr/share/pixmaps/puppy/dialog-question.svg</input></pixmap>
    <text><label>$(gettext "You have chosen to 'trim the fat' of these installed packages:")</label></text>
@@ -385,7 +385,7 @@ fi
    </hbox>
   </vbox>
   </window>"
-  RETPARAMS="`gtkdialog3 --program=TRIM_DIALOG`"
+  RETPARAMS="`gtkdialog -p PPM_TRIM_DIALOG`"
   eval "$RETPARAMS"
   [ "$EXIT" != "OK" ] && exit $EXITVAL
   if [ ! -f /tmp/install_quietly ]; then
