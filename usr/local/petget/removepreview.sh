@@ -40,7 +40,7 @@ fi
 #exit 0                         #clicking an empty line in the gui would have
 #fi                             #thrown the above REM_DIALOG even if pkgs are installed
 
-if [ ! -f /tmp/remove_pets_quietly ] && [ ! "$DISPLAY" ]
+if [ ! -f /tmp/remove_pets_quietly ] && [ ! "$DISPLAY" ]; then
  . /usr/lib/gtkdialog/box_yesno "$(gettext 'Puppy Package Manager')" "$(gettext "Do you want to uninstall package")" "<b>${DB_pkgname}</b>"
  [ "$EXIT" != "yes" ] && exit 0
 fi
