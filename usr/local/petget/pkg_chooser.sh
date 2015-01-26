@@ -26,10 +26,10 @@ fi
 SPID=$!
 
 # Remove in case we crashed
-rm -f /tmp/{remove,install}{,_pets}_quietly
-rm -f /tmp/install_classic
-rm -f /tmp/download{_only,}_pet{,s}_quietly
-rm -f /tmp/overall_*
+rm -f /tmp/{remove,install}{,_pets}_quietly 2>/dev/null
+rm -f /tmp/install_classic 2>/dev/null
+rm -f /tmp/download{_only,}_pet{,s}_quietly 2>/dev/null
+rm -f /tmp/overall_* 2>/dev/null
 
 /usr/local/petget/service_pack.sh & #121125 offer download Service Pack.
 
@@ -128,7 +128,7 @@ remove_item2 (){
 }
 
 change_mode () {
-	PREVPKG=$(cat /tmp/pkgs_to_install)
+	PREVPKG=$(cat /tmp/pkgs_to_install 2>/dev/null)
 	case $INSTALL_MODE in
 		"$(gettext 'Auto install')")
 			if [ -f /tmp/install_pets_quietly ]; then echo ok
@@ -165,7 +165,7 @@ change_mode () {
 }
 
 installed_warning () {
-	FORCEDPKGS=$(cat /tmp/forced_install)
+	FORCEDPKGS=$(cat /tmp/forced_install 2>/dev/null)
 	/usr/lib/gtkdialog/box_splash -timeout 10 -bg orange -fontsize large -text "$FORCEDPKGS $(gettext ' packages are already installed! Should be remove from the list. If you want to re-install, uninstall first and then install.')"
 }
 export -f add_item add_item2 remove_item remove_item2 change_mode installed_warning
@@ -403,7 +403,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
           <label>" '$(gettext 'Install')' "</label>
           <sensitive>false</sensitive>
           <action condition="command_is_true(if [ \"$(cat /tmp/pkgs_to_install)\" != \"\" ];then echo true;fi)">disable:VBOX_MAIN</action>
-          <action>if [ "$(cat /tmp/forced_install)" != "" ]; then touch /tmp/force_install; else rm -f /tmp/force_install; fi </action>
+          <action>if [ "$(cat /tmp/forced_install 2>/dev/null)" != "" ]; then touch /tmp/force_install; else rm -f /tmp/force_install; fi </action>
           <action>cut -d"|" -f1,4 /tmp/pkgs_to_install > /tmp/pkgs_to_install_tmp; mv -f /tmp/pkgs_to_install_tmp /tmp/pkgs_to_install</action>
           <action condition="command_is_true(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">/usr/local/petget/installwindow.sh "$INSTALL_MODE" &</action>
           <action condition="command_is_false(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">installed_warning &</action>

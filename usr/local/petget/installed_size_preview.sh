@@ -127,9 +127,7 @@ rm -f /tmp/petget_installedsizek_rep
 INSTALLEDSIZEK=`cat /tmp/petget_installedsizek`
 if [ "$2" = "RMV" ]; then
    echo "$INSTALLEDSIZEK" >> /tmp/overall_pkg_size_RMV
-   cat /tmp/overall_dependencies
-   cat /tmp/petget_missing_dbentries-*
-   for LINE in $(cat /tmp/petget_missing_dbentries-* | sort | uniq | cut -f1 -d '|')
+   for LINE in $(cat /tmp/petget_missing_dbentries-* 2>/dev/null | sort | uniq | cut -f1 -d '|')
    do
     sed -i "0,/$LINE/{//d;}" /tmp/overall_dependencies
    done

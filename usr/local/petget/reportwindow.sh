@@ -21,7 +21,7 @@ do
   REALLY=$(ls "$DOWN_PATH"/"$LINE"*)
  else
   REALLY=$(grep $LINE /tmp/petget/installedpkgs.results)
-  [ "$(grep $LINE /tmp/pgks_failed_to_install_forced | sort | uniq )" != "" ] && REALLY=''
+  [ "$(grep $LINE /tmp/pgks_failed_to_install_forced 2>/dev/null | sort | uniq )" != "" ] && REALLY=''
  fi 
  if [ "$REALLY" != "" ]; then
   echo $LINE >> /tmp/pgks_really_installed
@@ -31,11 +31,13 @@ do
 done
 rm -f /tmp/pgks_failed_to_install_forced
 
-INSTALLED_PGKS="$(</tmp/pgks_really_installed)"
-FAILED_TO_INSTALL="$(</tmp/pgks_failed_to_install)"
+[ -f /tmp/pgks_really_installed ] && INSTALLED_PGKS="$(</tmp/pgks_really_installed)" \
+ || INSTALLED_PGKS=''
+[ -f /tmp/pgks_failed_to_install ] && FAILED_TO_INSTALL="$(</tmp/pgks_failed_to_install)" \
+ || FAILED_TO_INSTALL=''
 #MISSING_PKGS=$(cat /tmp/overall_petget_missingpkgs_patterns.txt |sort|uniq )
-MISSING_LIBS=$(cat /tmp/overall_missing_libs.txt | tr ' ' '\n' | sort | uniq )
-NOT_IN_PATH_LIBS=$(cat /tmp/overall_missing_libs_hidden.txt | tr ' ' '\n' | sort | uniq )
+MISSING_LIBS=$(cat /tmp/overall_missing_libs.txt 2>/dev/null | tr ' ' '\n' | sort | uniq )
+NOT_IN_PATH_LIBS=$(cat /tmp/overall_missing_libs_hidden.txt 2>/dev/null | tr ' ' '\n' | sort | uniq )
 cat << EOF > /tmp/overall_install_deport
 Installed or Downloaded Packages
 $INSTALLED_PGKS
@@ -132,9 +134,9 @@ export REPORT_DIALOG='
 RETPARAMS="`gtkdialog --center -p REPORT_DIALOG`"
 
 # Clean up
-rm -f /tmp/pkgs_to_install_done
-rm -f /tmp/pgks_really_installed
-rm -f /tmp/pgks_failed_to_install
-rm -f /tmp/overall_petget_missingpkgs_patterns.txt
-rm -f /tmp/overall_missing_libs.txt
-rm -f /tmp/overall_install_deport
+rm -f /tmp/pkgs_to_install_done 2>/dev/null
+rm -f /tmp/pgks_really_installed 2>/dev/null
+rm -f /tmp/pgks_failed_to_install 2>/dev/null
+rm -f /tmp/overall_petget_missingpkgs_patterns.txt 2>/dev/null
+rm -f /tmp/overall_missing_libs.txt 2>/dev/null
+rm -f /tmp/overall_install_deport 2>/dev/null

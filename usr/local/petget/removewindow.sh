@@ -148,7 +148,7 @@ remove_package () {
   echo "$(gettext 'Removing'): $LINE" > /tmp/petget/install_status
   #---
   if [ -f /tmp/remove_pets_quietly ]; then
-   if [ "$(cat /var/local/petget/nt_category)" = "true" ]; then
+   if [ "$(cat /var/local/petget/nt_category 2>/dev/null)" = "true" ]; then
     /usr/local/petget/removepreview.sh
    else 
     rxvt -title "$(gettext 'Removing... Do NOT Close')" \

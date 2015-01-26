@@ -6,7 +6,7 @@ export OUTPUT_CHARSET=UTF-8
 [ "`whoami`" != "root" ] && exec sudo -A ${0} ${@} #110505
 
 clean_up () {
- if [ "$(ls /tmp/*_pet{,s}_quietly /tmp/install_classic |wc -l)" -eq 1 ]; then
+ if [ "$(ls /tmp/*_pet{,s}_quietly /tmp/install_classic 2>/dev/null |wc -l)" -eq 1 ]; then
   for MODE in $(ls /tmp/*_pet{,s}_quietly /tmp/install_classic)
   do
    mv $MODE $MODE.bak
@@ -14,28 +14,28 @@ clean_up () {
  fi
  mv /tmp/install_quietly /tmp/install_quietly.bak
  echo -n > /tmp/pkgs_to_install
- rm -f /tmp/{install,remove}{,_pets}_quietly
- rm -f /tmp/install_classic
- rm -f /tmp/download_pets_quietly
- rm -f /tmp/download_only_pet_quietly
- rm -f /tmp/pkgs_left_to_install
- rm -f /tmp/pkgs_to_install_done
- rm -f /tmp/overall_pkg_size*
- rm -f /tmp/overall_dependencies
- rm -f /tmp/mode_changed
- rm -f /tmp/force*_install
- rm -rf /tmp/PPM_LOGs/
+ rm -f /tmp/{install,remove}{,_pets}_quietly 2>/dev/null
+ rm -f /tmp/install_classic 2>/dev/null
+ rm -f /tmp/download_pets_quietly 2>/dev/null
+ rm -f /tmp/download_only_pet_quietly 2>/dev/null
+ rm -f /tmp/pkgs_left_to_install 2>/dev/null
+ rm -f /tmp/pkgs_to_install_done 2>/dev/null
+ rm -f /tmp/overall_pkg_size* 2>/dev/null
+ rm -f /tmp/overall_dependencies 2>/dev/null
+ rm -f /tmp/mode_changed 2>/dev/null
+ rm -f /tmp/force*_install 2>/dev/null
+ rm -rf /tmp/PPM_LOGs/ 2>/dev/null
  mv $MODE.bak $MODE
  mv /tmp/install_quietly.bak /tmp/install_quietly
 }
 export -f clean_up
 
 check_total_size () {
- rm -f /tmp/petget_deps_visualtreelog
- rm -f /tmp/petget_frame_cnt
- rm -f /tmp/petget_missingpkgs_patterns{2,_acc,_acc0,_acc-prev,x0,_and_versioning_level1}
- rm -f /tmp/petget_moreframes 
- rm -f /tmp/petget_tabs
+ rm -f /tmp/petget_deps_visualtreelog 2>/dev/null
+ rm -f /tmp/petget_frame_cnt 2>/dev/null
+ rm -f /tmp/petget_missingpkgs_patterns{2,_acc,_acc0,_acc-prev,x0,_and_versioning_level1} 2>/dev/null
+ rm -f /tmp/petget_moreframes 2>/dev/null
+ rm -f /tmp/petget_tabs 2>/dev/null
  #required size
  if [ -f /tmp/download_pets_quietly -o -f /tmp/download_only_pet_quietly ]; then
   NEEDEDK_PLUS=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size) / 2048 ) # half for download only 
@@ -56,19 +56,19 @@ check_total_size () {
  fi
  #---
  [ ! -f /tmp/pup_event_sizefreem ] && echo "Free space estimation error. Exiting" \
-	> /tmp/petget/install_status && clean_up
+	> /tmp/petget/install_status && clean_up && exit 1
  AVAILABLE=$(cat /tmp/pup_event_sizefreem | head -n 1 )
  PACKAGES=$(cat /tmp/pkgs_to_install | cut -f 1 -d '|')
  DEPENDENCIES=$(cat /tmp/overall_dependencies | sort | uniq)
  [ "$AVAILABLE" = "0" -o  "$AVAILABLE" = "" ] && echo "No space left on device. Exiting" \
-	> /tmp/petget/install_status && clean_up
+	> /tmp/petget/install_status && clean_up && exit 0
  #statusbar in main gui
  #if [ "$(</tmp/petget/install_status)" = "$(gettext "Digging...")" ]; then
   PERCENT=$((${NEEDEDK}*100/${AVAILABLE}))
   [ $PERCENT -gt 99 ] && PERCENT=99 
   if [ -s /tmp/overall_pkg_size ] && [ $PERCENT = 0 ]; then PERCENT=1; fi
   echo "$PERCENT" > /tmp/petget/install_status_percent
-  if [ "$(cat /tmp/pkgs_to_install /tmp/overall_dependencies)" = "" ]; then
+  if [ "$(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null)" = "" ]; then
    echo "" > /tmp/petget/install_status
   else
    echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install /tmp/overall_dependencies |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
@@ -138,7 +138,7 @@ export -f check_total_size
 status_bar_func () {
  while $1 ; do
   TOTALPKGS=$( expr 1 \+ $(cat /tmp/pkgs_to_install /tmp/overall_dependencies |sort | uniq | wc -l))
-  DONEPGKS=$(cat /tmp/overall_package_status_log | wc -l)
+  DONEPGKS=$(cat /tmp/overall_package_status_log 2>/dev/null | wc -l)
   PERCENT=$( expr $DONEPGKS \* 100 \/ $TOTALPKGS )
   [ $PERCENT = 100 ] && PERCENT=99
   echo $PERCENT > /tmp/petget/install_status_percent
@@ -161,7 +161,7 @@ install_package () {
     echo "$(gettext "Calculating total required space...")" > /tmp/petget/install_status
     [ ! -f /root/.packages/skip_space_check ] && check_total_size
     status_bar_func &
-    if [ "$(cat /var/local/petget/nt_category)" = "true" ]; then
+    if [ "$(cat /var/local/petget/nt_category 2>/dev/null)" = "true" ]; then
      /usr/local/petget/installpreview.sh
     else
 	 rxvt -title "$VTTITLE... Do NOT close" \
@@ -182,7 +182,7 @@ install_package () {
 export -f install_package
 
 recalculate_sizes () {
-	if [ "$(grep changed /tmp/mode_changed)" != "" ]; then
+	if [ "$(grep changed /tmp/mode_changed 2>/dev/null)" != "" ]; then
 		rm -f /tmp/overall_*
 		for LINE in $(cat /tmp/pkgs_to_install)
 		do
