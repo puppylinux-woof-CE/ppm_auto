@@ -258,32 +258,13 @@ fi
     #...appends pkgname and category to /tmp/petget-installed-pkgs-log if successful.
    fi
    if [ $? -ne 0 ];then
-    export FAIL_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
-  <vbox>
-  <pixmap><input file>/usr/local/lib/X11/pixmaps/error.xpm</input></pixmap>
-   <text use-markup=\"true\"><label>\"<b>$(gettext 'Error, faulty download of') ${DLPKG}</b>\"</label></text>
-   <hbox>
-    <button ok></button>
-   </hbox>
-  </vbox>
- </window>" 
-    gtkdialog3 --program=FAIL_DIALOG
+    /usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" error "<b>$(gettext 'Faulty download of') ${DLPKG}</b>"
     FAILCNT=`expr $FAILCNT + 1` #101118
    fi
    #already removed, but take precautions...
   [ "$PASSEDPARAM" != "DOWNLOADONLY" -a "$DL_SAVE_FLAG" != "true" ] && rm -f $DLPKG 2>/dev/null
   else
-   export FAIL_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
-  <vbox>
-  <pixmap><input file>/usr/local/lib/X11/pixmaps/error.xpm</input></pixmap>
-   <text use-markup=\"true\"><label>\"<b>$(gettext 'Error, failed to download') ${DLPKG}</b>\"</label></text>
-   <hbox>
-    <button ok></button>
-   </hbox>
-  </vbox>
- </window>
-" 
-   gtkdialog3 --program=FAIL_DIALOG
+   /usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" error "<b>$(gettext 'Failed to download') ${DLPKG}</b>"
    FAILCNT=`expr $FAILCNT + 1` #101118
   fi
  done
@@ -295,18 +276,7 @@ done
 
 if [ "$PASSEDPARAM" = "DOWNLOADONLY" -a ! -f /tmp/download_pets_quietly \
  -a ! -f /tmp/download_only_pet_quietly ];then
- export DL_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
-  <vbox>
-  <pixmap><input file>/usr/local/lib/X11/pixmaps/ok.xpm</input></pixmap>
-   <text><label>$(gettext 'Finished. The packages have been downloaded to') \"$PWD\"  $(gettext 'directory.')</label></text>
-   <hbox>
-    <button ok></button>
-   </hbox>
-  </vbox>
- </window>
-" 
- [ -f "$DLPKG" ] && gtkdialog --program=DL_DIALOG
-
+ /usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" complete "$(gettext 'Finished. The packages have been downloaded to') $PWD $(gettext 'directory.')"
  exit $EXITVAL
 fi
 
@@ -368,9 +338,9 @@ if [ -s /tmp/petget-installed-pkgs-log ];then
  [ "`echo "$INSTALLEDMSG" | grep -o 'CATEGORY.*' | grep -v 'none'`" != "" ] && CAT_MSG="$(gettext '...look in the appropriate category in the menu (bottom-left of screen) to run the application. Note, some packages do not have a menu entry.')" #424 fix. 101016 fix.
  #120904 vertical scrollbar...
 if [ ! -f /tmp/install_quietly ]; then
- export INSTALL_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
+ export PPM_INSTALL="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
   <vbox>
-   <pixmap><input file>/usr/local/lib/X11/pixmaps/ok.xpm</input></pixmap>
+   <pixmap><input file>/usr/share/pixmaps/puppy/dialog-complete.svg</input></pixmap>
    <text><label>$(gettext 'The following packages have been successfully installed:')</label></text>
    <vbox scrollable=\"true\" height=\"100\">
     <text wrap=\"false\" use-markup=\"true\"><label>\"<b>${ZINSTALLEDMSG}</b>\"</label></text>
@@ -380,7 +350,7 @@ if [ ! -f /tmp/install_quietly ]; then
   </vbox>
  </window>
 " 
- RETPARAMS="`gtkdialog4 --program=INSTALL_DIALOG`"
+ RETPARAMS="`gtkdialog -p PPM_INSTALL`"
  eval "$RETPARAMS"
 else
  RETPARAMS='EXIT="OK"'
@@ -394,7 +364,7 @@ fi
   LISTLOCALES="`echo -e -n "en\n${CURRLOCALES}" | sort -u | tr -s '\n' | tr '\n' ',' | sed -e 's%,$%%'`"
   export TRIM_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
   <vbox>
-   <pixmap><input file>/usr/local/lib/X11/pixmaps/question.xpm</input></pixmap>
+   <pixmap><input file>/usr/share/pixmaps/puppy/dialog-question.svg</input></pixmap>
    <text><label>$(gettext "You have chosen to 'trim the fat' of these installed packages:")</label></text>
    <text use-markup=\"true\"><label>\"<b>${INSTALLEDPKGNAMES}</b>\"</label></text>
    <frame Locale>
