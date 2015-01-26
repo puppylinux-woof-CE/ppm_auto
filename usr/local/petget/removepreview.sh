@@ -33,40 +33,16 @@ DB_pkgname="$TREE2"
 
 #v424 info box, nothing yet installed...
 if [ "$DB_pkgname" = "" -a "`cat /root/.packages/user-installed-packages`" = "" ];then #fix for ziggi
- export REM_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
-  <vbox>
-   <pixmap><input file>/usr/local/lib/X11/pixmaps/error.xpm</input></pixmap>
-   <text><label>$(gettext 'There are no user-installed packages yet, so nothing to uninstall!')</label></text>
-   <hbox>
-    <button ok></button>
-   </hbox>
-  </vbox>
- </window>
-"
- [ "$DISPLAY" != "" ] && gtkdialog3 --program=REM_DIALOG
+ /usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" error "$(gettext 'There are no user-installed packages yet, so nothing to uninstall!')"
  exit 0
 fi
 #if [ "$DB_pkgname" = "" ];then #fix for ziggi moved here problem is  #2011-12-27 KRG
 #exit 0                         #clicking an empty line in the gui would have
 #fi                             #thrown the above REM_DIALOG even if pkgs are installed
 
-if [ ! -f /tmp/remove_pets_quietly ]; then
-export REM_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
-  <vbox>
-   <pixmap><input file>/usr/local/lib/X11/pixmaps/question.xpm</input></pixmap>
-   <text><label>$(gettext "Click 'OK' button to confirm that you wish to uninstall package") '$DB_pkgname'</label></text>
-   <hbox>
-    <button ok></button>
-    <button cancel></button>
-   </hbox>
-  </vbox>
- </window>
-" 
-if [ "$DISPLAY" != "" ];then
- RETPARAMS="`gtkdialog3 --program=REM_DIALOG`"
- eval "$RETPARAMS"
- [ "$EXIT" != "OK" ] && exit 0
-fi
+if [ ! -f /tmp/remove_pets_quietly ] && [ ! "$DISPLAY" ]
+ . /usr/lib/gtkdialog/box_yesno "$(gettext 'Puppy Package Manager')" "$(gettext "Do you want to uninstall package")" "<b>${DB_pkgname}</b>"
+ [ "$EXIT" != "yes" ] && exit 0
 fi
 
 #111228 if snapmergepuppy running, wait for it to complete (see also /usr/local/petget/installpkg.sh)...
@@ -399,7 +375,7 @@ fi
 if [ ! -f /tmp/remove_pets_quietly ]; then
  export REM_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
   <vbox>
-  <pixmap><input file>/usr/local/lib/X11/pixmaps/ok.xpm</input></pixmap>
+  <pixmap><input file>/usr/share/pixmaps/puppy/dialog-complete.svg</input></pixmap>
    <text><label>$(gettext 'Package') '$DB_pkgname' $(gettext 'has been removed.')</label></text>
    ${EXTRAMSG}
    <hbox>
