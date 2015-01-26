@@ -371,8 +371,8 @@ else
   RETPARAMS="$DEPS_TOINSTALL
 $PKG_TOINSTALL
 EXIT=$xEXIT"
-  [ "$DEPS_TOINSTALL" != "" ] && echo "$DEPS_TOINSTALL" | cut -f 4 -d '_' \
-   | cut -f 1 -d '=' >> /tmp/pkgs_to_install_done
+  [ "$DEPS_TOINSTALL" != "" ] && echo "$DEPS_TOINSTALL"  | cut -f 1 -d '=' \
+   | cut -f 4-10 -d '_'  >> /tmp/pkgs_to_install_done
   rm -f /tmp/petget_moreframes
 fi
 

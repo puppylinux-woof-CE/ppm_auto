@@ -13,7 +13,7 @@ export OUTPUT_CHARSET=UTF-8
 sync
 rm -f /tmp/pgks_really_installed 2>/dev/null
 rm -f /tmp/pgks_failed_to_install 2>/dev/null
-for LINE in $(cat /tmp/pkgs_to_install_done  | cut -f 1 -d '|') 
+for LINE in $(cat /tmp/pkgs_to_install_done  | cut -f 1 -d '|' | sort | uniq)
 do
  if [  -f /tmp/download_pets_quietly -o  -f /tmp/download_only_pet_quietly ];then
   DOWN_PATH=$HOME
