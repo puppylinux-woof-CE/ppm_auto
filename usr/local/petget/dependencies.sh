@@ -34,7 +34,9 @@
 #121102 Packages-puppy-${DISTRO_FILE_PREFIX}- (or Packages-puppy-${DISTRO_COMPAT_VERSION}-) is now Packages-puppy-${DISTRO_DB_SUBNAME}-. refer /etc/DISTRO_SPECS.
 #130511 vercmp failed this test: if vercmp 2.2.1 ge 2.2~2011week36; then echo 'greater'; fi -- have solved this in woof, support debdb2pupdb.bac
 
-[ -f /tmp/install_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ "$(cat /var/local/petget/nt_category 2>/dev/null)" != "true" ] && \
+ [ -f /tmp/install_quietly ] && set -x
+ #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 export TEXTDOMAIN=petget___dependencies.sh
 export OUTPUT_CHARSET=UTF-8

@@ -13,7 +13,9 @@
 #120905 vertical scrollbars, fix window too high.
 #130511 need to include devx-only-installed-packages, if loaded.
 
-[ -f /tmp/install_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ "$(cat /var/local/petget/nt_category 2>/dev/null)" != "true" ] && \
+ [ -f /tmp/install_quietly ] && set -x
+ #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 export TEXTDOMAIN=petget___check_deps.sh
 export OUTPUT_CHARSET=UTF-8

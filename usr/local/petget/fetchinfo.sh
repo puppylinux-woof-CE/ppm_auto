@@ -9,7 +9,9 @@
 #120515 support gentoo arm distro (built from bin tarballs from a gentoo sd image).
 #120719 support raspbian.
 
-[ -f /tmp/install_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ "$(cat /var/local/petget/nt_category 2>/dev/null)" != "true" ] && \
+ [ -f /tmp/install_quietly ] && set -x
+ #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 export TEXTDOMAIN=petget___fetchinfo.sh
 export OUTPUT_CHARSET=UTF-8

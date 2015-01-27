@@ -16,7 +16,9 @@
 #120908 revert 120220.
 #121019 extra msg if missing-url, when called from ppm (refer /usr/local/petget/downloadpkgs.sh).
 
-[ -f /tmp/install_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ "$(cat /var/local/petget/nt_category 2>/dev/null)" != "true" ] && \
+ [ -f /tmp/install_quietly ] && set -x
+ #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 BG='#2F2F2F'
 FG='#E3DB8B'

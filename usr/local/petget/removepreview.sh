@@ -20,7 +20,9 @@
 #120203 BK: internationalized.
 #120323 replace 'xmessage' with 'pupmessage'.
 
-[ -f /tmp/remove_pets_quietly ] && set -x #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
+[ "$(cat /var/local/petget/nt_category 2>/dev/null)" != "true" ] && \
+ [ -f /tmp/remove_pets_quietly ] && set -x
+ #; mkdir -p /tmp/PPM_LOGs ; NAME=$(basename "$0"); exec 1>> /tmp/PPM_LOGs/"$NAME".log 2>&1
 
 export TEXTDOMAIN=petget___removepreview.sh
 export OUTPUT_CHARSET=UTF-8

@@ -7,7 +7,7 @@
 
 echo '#!/bin/sh' >  /tmp/petget_urltest
 echo 'echo "Testing the URLs:"' >>  /tmp/petget_urltest
-echo '[ -f /tmp/install_quietly ] && set -x' >>  /tmp/petget_urltest
+echo '[ "$(cat /var/local/petget/nt_category 2>/dev/null)" != "true" ] && [ -f /tmp/install_quietly ] && set -x' >>  /tmp/petget_urltest
 
 for ONEURLSPEC in `cat /tmp/petget_repos`
 do
