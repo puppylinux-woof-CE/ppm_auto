@@ -59,7 +59,7 @@ check_total_size () {
 	> /tmp/petget/install_status && clean_up && exit 1
  AVAILABLE=$(cat /tmp/pup_event_sizefreem | head -n 1 )
  PACKAGES=$(cat /tmp/pkgs_to_install | cut -f 1 -d '|')
- DEPENDENCIES=$(cat /tmp/overall_dependencies | sort | uniq)
+ DEPENDENCIES=$(cat /tmp/overall_dependencies 2>/dev/null | sort | uniq)
  [ "$AVAILABLE" = "0" -o  "$AVAILABLE" = "" ] && echo "No space left on device. Exiting" \
 	> /tmp/petget/install_status && clean_up && exit 0
  #statusbar in main gui
@@ -71,7 +71,7 @@ check_total_size () {
   if [ "$(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null)" = "" ]; then
    echo "" > /tmp/petget/install_status
   else
-   echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install /tmp/overall_dependencies |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
+   echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
   fi
  #fi
  #Check if enough space on system
@@ -137,7 +137,7 @@ export -f check_total_size
 
 status_bar_func () {
  while $1 ; do
-  TOTALPKGS=$( expr 1 \+ $(cat /tmp/pkgs_to_install /tmp/overall_dependencies |sort | uniq | wc -l))
+  TOTALPKGS=$( expr 1 \+ $(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l))
   DONEPGKS=$(cat /tmp/overall_package_status_log 2>/dev/null | wc -l)
   PERCENT=$( expr $DONEPGKS \* 100 \/ $TOTALPKGS )
   [ $PERCENT = 100 ] && PERCENT=99
