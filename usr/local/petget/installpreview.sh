@@ -472,7 +472,7 @@ fi
 
 #Reconstruct configuration files for JWM, Fvwm95, IceWM...
 if [ "$UPDATE_MENUS" = "yes" -a "$INSTALLEDCAT" != "none" ];then
- /usr/sbin/fixmenus
+ nohup /usr/sbin/fixmenus
  if [ "`pidof jwm`" != "" ];then #120101
   if vercmp $JWMVER lt 574;then #120116 547 to 574.
    jwm -restart #w482
@@ -491,4 +491,5 @@ PKGS="`cat /tmp/petget_missing_dbentries-* | cut -f 1 -d '|' | tr '\n' '|'`"
 
 [ -f /tmp/petget/current-repo-triad.previous ] && mv -f /tmp/petget/current-repo-triad.previous /tmp/petget/current-repo-triad #120504
 
+rm -f nohup.out 2>/dev/null
 ###END###

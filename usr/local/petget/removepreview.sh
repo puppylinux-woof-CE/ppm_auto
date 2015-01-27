@@ -316,7 +316,7 @@ if [ "$UPDATE_MENUS" = "yes" ]; then
  if [ -f /root/.packages/${DB_pkgname}.files ];then
   if [ "`grep '\.desktop$' /root/.packages/${DB_pkgname}.files`" != "" ];then
    #Reconstruct configuration files for JWM, Fvwm95, IceWM...
-   /usr/sbin/fixmenus
+   nohup /usr/sbin/fixmenus
    if [ "`pidof jwm`" != "" ];then #120101
     JWMVER=`jwm -v|head -n1|cut -d ' ' -f2|cut -d - -f2`
     if vercmp $JWMVER lt 574;then #120116 547 to 574.
