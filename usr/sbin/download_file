@@ -217,6 +217,8 @@ entire file again?\"`" 0 0
   PID1=$!
  fi
  #-t 5 means retry 5 times, -w 5 means wait 5 seconds between retries...
+ [ -f /tmp/install_quietly -a "$(cat /var/local/petget/nt_category 2>/dev/null)" != "true" ]\
+  && tail -f /tmp/download_file_spider.log2 &
  wget -4 ${CONTPARAM} -t 5 -w 5 "${URLSPEC}" > /tmp/download_file_spider.log2 2>&1
  if [ $? -ne 0 ];then
   Xdialog --wmclass "gtkdialog2" --title "$(gettext 'Puppy File Downloader')" --screen-center --cr-wrap --ok-label "$(gettext 'TRY AGAIN')" --cancel-label "$(gettext 'GIVE UP')" --icon "/usr/share/pixmaps/puppy/dialog-error.svg" --yesno "$(gettext 'Download failed, see log top-left of screen.
