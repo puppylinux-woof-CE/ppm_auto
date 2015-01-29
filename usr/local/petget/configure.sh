@@ -47,20 +47,21 @@ do
  CHECKBOXES_REPOS="${CHECKBOXES_REPOS}<checkbox><default>${DEFAULT}</default><label>${DBNAME}</label><variable>CHECK_${DBNAME}</variable></checkbox>"
 done
 
-#110118 choose a user interface...
-#UI="`cat /var/local/petget/ui_choice`"
-#[ "$UI" = "" ] && UI="Ziggy"
-#UI_RADIO="<radiobutton><label>${UI}</label><action>echo -n ${UI} > /var/local/petget/ui_choice</action></radiobutton>"
-#for ONEUI in Classic Ziggy
-#do
-# [ "$ONEUI" = "$UI" ] && continue
-# UI_RADIO="${UI_RADIO}<radiobutton><label>${ONEUI}</label><action>echo -n ${ONEUI} > /var/local/petget/ui_choice</action></radiobutton>"
-#done
-
+if [ "$(cat /tmp/pup_event_sizefreem | head -n 1 )" -gt 4000 ]; then
+    [ -f /var/local/petget/sc_category ] && \
+     CATEGORY_SC=$(cat /var/local/petget/sc_category) || CATEGORY_SC="false"
+	SIZEBOX="<checkbox>
+        <label>$(gettext 'Skip package size check when more than 4GB of storage is available')</label>
+        <variable>CATEGORY_SC</variable>
+        <default>${CATEGORY_SC}</default>
+     </checkbox>"
+else
+	SIZEBOX=''
+fi
 
 S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="gtk-about">
 <vbox space-expand="true" space-fill="true">
-<notebook tab-pos="2" labels="'$(gettext 'Choose repositories')'|'$(gettext 'Update database')'|'$(gettext 'Misc')'" space-expand="true" space-fill="true">
+<notebook tab-pos="2" labels="'$(gettext 'Choose repositories')'|'$(gettext 'Update database')'|'$(gettext 'Options')'" space-expand="true" space-fill="true">
   <vbox space-expand="true" space-fill="true">
     <frame '$(gettext 'Choose repositories')'>
       <vbox space-expand="false" space-fill="false">
@@ -130,7 +131,7 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
   </vbox>
 
   <vbox space-expand="true" space-fill="true">
-    <frame '$(gettext 'Misc')'>
+    <frame '$(gettext 'Options')'>
       <checkbox>
         <label>'$(gettext "Enable BuildingBlock category (for advanced users only!)")'</label>
         <variable>CATEGORY_BB</variable>'
@@ -142,11 +143,7 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
         S=$S'<action>if true echo Classic > /var/local/petget/ui_choice</action>
         <action>if false echo Ziggy > /var/local/petget/ui_choice</action>
       </checkbox>
-      <checkbox>
-        <label>'$(gettext "Skip package size check when more than 4GB of storage is available")'</label>
-        <variable>CATEGORY_SC</variable>'
-        [ "$(</var/local/petget/sc_category)" = "true" ] && S=$S'<default>true</default>'
-      S=$S'</checkbox>
+      '${SIZEBOX}'
       <checkbox>
         <label>'$(gettext "Do not show the terminal with PPM actions")'</label>
         <variable>CATEGORY_NT</variable>'
