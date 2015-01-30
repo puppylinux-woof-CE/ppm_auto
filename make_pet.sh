@@ -17,6 +17,7 @@ rm -rf $NAME
 mkdir -p $NAME
 cp -aR usr $NAME/
 cp -a pet.specs $NAME/
+cp -a pinstall.sh $NAME/
 sync
 urxvt -e dir2pet $NAME/
 [ $? -ne 0 ] && rm -rf $NAME
