@@ -37,22 +37,16 @@ check_total_size () {
  rm -f /tmp/petget_moreframes 2>/dev/null
  rm -f /tmp/petget_tabs 2>/dev/null
  #required size
+ NEEDEDK_PLUS=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size)) 
+ [ -f /tmp/overall_pkg_size_RMV ] && \
+  NEEDEDK_MINUS=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size_RMV)) \
+  || NEEDEDK_MINUS=0
+ [ ! "$NEEDEDK_MINUS" ] && NEEDEDK_MINUS=0
+ NEEDEDK=$( expr $( expr $NEEDEDK_PLUS + $NEEDEDK_MINUS ) / 768 ) # 1.5x
+ ACTION_MSG=$(gettext 'This is not enough space to download and install the packages (including dependencies) you have selected.')
  if [ -f /tmp/download_pets_quietly -o -f /tmp/download_only_pet_quietly ]; then
-  NEEDEDK_PLUS=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size) / 2048 ) # half for download only 
-  [ -f /tmp/overall_pkg_size_RMV ] && \
-   NEEDEDK_MINUS=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size_RMV) / 512 ) \
-   || NEEDEDK_MINUS=0
-  [ ! "$NEEDEDK_MINUS" ] && NEEDEDK_MINUS=0
-  NEEDEDK=$( expr $NEEDEDK_PLUS + $NEEDEDK_MINUS )
+  NEEDEDK=$( expr $NEEDEDK / 3 ) # 0.5x
   ACTION_MSG=$(gettext 'This is not enough space to download the packages (including dependencies) you have selected.')
- else
-  NEEDEDK_PLUS=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size) / 768 ) # 1.5x for download and install 
-  [ -f /tmp/overall_pkg_size_RMV ] && \
-   NEEDEDK_MINUS=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size_RMV) / 1536 ) \
-   || NEEDEDK_MINUS=0
-  [ ! "$NEEDEDK_MINUS" ] && NEEDEDK_MINUS=0
-  NEEDEDK=$( expr $NEEDEDK_PLUS + $NEEDEDK_MINUS )
-  ACTION_MSG=$(gettext 'This is not enough space to download and install the packages (including dependencies) you have selected.')
  fi
  #---
  [ ! -f /tmp/pup_event_sizefreem ] && echo "Free space estimation error. Exiting" \
