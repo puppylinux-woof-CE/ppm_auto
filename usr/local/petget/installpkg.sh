@@ -70,8 +70,8 @@ export LANG=C
 [ "$PUPMODE" = "2" ] && [ ! -d /audit ] && mkdir -p /audit
 
 DLPKG="$1"
-DLPKG_BASE="`basename $DLPKG`" #ex: scite-1.77-i686-2as.tgz
-DLPKG_PATH="`dirname $DLPKG`"  #ex: /root
+DLPKG_BASE="`basename "$DLPKG"`" #ex: scite-1.77-i686-2as.tgz
+DLPKG_PATH="`dirname "$DLPKG"`"  #ex: /root
 DL_SAVE_FLAG=$(cat /var/local/petget/nd_category)
 
 clean_and_die () {
@@ -142,7 +142,7 @@ if [ "$PUPMODE" = "2" ]; then # from BK's quirky6.1
 
 #131220  131229 detect if not enough room in /tmp...
 DIRECTSAVEPATH="/tmp/petget/directsavepath"
-SIZEB=`stat --format=%s ${DLPKG_PATH}/${DLPKG_BASE}`
+SIZEB=`stat --format=%s "${DLPKG_PATH}"/${DLPKG_BASE}`
 SIZEK=`expr $SIZEB \/ 1024`
 EXPK=`expr $SIZEK \* 5` #estimated worst-case expanded size.
 NEEDK=$EXPK
@@ -168,7 +168,7 @@ if [ $NEEDK -gt $PARTK ];then
   echo "${ABORTMSG1}
 ${ABORTMSG2}"
  fi
- [ "$DLPKG_PATH" = "/root" ] && rm -f ${DLPKG_PATH}/${DLPKG_BASE}
+ [ "$DLPKG_PATH" != "" ] && rm -f "${DLPKG_PATH}"/${DLPKG_BASE}
  exit 1
 fi
 
@@ -201,7 +201,7 @@ if [ $DISPLAY -a ! -f /tmp/install_quietly ];then #131222
  trap 'pupkill $YAFPID1' EXIT #140318
 fi
 
-cd $DLPKG_PATH
+cd "$DLPKG_PATH"
 
 case $DLPKG_BASE in
  *.pet)

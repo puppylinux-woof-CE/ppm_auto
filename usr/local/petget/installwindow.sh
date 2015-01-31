@@ -5,6 +5,10 @@ export OUTPUT_CHARSET=UTF-8
 
 [ "`whoami`" != "root" ] && exec sudo -A ${0} ${@} #110505
 
+if [ -f /root/.packages/download_path ]; then
+ . /root/.packages/download_path
+fi
+
 clean_up () {
  if [ "$(ls /tmp/*_pet{,s}_quietly /tmp/install_classic 2>/dev/null |wc -l)" -eq 1 ]; then
   for MODE in $(ls /tmp/*_pet{,s}_quietly /tmp/install_classic)
@@ -48,28 +52,42 @@ check_total_size () {
   NEEDEDK=$( expr $NEEDEDK / 3 ) # 0.5x
   ACTION_MSG=$(gettext 'This is not enough space to download the packages (including dependencies) you have selected.')
  fi
+ if [ "$(cat /var/local/petget/nd_category)" = "true" ]; then
+  NEEDEDKDOWN=$( expr $NEEDEDK / 3 )
+ else
+  NEEDEDKDOWN="$NEEDEDK" # so will not trigger warning
+ fi
  #---
  [ ! -f /tmp/pup_event_sizefreem ] && echo "Free space estimation error. Exiting" \
 	> /tmp/petget/install_status && clean_up && exit 1
  AVAILABLE=$(cat /tmp/pup_event_sizefreem | head -n 1 )
+ if [ "$DL_PATH" != "/root" ]; then
+  if [ -f /tmp/download_pets_quietly -o -f /tmp/download_only_pet_quietly \
+   -o "$(cat /var/local/petget/nd_category)" = "true" ]; then
+   SAVEAVAILABLE=$(df -m "$DL_PATH"| awk 'END {print $4}')
+  fi
+ else
+  SAVEAVAILABLE="$AVAILABLE" # so will not trigger warning
+ fi
+ if [ -f /tmp/download_pets_quietly -o -f /tmp/download_only_pet_quietly ]; then
+  [ "$SAVEAVAILABLE" != "$AVAILABLE" ] && AVAILABLE="$SAVEAVAILABLE"
+ fi
  PACKAGES=$(cat /tmp/pkgs_to_install | cut -f 1 -d '|')
  DEPENDENCIES=$(cat /tmp/overall_dependencies 2>/dev/null | sort | uniq)
  [ "$AVAILABLE" = "0" -o  "$AVAILABLE" = "" ] && echo "No space left on device. Exiting" \
 	> /tmp/petget/install_status && clean_up && exit 0
  #statusbar in main gui
- #if [ "$(</tmp/petget/install_status)" = "$(gettext "Digging...")" ]; then
-  PERCENT=$((${NEEDEDK}*100/${AVAILABLE}))
-  [ $PERCENT -gt 99 ] && PERCENT=99 
-  if [ -s /tmp/overall_pkg_size ] && [ $PERCENT = 0 ]; then PERCENT=1; fi
-  echo "$PERCENT" > /tmp/petget/install_status_percent
-  if [ "$(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null)" = "" ]; then
-   echo "" > /tmp/petget/install_status
-  else
-   echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
-  fi
- #fi
+ PERCENT=$((${NEEDEDK}*100/${AVAILABLE}))
+ [ $PERCENT -gt 99 ] && PERCENT=99
+ if [ -s /tmp/overall_pkg_size ] && [ $PERCENT = 0 ]; then PERCENT=1; fi
+ echo "$PERCENT" > /tmp/petget/install_status_percent
+ if [ "$(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null)" = "" ]; then
+  echo "" > /tmp/petget/install_status
+ else
+  echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
+ fi
  #Check if enough space on system
- if [ "$NEEDEDK" -ge "$AVAILABLE" ]; then
+ if [ "$NEEDEDK" -ge "$AVAILABLE" -o "$NEEDEDKDOWN" -ge "$SAVEAVAILABLE" ]; then
   export PPM_error='
   <window title="PPM - '$(gettext 'Space needed')'" icon-name="gtk-no">
   <vbox space-expand="true" space-fill="true">

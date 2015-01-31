@@ -59,6 +59,16 @@ else
 	SIZEBOX=''
 fi
 
+# pet download folder
+SAVEPATH=""
+if [ -f /root/.packages/download_path ]; then
+ . /root/.packages/download_path
+ [ -d "$DL_PATH" ] && DL_PATH="$DL_PATH" || DL_PATH=/root
+else
+ DL_PATH=/root
+fi
+
+
 S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="gtk-about">
 <vbox space-expand="true" space-fill="true">
 <notebook tab-pos="2" labels="'$(gettext 'Choose repositories')'|'$(gettext 'Update database')'|'$(gettext 'Options')'" space-expand="true" space-fill="true">
@@ -159,6 +169,14 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
         <variable>CATEGORY_ND</variable>'
         [ "$(</var/local/petget/nd_category)" = "true" ] && S=$S'<default>true</default>'
       S=$S'</checkbox>
+      <hbox>
+        <text width-request="100"><label>'$(gettext "Save PKGs in:")'</label></text>
+        <entry accept="folder" width-request="200" tooltip-text="'$(gettext "To change, type a path to a folder or use the button to sellect a folder. Delete the present path to default back to /root")'"><default>'${DL_PATH}'</default><variable>SAVEPATH</variable></entry>
+        <button>
+         <input file stock="gtk-open"></input>
+         <action type="fileselect">SAVEPATH</action>
+        </button>
+	  </hbox>
      </frame>
   </vbox>
 </notebook>
@@ -204,6 +222,17 @@ echo -n "$RETPARAMS" | grep 'CATEGORY_SC' | cut -d= -f2 | tr -d '"' > /var/local
 echo -n "$RETPARAMS" | grep 'CATEGORY_NT' | cut -d= -f2 | tr -d '"' > /var/local/petget/nt_category
 echo -n "$RETPARAMS" | grep 'CATEGORY_RD' | cut -d= -f2 | tr -d '"' > /var/local/petget/rd_category
 echo -n "$RETPARAMS" | grep 'CATEGORY_ND' | cut -d= -f2 | tr -d '"' > /var/local/petget/nd_category
+
+# handle savepath
+SAVEPATH="`echo -n "$RETPARAMS" | grep 'SAVEPATH' | cut -f 2 -d '"'`"
+if [ "$SAVEPATH" = "" ];then
+	rm -f /root/.packages/download_path
+else
+	[ ! -d "$SAVEPATH" ] && mkdir -p "$SAVEPATH"
+	echo DL_PATH=\'$SAVEPATH\' > /root/.packages/download_path
+fi
+
+
 enabledrepos=" "
 #repocnt=1
 for ONEREPO in `echo "$DBFILESLIST" | tr '\n' ' '` #121129

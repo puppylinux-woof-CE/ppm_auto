@@ -44,7 +44,13 @@ FLAGPET="" #101016
 . /root/.packages/DISTRO_PET_REPOS #has PET_REPOS, PACKAGELISTS_PET_ORDER
 . /root/.packages/DISTRO_COMPAT_REPOS #v431 has REPOS_DISTRO_COMPAT
 
-DL_PATH=/root
+if [ -f /root/.packages/download_path ]; then
+ . /root/.packages/download_path
+ [ -d "$DL_PATH" ] && DL_PATH="$DL_PATH" || DL_PATH=/root
+else
+ DL_PATH=/root
+fi
+
 DL_SAVE_FLAG=$(cat /var/local/petget/nd_category)
 
 echo -n "" > /tmp/petget-installed-pkgs-log
@@ -244,13 +250,13 @@ fi
    download_file ${DOWNLOADFROM}/${ONEFILE}
    if [ $? -ne 0 ];then #101116
     DLPKG="`basename $ONEFILE`"
-    [ -f $DLPKG ] && rm -f $DLPKG
+    [ -f "${DL_PATH}"/$DLPKG ] && rm -f "${DL_PATH}"/$DLPKG
    fi
    unset DL_F_CALLED_FROM
   fi
   sync
   DLPKG="`basename $ONEFILE`"
-  if [ -f $DLPKG -a "$DLPKG" != "" ];then
+  if [ -f "${DL_PATH}"/$DLPKG -a "$DLPKG" != "" ];then
    if [ "$PASSEDPARAM" = "DOWNLOADONLY" ];then
     echo "$(gettext 'Verifying'): ${ONEFILE}" > /tmp/petget/install_status
     /usr/local/petget/verifypkg.sh $DLPKG
