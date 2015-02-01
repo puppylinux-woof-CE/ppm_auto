@@ -183,8 +183,13 @@ PKGPATH=/root
 cd "$PKGPATH" #well, this is /root
 
 #confirm want to install...
-. /usr/lib/gtkdialog/box_yesno "$(gettext 'Puppy Package Manager')" "$(gettext 'Do you want to install this package:')" "<b>${FULLPKGNAME}</b>"
-[ "$EXIT" != "yes" ] && [ "$DOWNLOADED" != "yes" ] && rm -f /root/${FULLPKGNAME} && exit 0
+if [ $DISPLAY ]; then
+ . /usr/lib/gtkdialog/box_yesno "$(gettext 'Puppy Package Manager')" "$(gettext 'Do you want to install this package:')" "<b>${FULLPKGNAME}</b>"
+ [ "$EXIT" != "yes" ] && [ "$DOWNLOADED" != "yes" ] && rm -f /root/${FULLPKGNAME} && exit 0
+else
+  dialog --yesno "$(gettext 'Do you want to install this package:') $FULLPKGNAME" 0 0
+ [ $? -ne 0 ] && [ "$DOWNLOADED" != "yes" ] && rm -f /root/${FULLPKGNAME} && exit 0
+fi
 
 #find entry in databases...
 #pkgname|nameonly|version|pkgrelease|category|size|path|fullfilename|dependencies|description|
