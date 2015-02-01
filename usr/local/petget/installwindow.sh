@@ -40,6 +40,7 @@ check_total_size () {
  rm -f /tmp/petget_missingpkgs_patterns{2,_acc,_acc0,_acc-prev,x0,_and_versioning_level1} 2>/dev/null
  rm -f /tmp/petget_moreframes 2>/dev/null
  rm -f /tmp/petget_tabs 2>/dev/null
+ rm -f /tmp/pkgs_to_install_bar 2>/dev/null
  #required size
  NEEDEDK_PLUS=$( expr $(awk '{ sum += $1 } END { print sum }' /tmp/overall_pkg_size)) 
  [ -f /tmp/overall_pkg_size_RMV ] && \
@@ -86,7 +87,8 @@ check_total_size () {
  if [ "$(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null)" = "" ]; then
   echo "" > /tmp/petget/install_status
  else
-  echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
+  cat /tmp/pkgs_to_install | cut -f1 -d '|' > /tmp/pkgs_to_install_bar
+  echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install_bar /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
  fi
  #Check if enough space on system
  if [ "$NEEDEDK" -ge "$AVAILABLE" -o "$NEEDEDKDOWN" -ge "$SAVEAVAILABLE" ]; then
@@ -151,7 +153,7 @@ export -f check_total_size
 
 status_bar_func () {
  while $1 ; do
-  TOTALPKGS=$( expr 1 \+ $(cat /tmp/pkgs_to_install /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l))
+  TOTALPKGS=$( expr 1 \+ $(cat /tmp/pkgs_to_install_bar /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l))
   DONEPGKS=$(cat /tmp/overall_package_status_log 2>/dev/null | wc -l)
   PERCENT=$( expr $DONEPGKS \* 100 \/ $TOTALPKGS )
   [ $PERCENT = 100 ] && PERCENT=99
