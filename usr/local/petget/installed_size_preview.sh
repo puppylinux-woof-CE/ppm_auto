@@ -9,9 +9,6 @@ echo "$REPO" > /tmp/petget/current-repo-triad
 TREE1=$(echo $1 | cut -f 1 -d '|')
 [ ! "$TREE1" ] && exit 0
 
-echo "$1"
-echo "$2"
-
 export TEXTDOMAIN=petget___installed_size_preview.sh
 export OUTPUT_CHARSET=UTF-8
 
@@ -43,7 +40,7 @@ if [ "$DB_dependencies" != "" -a ! -f /tmp/download_only_pet_quietly ]; then
 fi
 
 MISSINGDEPS_PATTERNS="$(cat /tmp/petget_missingpkgs_patterns)"
-if [ "$MISSINGDEPS_PATTERNS" = "" ]; then
+if [ "$MISSINGDEPS_PATTERNS" = "" -a "$(grep $DB_ENTRY /tmp/overall_dependencies)" = "" ]; then
  SIZEMK="`echo -n "$DB_size" | rev | cut -c 1`"
  SIZEVAL=`echo -n "$DB_size" | rev | cut -c 2-9 | rev`
  case "$SIZEMK" in
@@ -83,12 +80,12 @@ FNDMISSINGDBENTRYFILE="`ls -1 /tmp/petget_missing_dbentries-* 2>/dev/null`"
  MAINPKG_NAME="`echo "$DB_ENTRY" | cut -f 1 -d '|'`"
  MAINPKG_SIZE="`echo "$DB_ENTRY" | cut -f 6 -d '|'`"
  INSTALLEDSIZEK=0
- if [ "$MAINPKG_SIZE" != "" ]; then
+ if [ "$MAINPKG_SIZE" != "" -a "$(grep $MAINPKG_NAME /tmp/overall_dependencies)" = "" ]; then
   if [ "$2" = "RMV" ]; then
-   INSTALLEDSIZEK=-$(echo "$MAINPKG_SIZE" | rev | cut -c 2-10 | rev)
-   echo "$INSTALLEDSIZEK" > /tmp/petget_installedsizek # In case all deps are needed
+   INSTALLEDSIZEKMAIN=-$(echo "$MAINPKG_SIZE" | rev | cut -c 2-10 | rev)
+   echo "$INSTALLEDSIZEKMAIN" > /tmp/petget_installedsizek # In case all deps are needed
   else
-   INSTALLEDSIZEK=$(echo "$MAINPKG_SIZE" | rev | cut -c 2-10 | rev)
+   INSTALLEDSIZEKMAIN=$(echo "$MAINPKG_SIZE" | rev | cut -c 2-10 | rev)
   fi
  fi
  echo -n "" > /tmp/petget_moreframes
@@ -111,17 +108,21 @@ FNDMISSINGDBENTRYFILE="`ls -1 /tmp/petget_missing_dbentries-* 2>/dev/null`"
     if [ "$2" = "ADD" -o "$(grep $DEP_NAME /tmp/overall_dependencies | wc -l)" -gt 1 ]; then
      echo done that
     else
-     [ "$DEP_SIZE" != "" ] && ADDSIZEK=`echo "$DEP_SIZE" | rev | cut -c 2-10 | rev`
+     [ "$DEP_SIZE" != "" ] && [ "$(grep $DEP_NAME /tmp/overall_dependencies | wc -l)" -le 1 ] \
+      && [ "$(grep $DEP_NAME /tmp/pkgs_to_install)" = "" ] && ADDSIZEK=`echo "$DEP_SIZE" | rev | cut -c 2-10 | rev`
      INSTALLEDSIZEK=`expr $INSTALLEDSIZEK - $ADDSIZEK`
      echo "$INSTALLEDSIZEK" > /tmp/petget_installedsizek_rep
     fi
    else
-    [ "$DEP_SIZE" != "" ] && ADDSIZEK=`echo "$DEP_SIZE" | rev | cut -c 2-10 | rev`
+    [ "$DEP_SIZE" != "" ] && [ "$(grep $DEP_NAME /tmp/pkgs_to_install)" = "" ]  \
+     && ADDSIZEK=`echo "$DEP_SIZE" | rev | cut -c 2-10 | rev`
     INSTALLEDSIZEK=`expr $INSTALLEDSIZEK + $ADDSIZEK`
     echo "$INSTALLEDSIZEK" > /tmp/petget_installedsizek_rep
    fi
   done
-  cat /tmp/petget_installedsizek_rep >> /tmp/petget_installedsizek
+  if [ "$(cat /tmp/petget_installedsizek_rep)" != "$INSTALLEDSIZEKMAIN" ]; then
+   cat /tmp/petget_installedsizek_rep >> /tmp/petget_installedsizek
+  fi
  done
 rm -f /tmp/petget_installedsizek_rep
 INSTALLEDSIZEK=`cat /tmp/petget_installedsizek`
@@ -133,6 +134,7 @@ if [ "$2" = "RMV" ]; then
    done
 else
    echo "$INSTALLEDSIZEK" >> /tmp/overall_pkg_size
+   echo "$INSTALLEDSIZEKMAIN" >> /tmp/overall_pkg_size
    cat /tmp/petget_missing_dbentries-* | cut -f1 -d '|' >> /tmp/dependecies_list
 fi
 
