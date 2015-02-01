@@ -96,6 +96,7 @@ esac
 
 #download if required...
 PKGNAME=""
+DOWNLOADED=""
 if [ "`echo -n "$PASSEDPARAM" | grep -E '^ftp|^http'`" != "" ];then
  cd /root
  #101116 use download_file utility...
@@ -107,6 +108,7 @@ if [ "`echo -n "$PASSEDPARAM" | grep -E '^ftp|^http'`" != "" ];then
   pupmessage -bg red "$(gettext 'Sorry, failed to download') $FULLPKGNAME"
   exit
  fi
+ DOWNLOADED="yes"
 else
  #get rid of any leading '+'...
  PASSEDPARAM="`echo -n "$PASSEDPARAM" | sed -e 's%^+%%'`"
@@ -182,7 +184,7 @@ cd "$PKGPATH" #well, this is /root
 
 #confirm want to install...
 . /usr/lib/gtkdialog/box_yesno "$(gettext 'Puppy Package Manager')" "$(gettext 'Do you want to install this package:')" "<b>${FULLPKGNAME}</b>"
-[ "$EXIT" != "yes" ] && exit
+[ "$EXIT" != "yes" ] && [ "$DOWNLOADED" != "yes" ] && rm -f /root/${FULLPKGNAME} && exit 0
 
 #find entry in databases...
 #pkgname|nameonly|version|pkgrelease|category|size|path|fullfilename|dependencies|description|
