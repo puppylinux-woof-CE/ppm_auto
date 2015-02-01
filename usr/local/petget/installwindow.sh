@@ -65,6 +65,8 @@ check_total_size () {
   if [ -f /tmp/download_pets_quietly -o -f /tmp/download_only_pet_quietly \
    -o "$(cat /var/local/petget/nd_category)" = "true" ]; then
    SAVEAVAILABLE=$(df -m "$DL_PATH"| awk 'END {print $4}')
+  else
+   SAVEAVAILABLE="$AVAILABLE" # so will not trigger warning
   fi
  else
   SAVEAVAILABLE="$AVAILABLE" # so will not trigger warning
