@@ -67,7 +67,9 @@ check_total_size () {
  fi
  #---
  [ ! -f /tmp/pup_event_sizefreem ] && echo "Free space estimation error. Exiting" \
-	> /tmp/petget/install_status && clean_up && exit 1
+	> /tmp/petget/install_status && \
+	/usr/lib/gtkdialog/box_ok "$(gettext 'Pup_event_error')" error "$(gettext 'This is a rare pup_even error that fails to report the available free space. Just click on the free memory applet at the tray and try again. It should be OK after that.')" \
+	&& clean_up && exit 1
  AVAILABLE=$(cat /tmp/pup_event_sizefreem | head -n 1 )
  if [ "$DL_PATH" != "/root" ]; then
   if [ -f /tmp/download_pets_quietly -o -f /tmp/download_only_pet_quietly \
