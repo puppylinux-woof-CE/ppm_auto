@@ -22,6 +22,7 @@ do
   else
    DOWN_PATH=$HOME
   fi
+  REALLY=$(ls "$DOWN_PATH" | grep $LINE)
  else
   REALLY=$(grep $LINE /tmp/petget/installedpkgs.results)
   [ "$(grep $LINE /tmp/pgks_failed_to_install_forced 2>/dev/null | sort | uniq )" != "" ] && REALLY=''
