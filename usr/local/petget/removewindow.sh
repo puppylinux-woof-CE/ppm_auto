@@ -17,7 +17,7 @@ else
 fi
 
 report_window () {
- [ ! -f /tmp/remove_pets_quietly ] && exit 0
+ #[ ! -f /tmp/remove_pets_quietly ] && exit 0
  /usr/local/petget/finduserinstalledpkgs.sh 
  sync
  rm -f /tmp/pgks_really_removed 2>/dev/null
@@ -128,7 +128,7 @@ EOF
  rm -f /tmp/overall_remove_deport
  rm -f /tmp/overall_petget-deps-maybe-rem
  echo 100 > /tmp/petget/install_status_percent
- }
+}
 export -f report_window
 
 remove_package () {
@@ -164,7 +164,7 @@ remove_package () {
  /usr/local/petget/findmissingpkgs.sh
  /usr/local/petget/finduserinstalledpkgs.sh
  rm -f /tmp/{pkgs_to_remove,pkgs_left_to_remove}
- [ -f /tmp/remove_pets_quietly ] && report_window
+ report_window
  rm -f /tmp/remove_pets_quietly 2>/dev/null
 }
 export -f remove_package

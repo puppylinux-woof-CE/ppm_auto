@@ -6,7 +6,7 @@ export TEXTDOMAIN=petget__reportwindow.sh
 export OUTPUT_CHARSET=UTF-8
 
 # Check if we are needed
-[ ! -f /tmp/install_quietly ] && exit 0
+#[ ! -f /tmp/install_quietly ] && exit 0
 
 # Info source files
 /usr/local/petget/finduserinstalledpkgs.sh #make sure...
@@ -136,11 +136,3 @@ export REPORT_DIALOG='
 </vbox>
 </window>'
 RETPARAMS="`gtkdialog --center -p REPORT_DIALOG`"
-
-# Clean up
-rm -f /tmp/pkgs_to_install_done 2>/dev/null
-rm -f /tmp/pgks_really_installed 2>/dev/null
-rm -f /tmp/pgks_failed_to_install 2>/dev/null
-rm -f /tmp/overall_petget_missingpkgs_patterns.txt 2>/dev/null
-rm -f /tmp/overall_missing_libs.txt 2>/dev/null
-rm -f /tmp/overall_install_deport 2>/dev/null

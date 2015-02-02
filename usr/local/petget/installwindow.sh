@@ -28,6 +28,13 @@ clean_up () {
  rm -f /tmp/overall_dependencies 2>/dev/null
  rm -f /tmp/mode_changed 2>/dev/null
  rm -f /tmp/force*_install 2>/dev/null
+ rm -f /tmp/pkgs_to_install_done 2>/dev/null
+ rm -f /tmp/pgks_really_installed 2>/dev/null
+ rm -f /tmp/pgks_failed_to_install 2>/dev/null
+ rm -f /tmp/overall_petget_missingpkgs_patterns.txt 2>/dev/null
+ rm -f /tmp/overall_missing_libs.txt 2>/dev/null
+ rm -f /tmp/overall_install_deport 2>/dev/null
+ rm -f /tmp/pkgs_to_install_bar 2>/dev/null
  rm -rf /tmp/PPM_LOGs/ 2>/dev/null
  mv $MODE.bak $MODE
  mv /tmp/install_quietly.bak /tmp/install_quietly
@@ -167,16 +174,16 @@ export -f status_bar_func
 install_package () {
  [ "$(cat /tmp/pkgs_to_install)" = "" ] && exit 0
  cat /tmp/pkgs_to_install | tr ' ' '\n' > /tmp/pkgs_left_to_install
+ rm -f /tmp/overall_package_status_log
+ echo 0 > /tmp/petget/install_status_percent
+ echo "$(gettext "Calculating total required space...")" > /tmp/petget/install_status
+ [ ! -f /root/.packages/skip_space_check ] && check_total_size
+ status_bar_func &
  while read LINE; do
    REPO=$(echo $LINE | cut -f 2 -d '|')
    echo "$REPO" > /tmp/petget/current-repo-triad
    TREE1=$(echo $LINE | cut -f 1 -d '|')
    if [  "$(grep $TREE1 /root/.packages/user-installed-packages 2>/dev/null)" = "" -a -f /tmp/install_quietly ]; then
-    rm -f /tmp/overall_package_status_log 
-    echo 0 > /tmp/petget/install_status_percent
-    echo "$(gettext "Calculating total required space...")" > /tmp/petget/install_status
-    [ ! -f /root/.packages/skip_space_check ] && check_total_size
-    status_bar_func &
     if [ "$(cat /var/local/petget/nt_category 2>/dev/null)" = "true" ]; then
      /usr/local/petget/installpreview.sh
     else
