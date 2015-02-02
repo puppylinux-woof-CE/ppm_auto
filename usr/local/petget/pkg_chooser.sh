@@ -436,7 +436,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
                       '"`/usr/lib/gtkdialog/xml_button-icon package_remove`"'
                       <label>" '$(gettext 'Remove package')' "</label>
                       <sensitive>false</sensitive>
-                      <action>disable:VBOX_MAIN</action>
+                      <action condition="command_is_true([[ \"$TREE2\" != \"\" ]] && echo true)">disable:VBOX_MAIN</action>
                       <action>echo "$TREE2" > /tmp/pkgs_to_remove; /usr/local/petget/removewindow.sh "$REMOVE_MODE" &</action>
                     </button>
                   </vbox>
