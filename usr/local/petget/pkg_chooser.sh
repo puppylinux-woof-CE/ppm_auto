@@ -3,7 +3,7 @@
 #2009 Lesser GPL licence v2 (/usr/share/doc/legal/lgpl-2.1.txt).
 #The Puppy Package Manager main GUI window.
 
-VERSION=1.7
+VERSION=1.8
 
 #wait for indexgen.sh to finish
 while [ "$(ps | grep indexgen | grep -v grep)" != "" ];do sleep 0.5;done
