@@ -63,7 +63,12 @@ fi
 SAVEPATH=""
 if [ -f /root/.packages/download_path ]; then
  . /root/.packages/download_path
- [ -d "$DL_PATH" ] && DL_PATH="$DL_PATH" || DL_PATH=/root
+ if [ -d "$DL_PATH" ];then
+  DL_PATH="$DL_PATH"
+ else
+  DL_PATH=/root
+  rm -f /root/.packages/download_path
+ fi
 else
  DL_PATH=/root
 fi

@@ -164,14 +164,15 @@ remove_package () {
  /usr/local/petget/findmissingpkgs.sh
  /usr/local/petget/finduserinstalledpkgs.sh
  rm -f /tmp/{pkgs_to_remove,pkgs_left_to_remove}
- report_window
- rm -f /tmp/remove_pets_quietly
+ [ -f /tmp/remove_pets_quietly ] && report_window
+ rm -f /tmp/remove_pets_quietly 2>/dev/null
 }
 export -f remove_package
 
 classic_remove () {
- rm -f /tmp/remove_pets_quietly 2>/dev/null
+ rm -f /tmp/remove{,_pets}_quietly 2>/dev/null
  remove_package
+ echo 100 > /tmp/petget/install_status_percent
 }
 export -f classic_remove
 
