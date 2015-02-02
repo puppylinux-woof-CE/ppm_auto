@@ -45,6 +45,9 @@ fi
 if [ ! -f /tmp/remove_pets_quietly ] && [ "$DISPLAY" ]; then
  . /usr/lib/gtkdialog/box_yesno "$(gettext 'Puppy Package Manager')" "$(gettext "Do you want to uninstall package")" "<b>${DB_pkgname}</b>"
  [ "$EXIT" != "yes" ] && exit 0
+elif [ ! "$DISPLAY" ]; then
+ dialog --yesno "$(gettext 'Do you want to uninstall package')${DB_pkgname}" 0 0
+ [ $? -ne 0 ] && exit 0
 fi
 
 #111228 if snapmergepuppy running, wait for it to complete (see also /usr/local/petget/installpkg.sh)...
