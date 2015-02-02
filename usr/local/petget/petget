@@ -41,6 +41,8 @@ export OUTPUT_CHARSET=UTF-8
 PASSEDPARAM="$1"
 mkdir -p /tmp/petget #120504
 
+rm -f /tmp/{remove,install}_{,pets_}quietly 2>/dev/null
+
 [ ! "$DISPLAY" ] && touch /tmp/install_quietly
 
 if [ "`echo -n "$PASSEDPARAM" | grep '^\\-'`" != "" ];then
@@ -48,7 +50,9 @@ if [ "`echo -n "$PASSEDPARAM" | grep '^\\-'`" != "" ];then
  PKGNAME="`echo -n "$PASSEDPARAM" | cut -c 2-99`"
  if [ ! "$DISPLAY" ]; then
   touch /tmp/remove_pets_quietly
-  TREE2=$(echo "$PKGNAME" | rev | cut -f 2-20 -d '.' | rev)
+  [ "$(echo "$PKGNAME" | rev | cut -f 1 -d '.' | rev | grep -E 'deb|pet|tgz|rpm|txz')" != "" ] \
+   && TREE2=$(echo "$PKGNAME" | rev | cut -f 2-20 -d '.' | rev) || \
+   TREE2="$PKGNAME"
  else
   TREE2="$PKGNAME"
  fi
@@ -112,7 +116,7 @@ if [ "`echo -n "$PASSEDPARAM" | grep -E '^ftp|^http'`" != "" ];then
  FULLPKGNAME="`basename "$PASSEDPARAM"`"
  PKGMAIN="`basename "$PASSEDPARAM" ${EXT}`"
  if [ ! -f "$FULLPKGNAME" ];then
-  if [ ! -f /tmp/install_quietly ]; then
+  if [ "$DISPLAY"  ]; then
    pupmessage -bg red "$(gettext 'Sorry, failed to download') $FULLPKGNAME"
    exit
   else
@@ -195,7 +199,7 @@ PKGPATH=/root
 cd "$PKGPATH" #well, this is /root
 
 #confirm want to install...
-if [ $DISPLAY ]; then
+if [ "$DISPLAY" ]; then
  . /usr/lib/gtkdialog/box_yesno "$(gettext 'Puppy Package Manager')" "$(gettext 'Do you want to install this package:')" "<b>${FULLPKGNAME}</b>"
  [ "$EXIT" != "yes" ] && [ "$DOWNLOADED" != "yes" ] && rm -f /root/${FULLPKGNAME} && exit 0
 else
@@ -237,12 +241,12 @@ rm -f $PKGPATH/${PKGNAME}.tar.gz 2>/dev/null
 [ "$originPKGPATH" = "$PKGPATH" ] && mv -f ${PKGPATH}/${FULLPKGNAME}-TEMPBACKUP ${PKGPATH}/${FULLPKGNAME}
 
 #announce result...
-if [ ! -f /tmp/install_quietly ]; then
- if [ $RETVAL -ne 0 -o ! -s /tmp/petget-installed-pkgs-log ];then
+if [ $RETVAL -ne 0 -o ! -s /tmp/petget-installed-pkgs-log ];then
+ if [ "$DISPLAY" ]; then
   /usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" error "<b>${FULLPKGNAME} $(gettext 'failed to install.')</b>"
   exit
  else
-  dialog --msgbox "$FULLPKGNAME $(gettext ' failed to download') " 0 0
+  dialog --msgbox "$FULLPKGNAME $(gettext ' failed to install') " 0 0
   exit
  fi
 fi
@@ -301,10 +305,10 @@ if [ "`grep '/usr/.*share/applications/.*\.desktop$' /root/.packages/${PKGNAME}.
 fi
 
 #installpkg.sh will have logged to /tmp/petget-installed-pkgs-log
-if [ ! -f /tmp/install_quietly ]; then
+if [ "$DISPLAY" ]; then
  /usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" complete "$(gettext 'The following package has been successfully installed:')" "<b>${ZINSTALLEDMSG}</b>" "${MENUMSG}"
 else
- dialog --msgbox "$(gettext 'The following package has been successfully installed:') ${ZINSTALLEDMSG} ${MENUMSG}" 0 0
+  dialog --msgbox "$(gettext 'The following package has been successfully installed:') ${ZINSTALLEDMSG} ${MENUMSG}" 0 0
 fi
 
 RESTARTMSG="$(gettext 'Please wait, updating help page and menu...')"
@@ -315,11 +319,11 @@ if [ "`pidof jwm`" != "" ];then #120101
  fi
 fi
 [ "$INSTALLEDCAT" = "none" ] && RESTARTMSG="$(gettext 'Please wait, updating help page...')"
-if [ ! -f /tmp/install_quietly ]; then
+if [ "$DISPLAY"  ]; then
  /usr/lib/gtkdialog/box_splash -text "${RESTARTMSG}" &
  X3PID=$!
 else
- dialog --msgbox "${RESTARTMSG}" 0 0 &
+ dialog --msgbox "$(gettext 'Done. Updating menus and help pages')" 0 0
 fi
 
 #w0910 update image cache...
@@ -336,9 +340,9 @@ if [ "$INSTALLEDCAT" != "none" ];then
  /usr/sbin/fixmenus
  if [ "`pidof jwm`" != "" ];then #120101
   if vercmp $JWMVER lt 574;then #120116 547 to 574.
-   jwm -restart #w482
+   [ "$DISPLAY" ] && jwm -restart #w482
   else
-   jwm -reload
+   [ "$DISPLAY" ] && jwm -reload
   fi
  fi
 fi

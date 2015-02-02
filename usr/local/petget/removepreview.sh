@@ -46,7 +46,7 @@ if [ ! -f /tmp/remove_pets_quietly ] && [ "$DISPLAY" ]; then
  . /usr/lib/gtkdialog/box_yesno "$(gettext 'Puppy Package Manager')" "$(gettext "Do you want to uninstall package")" "<b>${DB_pkgname}</b>"
  [ "$EXIT" != "yes" ] && exit 0
 elif [ ! "$DISPLAY" ]; then
- dialog --yesno "$(gettext 'Do you want to uninstall package')${DB_pkgname}" 0 0
+ dialog --yesno "$(gettext 'Do you want to uninstall package ')${DB_pkgname}" 0 0
  [ $? -ne 0 ] && exit 0
 fi
 
@@ -113,7 +113,8 @@ else
 $(gettext 'The first 5 are')
 $possible5"
  fi
- pupmessage -bg red "$(gettext 'WARNING:')
+ if [ "$DISPLAY" ];then 
+  pupmessage -bg red "$(gettext 'WARNING:')
 $(gettext 'No file named') ${DB_pkgname}.files $(gettext 'found in')
 /root/.packages/ $(gettext 'folder.')
  
@@ -127,10 +128,15 @@ $(gettext 'Possible solution:')
 $(gettext 'Edit') /root/.packages/user-installed-packages $(gettext 'to match the pkgname')
 $(gettext 'and start again.')
 "
- rox /root/.packages
- geany /root/.packages/user-installed-packages
- exit 101
- ###+++2011-12-27 KRG
+  rox /root/.packages
+  geany /root/.packages/user-installed-packages
+  exit 101
+  ###+++2011-12-27 KRG
+ else
+  dialog --msgbox "$(gettext 'No file named ' ) ${DB_pkgname}.files $(gettext ' found. Refusing cowardly to remove the package. Possible solution: Edit /root/.packages/user-installed-packages and start again.')" 0 0
+  mp /root/.packages/user-installed-packages
+  exit 101
+ fi
 fi
 
 
