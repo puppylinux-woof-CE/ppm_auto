@@ -47,15 +47,14 @@ rm -f /tmp/{remove,install}_{,pets_}quietly 2>/dev/null
 
 if [ "`echo -n "$PASSEDPARAM" | grep '^\\-'`" != "" ];then
  #remove a package...
- PKGNAME="`echo -n "$PASSEDPARAM" | cut -c 2-99`"
+ PKGNAME="$(echo -n "$PASSEDPARAM" | cut -c 2-199)"
+ PKGNAME="$(basename $PKGNAME)"
  if [ ! "$DISPLAY" ]; then
   touch /tmp/remove_pets_quietly
-  [ "$(echo "$PKGNAME" | rev | cut -f 1 -d '.' | rev | grep -E 'deb|pet|tgz|rpm|txz')" != "" ] \
-   && TREE2=$(echo "$PKGNAME" | rev | cut -f 2-20 -d '.' | rev) || \
-   TREE2="$PKGNAME"
- else
-  TREE2="$PKGNAME"
  fi
+ [ "$(echo "$PKGNAME" | rev | cut -f 1 -d '.' | rev | grep -E 'deb|pet|tgz|rpm|txz')" != "" ] \
+  && TREE2=$(echo "$PKGNAME" | rev | cut -f 2-20 -d '.' | rev) || \
+   TREE2="$PKGNAME"
  export TREE2
  /usr/local/petget/removepreview.sh
  exit
