@@ -46,7 +46,7 @@ FLAGPET="" #101016
 
 if [ -f /root/.packages/download_path ]; then
  . /root/.packages/download_path
- [ -d "$DL_PATH" ] && DL_PATH="$DL_PATH" || DL_PATH=/root
+ [ -d "$DL_PATH" -a -w "$DL_PATH" ] && DL_PATH="$DL_PATH" || DL_PATH=/root
 else
  DL_PATH=/root
 fi

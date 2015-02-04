@@ -258,8 +258,14 @@ SAVEPATH="`echo -n "$RETPARAMS" | grep 'SAVEPATH' | cut -f 2 -d '"'`"
 if [ "$SAVEPATH" = "" ];then
 	rm -f /root/.packages/download_path
 else
-	[ ! -d "$SAVEPATH" ] && mkdir -p "$SAVEPATH"
-	echo DL_PATH=\'$SAVEPATH\' > /root/.packages/download_path
+	if [ ! -d "$SAVEPATH" ]; then
+		mkdir -p "$SAVEPATH"
+		[ $? -eq 0 ] && echo DL_PATH=\'$SAVEPATH\' > /root/.packages/download_path
+	elif [ -w "$SAVEPATH" ]; then
+		echo DL_PATH=\'$SAVEPATH\' > /root/.packages/download_path
+	else
+		rm -f /root/.packages/download_path
+	fi
 fi
 
 

@@ -13,6 +13,7 @@ sleep 0.3
 [ "$( ps | grep -E '/usr/local/bin/ppm|/usr/local/petget/pkg_chooser' | grep -v -E 'grep|geany|leafpad' | wc -l)" -gt 2 ] \
 	&& /usr/lib/gtkdialog/box_splash -timeout 3 -bg red -text "$(gettext 'PPM is already running. Exiting.')" \
 		&& exit 0
+
 # Set the skip-space flag
 if [ "$(cat /var/local/petget/sc_category)" = "true" ] && \
 	[ "$(cat /tmp/pup_event_sizefreem | head -n 1 )" -gt 4000 ]; then
@@ -21,7 +22,13 @@ else
 	rm -f /root/.packages/skip_space_check
 	echo false > /var/local/petget/sc_category
 fi
- 
+
+# Make sure the download folder exists and is writable
+if [ -f /root/.packages/download_path ]; then
+ . /root/.packages/download_path
+ [ ! -d "$DL_PATH" -o ! -w "$DL_PATH" ] && rm -f /root/.packages/download_path
+fi
+
 /usr/lib/gtkdialog/box_splash -close never -text "$(gettext 'Loading Puppy Package Manager...')" &
 SPID=$!
 
