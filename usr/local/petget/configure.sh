@@ -171,6 +171,12 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
         S=$S'<action>if true echo Classic > /var/local/petget/ui_choice</action>
         <action>if false echo Ziggy > /var/local/petget/ui_choice</action>
       </checkbox>
+      <checkbox>
+        <label>'$(gettext "Use the tall version of the new UI (better for small screens)")'</label>'
+        [ "$(</var/local/petget/uo_choice)" = "tall" ] && S=$S'<default>true</default>'
+        S=$S'<action>if true echo tall > /var/local/petget/uo_choice</action>
+        <action>if false echo wide > /var/local/petget/uo_choice</action>
+      </checkbox>
       '${SIZEBOX}'
       <checkbox>
         <label>'$(gettext "Do not show the terminal with PPM actions")'</label>

@@ -3,7 +3,7 @@
 #2009 Lesser GPL licence v2 (/usr/share/doc/legal/lgpl-2.1.txt).
 #The Puppy Package Manager main GUI window.
 
-VERSION=1.8
+VERSION=1.9
 
 #wait for indexgen.sh to finish
 while [ "$(ps | grep indexgen | grep -v grep)" != "" ];do sleep 0.5;done
@@ -347,8 +347,30 @@ if [ "$(</var/local/petget/ui_choice)" = "Classic" ]; then
 	exit 0
 fi
 
+#tall or wide orientation in the Ziggy UI
+UI_ORIENT="$(cat /var/local/petget/uo_choice)"
+[ "$UI_ORIENT" != "" ] && UI_ORIENT="$UI_ORIENT" || UI_ORIENT="wide"
+if [ "$UI_ORIENT" = "tall" ]; then
+	UO_1="800"
+	UO_2="650"
+	UO_3="210"
+	UO_4="210"
+	UO_5="<vbox space-expand=\"true\" space-fill=\"true\">
+          <hbox space-expand=\"true\" space-fill=\"true\" height-request=\"250\">"
+	UO_6="</vbox>"
+else
+	UO_1="950"
+	UO_2="1000"
+	UO_3="300"
+	UO_4="100"
+	UO_5="<hbox space-expand=\"true\" space-fill=\"true\">"
+	UO_6=''
+fi
 
-S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-request="750" icon-name="gtk-about" default_height="440">
+SCREEN_WIDTH=$(xwininfo -root | grep -m 1 '\geometry'  | cut -f1 -d 'x' |rev |cut -f1 -d ' ' |rev)
+[ "$SCREEN_WIDTH" -le 1000 ] && WIDTH="$SCREEN_WIDTH" || WIDTH="$UO_1"
+
+S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-request="'${WIDTH}'" icon-name="gtk-about" default_height="440">
 <vbox space-expand="true" space-fill="true">
   <vbox space-expand="true" space-fill="true">
     <vbox space-expand="false" space-fill="false">
@@ -367,7 +389,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
           <action>/usr/local/petget/filterpkgs.sh</action>
           <action>refresh:TREE1</action>
         </button>
-        <togglebutton tooltip-text="'$(gettext 'Uninstall packages')'" space-expand="false" space-fill="false">
+        <togglebutton tooltip-text="'$(gettext 'Open/Close the Uninstall packages window')'" space-expand="false" space-fill="false">
           <label>" '$(gettext 'Uninstall')' "</label>
           '"`/usr/lib/gtkdialog/xml_button-icon package_remove`"'
           <variable>BUTTON_UNINSTALL</variable>
@@ -422,7 +444,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
                     <tree rubber-banding="true" selection-mode="3" space-expand="true" space-fill="true">
                       <label>'$(gettext 'Installed Package')'|'$(gettext 'Description')'</label>
                       <variable>TREE2</variable>
-                      <width>350</width><height>100</height>
+                      <width>'${UO_2}'</width><height>100</height>
                       <input file icon-column="1">/tmp/petget/installedpkgs.results.post</input>
                       <action signal="button-release-event" condition="command_is_true([[ `echo $TREE2` ]] && echo true)">enable:BUTTON_UNINSTALL</action>
                     </tree>
@@ -514,7 +536,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
               </hbox>
             </frame>
           </vbox>
-        </vbox>  
+        </vbox>
       </hbox>
 
       <vbox space-expand="true" space-fill="true">
@@ -542,11 +564,11 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
               <action signal="changed">refresh:TREE1</action>
             </tree>
           </hbox>
-          <hbox space-expand="true" space-fill="true">
+         '${UO_5}'
             <tree hover-selection="true" selection-mode="1" column-resizeable="true|false" space-expand="true" space-fill="true">
               <label>'$(gettext 'Package')'|'$(gettext 'Description')'</label>
               <variable>TREE1</variable>
-              <width>210</width>
+              <width>'${UO_3}'</width>
               <input file icon-column="1">/tmp/petget/filterpkgs.results.post</input>
               <action signal="button-release-event">add_item</action>
               <action signal="button-release-event">refresh:TREE_INSTALL</action>
@@ -558,12 +580,13 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
               <label>'$(gettext 'Packages to install')'|'$(gettext 'Description')'|'$(gettext 'Repository')'</label>
               <variable>TREE_INSTALL</variable>
               <input file icon-column="1">/tmp/pkgs_to_install</input>
-              <width>160</width>
+              <width>'${UO_4}'</width>
               <action signal="button-release-event">remove_item</action>
               <action signal="button-release-event">refresh:TREE_INSTALL</action>
               <action signal="button-release-event" condition="command_is_true([[ ! `cat /tmp/pkgs_to_install` ]] && echo true)">disable:BUTTON_INSTALL</action>
             </tree>
           </hbox>
+          '${UO_6}'
         </hbox>
       </vbox>
     </hbox>
