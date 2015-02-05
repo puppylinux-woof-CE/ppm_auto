@@ -171,6 +171,7 @@ export -f remove_package
 
 classic_remove () {
  rm -f /tmp/remove{,_pets}_quietly 2>/dev/null
+ cp -a /tmp/pkgs_to_remove /tmp/pkgs_to_remove_done
  remove_package
  echo 100 > /tmp/petget/install_status_percent
 }

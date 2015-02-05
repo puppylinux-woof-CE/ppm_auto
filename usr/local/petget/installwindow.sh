@@ -290,6 +290,7 @@ case "$1" in
 		rm -f /tmp/download_pets_quietly 2>/dev/null
 		rm -f /tmp/download_only_pet_quietly 2>/dev/null
 		touch /tmp/install_classic
+		cp -a /tmp/pkgs_to_install /tmp/pkgs_to_install_done
 		install_package
 		;;
 esac
