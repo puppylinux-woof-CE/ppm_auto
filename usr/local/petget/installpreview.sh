@@ -424,7 +424,7 @@ if [ $? -ne 0 ];then
  [ -f /tmp/petget/current-repo-triad.previous ] && mv -f /tmp/petget/current-repo-triad.previous /tmp/petget/current-repo-triad #120504
  exit 1
 fi
-[ "$PASSEDPRM" = "DOWNLOADONLY" ] && exit
+[ "$PASSEDPRM" = "DOWNLOADONLY" ] && touch /tmp/manual_pkg_download && exit
 
 if [ -f /tmp/install_pets_quietly ]; then
  LEFT=$(cat /tmp/pkgs_left_to_install | wc -l)

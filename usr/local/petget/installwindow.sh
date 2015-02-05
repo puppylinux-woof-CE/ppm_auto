@@ -35,6 +35,7 @@ clean_up () {
  rm -f /tmp/overall_missing_libs.txt 2>/dev/null
  rm -f /tmp/overall_install_deport 2>/dev/null
  rm -f /tmp/pkgs_to_install_bar 2>/dev/null
+ rm -f /tmp/manual_pkg_download 2>/dev/null
  rm -rf /tmp/PPM_LOGs/ 2>/dev/null
  mv $MODE.bak $MODE
  mv /tmp/install_quietly.bak /tmp/install_quietly

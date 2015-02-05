@@ -15,7 +15,8 @@ rm -f /tmp/pgks_really_installed 2>/dev/null
 rm -f /tmp/pgks_failed_to_install 2>/dev/null
 for LINE in $(cat /tmp/pkgs_to_install_done  | cut -f 1 -d '|' | sort | uniq)
 do
- if [  -f /tmp/download_pets_quietly -o  -f /tmp/download_only_pet_quietly ];then
+ if [  -f /tmp/download_pets_quietly -o  -f /tmp/download_only_pet_quietly \
+  -o -f /tmp/manual_pkg_download ];then
   if [ -f /root/.packages/download_path ];then
    . /root/.packages/download_path
    DOWN_PATH="$DL_PATH"
@@ -23,6 +24,8 @@ do
    DOWN_PATH=$HOME
   fi
   REALLY=$(ls "$DOWN_PATH" | grep $LINE)
+  [ "$REALLY" = "" -a -f /tmp/install_classic ] && \
+   REALLY=$(grep $LINE /tmp/petget/installedpkgs.results)
  else
   REALLY=$(grep $LINE /tmp/petget/installedpkgs.results)
   [ "$(grep $LINE /tmp/pgks_failed_to_install_forced 2>/dev/null | sort | uniq )" != "" ] && REALLY=''
