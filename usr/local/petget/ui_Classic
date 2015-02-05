@@ -80,12 +80,13 @@ fi
 DB_ORDERED="$REPOS_RADIO" #120831
 
 #130330 $GUIONLYSTR $ANYTYPESTR are exported from pkg_chooser.sh. 130331 also $GUIEXCSTR $NONGUISTR
-export PPM_GUI="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\">
+export PPM_GUI="<window title=\"$(gettext 'Puppy Package Manager')\" icon-name=\"gtk-about\" width-request=\"780\" hight-request=\"560\">
 
 <vbox>
- <hbox>
+ <hbox scrollable=\"true\" shadow-type=\"0\">
   <text><label>$(gettext 'Repo:')</label></text>
   ${DB_ORDERED}
+  <height>48</height>
  </hbox>
  ${xFIRSTCHARS}
  <hbox>
