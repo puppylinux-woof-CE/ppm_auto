@@ -33,10 +33,15 @@ fi
 SPID=$!
 
 # Remove in case we crashed
-rm -f /tmp/{remove,install}{,_pets}_quietly 2>/dev/null
-rm -f /tmp/install_classic 2>/dev/null
-rm -f /tmp/download{_only,}_pet{,s}_quietly 2>/dev/null
-rm -f /tmp/overall_* 2>/dev/null
+clean_flags () {
+	rm -f /tmp/{remove,install}{,_pets}_quietly 2>/dev/null
+	rm -f /tmp/install_classic 2>/dev/null
+	rm -f /tmp/download{_only,}_pet{,s}_quietly 2>/dev/null
+	rm -f /tmp/overall_* 2>/dev/null
+}
+export -f clean_flags
+
+clean_flags
 
 /usr/local/petget/service_pack.sh & #121125 offer download Service Pack.
 
@@ -679,3 +684,5 @@ gtkdialog -p PPM_GUI
 
 # Run indexgen after we exit the GUI
 /usr/sbin/indexgen.sh
+#and clean up
+clean_flags
