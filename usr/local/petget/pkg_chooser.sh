@@ -373,7 +373,15 @@ else
 	UO_5="<hbox space-expand=\"true\" space-fill=\"true\">"
 	UO_6=''
 fi
+# icon switching
+ICONDIR="/tmp/petget/icons"
+rm -rf "$ICONDIR"
+mkdir -p "$ICONDIR"
+cp  /usr/share/pixmaps/puppy/package_remove.svg "$ICONDIR"/false.svg
+cp  /usr/share/pixmaps/puppy/close.svg "$ICONDIR"/true.svg
+ln -sf "$ICONDIR"/true.svg "$ICONDIR"/tgb0.svg
 
+# check screen size
 SCREEN_WIDTH=$(xwininfo -root | grep -m 1 '\geometry'  | cut -f1 -d 'x' |rev |cut -f1 -d ' ' |rev)
 [ "$SCREEN_WIDTH" -le 1000 ] && WIDTH="$SCREEN_WIDTH" || WIDTH="$UO_1"
 
@@ -398,7 +406,14 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
         </button>
         <togglebutton tooltip-text="'$(gettext 'Open/Close the Uninstall packages window')'" space-expand="false" space-fill="false">
           <label>" '$(gettext 'Uninstall')' "</label>
-          '"`/usr/lib/gtkdialog/xml_button-icon package_remove`"'
+					<variable>tgb0</variable>
+					<input file>'"$ICONDIR"'/false.svg</input>
+					<input file>'"$ICONDIR"'/tgb0.svg</input>
+					<height>20</height>
+					<action>ln -sf '"$ICONDIR"'/$tgb0.svg '"$ICONDIR"'/tgb0.svg</action>
+					<action>refresh:tgb0</action>
+					<action>save:tgb0</action>
+					<output file>'"$ICONDIR"'/outputfile</output>
           <variable>BUTTON_UNINSTALL</variable>
           <action>if true show:VBOX_REMOVE</action>
           <action>if false hide:VBOX_REMOVE</action>
