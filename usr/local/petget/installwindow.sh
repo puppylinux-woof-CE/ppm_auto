@@ -76,7 +76,7 @@ check_total_size () {
 	&& clean_up && exit 1
  fi
  AVAILABLE=$(cat /tmp/pup_event_sizefreem | head -n 1 )
- if [ "$DL_PATH" != "/root" ]; then
+ if [ "$DL_PATH" -a ! "$DL_PATH" = "/root" ]; then
   if [ -f /tmp/download_pets_quietly -o -f /tmp/download_only_pet_quietly \
    -o "$(cat /var/local/petget/nd_category)" = "true" ]; then
    SAVEAVAILABLE=$(df -m "$DL_PATH"| awk 'END {print $4}')
