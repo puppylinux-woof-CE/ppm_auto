@@ -200,10 +200,24 @@ cd "$PKGPATH" #well, this is /root
 #confirm want to install...
 if [ "$DISPLAY" ]; then
  . /usr/lib/gtkdialog/box_yesno "$(gettext 'Puppy Package Manager')" "$(gettext 'Do you want to install this package:')" "<b>${FULLPKGNAME}</b>"
- [ "$EXIT" != "yes" ] && [ "$DOWNLOADED" != "yes" ] && rm -f /root/${FULLPKGNAME} && exit 0
+ if [ "$EXIT" != "yes" ]; then 
+  if [ "$DOWNLOADED" = "yes" -o "$originPKGPATH" = "/root" ]; then
+   exit 0
+  else
+   rm -f /root/${FULLPKGNAME}
+   exit 0
+  fi
+ fi
 else
   dialog --yesno "$(gettext 'Do you want to install this package:') $FULLPKGNAME" 0 0
- [ $? -ne 0 ] && [ "$DOWNLOADED" != "yes" ] && rm -f /root/${FULLPKGNAME} && exit 0
+  if [ $? -ne 0 ];then 
+  if [ "$DOWNLOADED" = "yes" -o "$originPKGPATH" = "/root" ]; then
+   exit 0
+  else
+   rm -f /root/${FULLPKGNAME}
+   exit 0
+  fi
+ fi
 fi
 
 #find entry in databases...
