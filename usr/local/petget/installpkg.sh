@@ -217,6 +217,17 @@ case $DLPKG_BASE in
   PETFILES="`tar --list ${OPT} -f ${DLPKG_MAIN}.tar.${EXT}`"
   #slackware pkg, got a case where passed the above test but failed here...
   [ $? -ne 0 ] && exit 1
+  #check for renamed pets. Will produce an empty ${DLPKG_NAME}.files file
+  PETFOLDER=$(echo "${PETFILES}" | cut -f 2 -d '/' | head -n 1)
+  if [ "${DLPKG_MAIN}" != "${PETFOLDER}" ]; then
+   pupkill $YAFPID1
+   if [ "$DISPLAY" ]; then
+    /usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" error "<b>${DLPKG_MAIN}.pet</b> $(gettext 'is named') <b>${PETFOLDER}</b> $(gettext 'inside the pet file. Will not install it!')"
+   else
+    dialog --msgbox "$DLPKG_MAIN.pet $(gettext 'is named') $PETFOLDER $(gettext 'inside the pet file. Will not install it!')" 0 0
+   fi
+   exit 1
+  fi
   if [ "`echo "$PETFILES" | grep '^\\./'`" != "" ];then
    #ttuuxx has created some pets with './' prefix...
    pPATTERN="s%^\\./${DLPKG_NAME}%%"
