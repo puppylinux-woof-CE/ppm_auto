@@ -54,7 +54,7 @@ if [ "$MISSINGDEPS_PATTERNS" = "" -a "$(grep $DB_ENTRY /tmp/overall_dependencies
    echo $SIZEVAL >> /tmp/overall_pkg_size
   fi
  sync
- /usr/local/petget/installwindow.sh check_total_size &
+ /usr/local/petget/installmodes.sh check_total_size &
  exit 0
 fi
 
@@ -143,4 +143,4 @@ if [ "$2" = "ADD" ]; then
   rm -f /tmp/dependecies_list
 fi
 sync
-/usr/local/petget/installwindow.sh check_total_size &
+/usr/local/petget/installmodes.sh check_total_size &

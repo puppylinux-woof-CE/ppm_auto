@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export TEXTDOMAIN=petget__installwindow.sh
+export TEXTDOMAIN=petget__installmodes.sh
 export OUTPUT_CHARSET=UTF-8
 
 [ "`whoami`" != "root" ] && exec sudo -A ${0} ${@} #110505

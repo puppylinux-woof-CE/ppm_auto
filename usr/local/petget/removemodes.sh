@@ -2,7 +2,7 @@
 
 #set -x ; mkdir -p /root/LOGs; NAME=$(basename "$0"); exec 1>> /root/LOGs/"$NAME".log 2>&1
 
-export TEXTDOMAIN=petget__removewindow.sh
+export TEXTDOMAIN=petget__removemodes.sh
 export OUTPUT_CHARSET=UTF-8
 
 [ "`whoami`" != "root" ] && exec sudo -A ${0} ${@} #110505

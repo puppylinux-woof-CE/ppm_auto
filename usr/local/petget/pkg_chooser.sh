@@ -455,7 +455,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
           <action condition="command_is_true(if [ \"$(cat /tmp/pkgs_to_install)\" != \"\" ];then echo true;fi)">disable:VBOX_MAIN</action>
           <action>if [ "$(cat /tmp/forced_install 2>/dev/null)" != "" ]; then touch /tmp/force_install; else rm -f /tmp/force_install; fi </action>
           <action>cut -d"|" -f1,4 /tmp/pkgs_to_install > /tmp/pkgs_to_install_tmp; mv -f /tmp/pkgs_to_install_tmp /tmp/pkgs_to_install</action>
-          <action condition="command_is_true(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">/usr/local/petget/installwindow.sh "$INSTALL_MODE" &</action>
+          <action condition="command_is_true(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">/usr/local/petget/installmodes.sh "$INSTALL_MODE" &</action>
           <action condition="command_is_false(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">installed_warning &</action>
         </button> 
       </hbox>
@@ -487,7 +487,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
                       <label>" '$(gettext 'Remove package')' "</label>
                       <sensitive>false</sensitive>
                       <action condition="command_is_true([[ \"$TREE2\" != \"\" ]] && echo true)">disable:VBOX_MAIN</action>
-                      <action>echo "$TREE2" > /tmp/pkgs_to_remove; /usr/local/petget/removewindow.sh "$REMOVE_MODE" &</action>
+                      <action>echo "$TREE2" > /tmp/pkgs_to_remove; /usr/local/petget/removemodes.sh "$REMOVE_MODE" &</action>
                     </button>
                   </vbox>
                 </notebook>
