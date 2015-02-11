@@ -38,6 +38,7 @@ clean_flags () {
 	rm -f /tmp/install_classic 2>/dev/null
 	rm -f /tmp/download{_only,}_pet{,s}_quietly 2>/dev/null
 	rm -f /tmp/overall_* 2>/dev/null
+	rm -f /tmp/ppm_reporting 2>/dev/null
 }
 export -f clean_flags
 
