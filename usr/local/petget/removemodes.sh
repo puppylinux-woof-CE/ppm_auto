@@ -45,18 +45,14 @@ report_window () {
 Removed Packages
 $REMOVED_PGKS
 
-Failed to Remove Packages
+Failed to Remove or Cancelled Packages
 $FAILED_TO_REMOVE
 
 Installed packages that depend on the removed and you my not need anymore
 $MAYBEREM 
 EOF
- 
- [ "$REMOVED_PGKS" = "" ] && REMOVED_PGKS="$(gettext 'Bummer :(')"
- [ "$FAILED_TO_REMOVE" = "" ] && FAILED_TO_REMOVE="$(gettext 'No errors')"
 
-# Info window/dialogue (display and option to save "missing" info)
-
+ # Info window/dialogue (display and option to save "missing" info)
  export REPORT_DIALOG='
  <window title="'$(gettext 'Puppy Package Manager')'" icon-name="gtk-about" default_height="550">
  <vbox space-expand="true" space-fill="true">

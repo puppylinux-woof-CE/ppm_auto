@@ -87,7 +87,7 @@ report_results () {
 Installed or Downloaded Packages
 $INSTALLED_PGKS
 
-Failed to Install or Download Packages
+Failed to Install or Download, or aborted Packages
 $FAILED_TO_INSTALL
 
 Missing Libraries
@@ -96,9 +96,6 @@ $MISSING_LIBS
 Existing Libraries but not in Path
 $NOT_IN_PATH_LIBS
 EOF
-
- [ "$INSTALLED_PGKS" = "" ] && INSTALLED_PGKS="$(gettext 'Bummer :(')"
- [ "$FAILED_TO_INSTALL" = "" ] && FAILED_TO_INSTALL="$(gettext 'No errors')"
 
  # Info window/dialogue (display and option to save "missing" info)
  MISSINGMSG1="<i><b>$(gettext 'No missing shared libraries')</b></i>"
@@ -343,10 +340,10 @@ install_package () {
    /usr/local/petget/finduserinstalledpkgs.sh
    sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
  done < /tmp/pkgs_to_install
- report_results
- sync
- clean_up
  echo 100 > /tmp/petget/install_status_percent
+ sync
+ report_results
+ clean_up
 }
 export -f install_package
 
