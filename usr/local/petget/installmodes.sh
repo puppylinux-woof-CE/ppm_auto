@@ -174,6 +174,7 @@ $(gettext 'These needed libraries exist but are not in the library search path (
  </vbox>
  </window>'
  RETPARAMS="`gtkdialog --center -p REPORT_DIALOG`"
+ echo 100 > /tmp/petget/install_status_percent
 }
 export -f report_results
 
@@ -302,7 +303,7 @@ export -f check_total_size
 
 status_bar_func () {
  while $1 ; do
-  TOTALPKGS=$( expr 1 \+ $(cat /tmp/pkgs_to_install_bar /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l))
+  TOTALPKGS=$(cat /tmp/pkgs_to_install_bar /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l)
   DONEPGKS=$(cat /tmp/overall_package_status_log 2>/dev/null | wc -l)
   PERCENT=$( expr $DONEPGKS \* 100 \/ $TOTALPKGS )
   [ $PERCENT = 100 ] && PERCENT=99
@@ -340,7 +341,6 @@ install_package () {
    /usr/local/petget/finduserinstalledpkgs.sh
    sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
  done < /tmp/pkgs_to_install
- echo 100 > /tmp/petget/install_status_percent
  sync
  report_results
  clean_up
