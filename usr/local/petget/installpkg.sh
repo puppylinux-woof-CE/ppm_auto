@@ -219,6 +219,7 @@ case $DLPKG_BASE in
   [ $? -ne 0 ] && exit 1
   #check for renamed pets. Will produce an empty ${DLPKG_NAME}.files file
   PETFOLDER=$(echo "${PETFILES}" | cut -f 2 -d '/' | head -n 1)
+  [ "$PETFOLDER" = "" ] && PETFOLDER=$(echo "${PETFILES}" | cut -f 1 -d '/' | head -n 1)
   if [ "${DLPKG_MAIN}" != "${PETFOLDER}" ]; then
    pupkill $YAFPID1
    if [ "$DISPLAY" ]; then
