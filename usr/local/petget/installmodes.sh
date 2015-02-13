@@ -326,17 +326,27 @@ install_package () {
    REPO=$(echo $LINE | cut -f 2 -d '|')
    echo "$REPO" > /tmp/petget/current-repo-triad
    TREE1=$(echo $LINE | cut -f 1 -d '|')
-   if [  "$(grep $TREE1 /root/.packages/user-installed-packages 2>/dev/null)" = "" -a -f /tmp/install_quietly ]; then
-    if [ "$(cat /var/local/petget/nt_category 2>/dev/null)" = "true" ]; then
+   if [ -f /tmp/install_quietly ];then
+    if [  "$(grep $TREE1 /root/.packages/user-installed-packages 2>/dev/null)" = "" \
+     -a -f /tmp/install_pets_quietly ]; then
+     if [ "$(cat /var/local/petget/nt_category 2>/dev/null)" = "true" ]; then
      /usr/local/petget/installpreview.sh
-    else
-	 rxvt -title "$VTTITLE... Do NOT close" \
+     else
+	  rxvt -title "$VTTITLE... Do NOT close" \
 	  -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
       -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
+     fi
+    else
+     if [ "$(cat /var/local/petget/nt_category 2>/dev/null)" = "true" ]; then
+     /usr/local/petget/installpreview.sh
+     else
+	  rxvt -title "$VTTITLE... Do NOT close" \
+	  -fn -misc-fixed-medium-r-semicondensed--13-120-75-75-c-60-*-* -bg black \
+      -fg grey -geometry 80x5+50+50 -e /usr/local/petget/installpreview.sh
+     fi
     fi
    else
-    [  "$(grep $TREE1 /root/.packages/user-installed-packages 2>/dev/null)" = "" ] \
-     && /usr/local/petget/installpreview.sh
+    /usr/local/petget/installpreview.sh
    fi
    /usr/local/petget/finduserinstalledpkgs.sh
    sed -i "/$TREE1/d" /tmp/pkgs_left_to_install
