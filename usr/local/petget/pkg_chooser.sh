@@ -39,6 +39,8 @@ clean_flags () {
 	rm -f /tmp/download{_only,}_pet{,s}_quietly 2>/dev/null
 	rm -f /tmp/overall_* 2>/dev/null
 	rm -f /tmp/ppm_reporting 2>/dev/null
+	rm -f /tmp/force{,d}_install 2>/dev/null
+	rm -f /tmp/pkgs_to_install* 2>/dev/null
 }
 export -f clean_flags
 
@@ -457,6 +459,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
           <action>cut -d"|" -f1,4 /tmp/pkgs_to_install > /tmp/pkgs_to_install_tmp; mv -f /tmp/pkgs_to_install_tmp /tmp/pkgs_to_install</action>
           <action condition="command_is_true(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">/usr/local/petget/installmodes.sh "$INSTALL_MODE" &</action>
           <action condition="command_is_false(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">installed_warning &</action>
+          <action condition="command_is_false(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">enable:VBOX_MAIN</action>
         </button> 
       </hbox>
     </vbox>
