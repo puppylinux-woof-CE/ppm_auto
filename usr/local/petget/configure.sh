@@ -196,7 +196,7 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
       S=$S'</checkbox>
       <hbox>
         <text width-request="100"><label>'$(gettext "Save PKGs in:")'</label></text>
-        <entry accept="folder" width-request="200" tooltip-text="'$(gettext "To change, type a path to a folder or use the button to sellect a folder. Delete the present path to default back to /root")'"><default>'${DL_PATH}'</default><variable>SAVEPATH</variable></entry>
+        <entry accept="folder" width-request="200" tooltip-text="'$(gettext "To change, type a path to a folder or use the button to select a folder. Delete the present path to default back to /root")'"><default>'${DL_PATH}'</default><variable>SAVEPATH</variable></entry>
         <button>
          <input file stock="gtk-open"></input>
          <action type="fileselect">SAVEPATH</action>

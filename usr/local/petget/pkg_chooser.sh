@@ -14,6 +14,14 @@ sleep 0.3
 	&& /usr/lib/gtkdialog/box_splash -timeout 3 -bg red -text "$(gettext 'PPM is already running. Exiting.')" \
 		&& exit 0
 
+[ "`whoami`" != "root" ] && exec sudo -A ${0} ${@} #110505
+
+export TEXTDOMAIN=petget___pkg_chooser.sh
+export OUTPUT_CHARSET=UTF-8
+LANG1="${LANG%_*}" #ex: de
+HELPFILE="/usr/local/petget/help.htm"
+[ -f /usr/local/petget/help-${LANG1}.htm ] && HELPFILE="/usr/local/petget/help-${LANG1}.htm"
+
 # Set the skip-space flag
 if [ "$(cat /var/local/petget/sc_category)" = "true" ] && \
 	[ "$(cat /tmp/pup_event_sizefreem | head -n 1 )" -gt 4000 ]; then
@@ -47,14 +55,6 @@ export -f clean_flags
 clean_flags
 
 /usr/local/petget/service_pack.sh & #121125 offer download Service Pack.
-
-export TEXTDOMAIN=petget___pkg_chooser.sh
-export OUTPUT_CHARSET=UTF-8
-LANG1="${LANG%_*}" #ex: de
-HELPFILE="/usr/local/petget/help.htm"
-[ -f /usr/local/petget/help-${LANG1}.htm ] && HELPFILE="/usr/local/petget/help-${LANG1}.htm"
-
-[ "`whoami`" != "root" ] && exec sudo -A ${0} ${@} #110505
 
 mkdir -p /tmp/petget #120504
 mkdir -p /var/local/petget
