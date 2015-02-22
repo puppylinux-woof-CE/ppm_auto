@@ -195,7 +195,8 @@ check_total_size () {
  ACTION_MSG=$(gettext 'This is not enough space to download and install the packages (including dependencies) you have selected.')
  if [ -f /tmp/download_pets_quietly -o -f /tmp/download_only_pet_quietly ]; then
   NEEDEDK=$( expr $NEEDEDK / 3 ) # 0.5x
-  ACTION_MSG=$(gettext 'This is not enough space to download the packages (including dependencies) you have selected.')
+  [ "$DL_PATH" ] && DOWN_PATH="$DL_PATH" || DOWN_PATH="/root"
+  ACTION_MSG="$(gettext 'This is not enough space to download the packages (including dependencies) you have selected in ')${DOWN_PATH}."
  fi
  if [ "$(cat /var/local/petget/nd_category)" = "true" ]; then
   NEEDEDKDOWN=$( expr $NEEDEDK / 3 )
@@ -241,6 +242,10 @@ check_total_size () {
   echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install_bar /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
  fi
  #Check if enough space on system
+ if [ "$NEEDEDKDOWN" -ge "$SAVEAVAILABLE" -a "$AVAILABLE" -ge "$NEEDEDK" ]; then
+  ACTION_MSG="$(gettext 'Although there is sufficient space to install the packages, there is no space in your download folder, ')$DL_PATH$(gettext ', to save the packages (including dependencies). ')"
+  AVAILABLE="$SAVEAVAILABLE"
+ fi
  if [ "$NEEDEDK" -ge "$AVAILABLE" -o "$NEEDEDKDOWN" -ge "$SAVEAVAILABLE" ]; then
   export PPM_error='
   <window title="PPM - '$(gettext 'Space needed')'" icon-name="gtk-no">
@@ -251,7 +256,7 @@ check_total_size () {
       </hbox>
       <hbox border-width="10" homogeneous="true">
         <vbox space-expand="true" space-fill="true">
-          <text xalign="0" use-markup="true"><label>"'$(gettext 'Available space on your Puppy system is')' '${AVAILABLE}' MB. <b>'${ACTION_MSG}'</b> '$(gettext 'Please resize your savefile or delete some files.')'"</label></text>
+          <text xalign="0" use-markup="true"><label>"'$(gettext 'Available space on your system is')' '${AVAILABLE}' MB. <b>'${ACTION_MSG}'</b> '$(gettext 'Please delete some files or resize your puppy save area or change package save location, as appropriate.')'"</label></text>
           <vbox scrollable="true" shadow-type="0" height="150" width="350" space-expand="true" space-fill="true">
             <text xalign="0"><label>"'$PACKAGES'"</label></text>
             <text xalign="0"><label>"'$DEPENDENCIES'"</label></text>
