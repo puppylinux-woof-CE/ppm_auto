@@ -8,19 +8,19 @@ VERSION=1.9.5
 #wait for indexgen.sh to finish
 while [ "$(ps | grep indexgen | grep -v grep)" != "" ];do sleep 0.5;done
 
-# Do not allow another instance
-sleep 0.3
-[ "$( ps | grep -E '/usr/local/bin/ppm|/usr/local/petget/pkg_chooser' | grep -v -E 'grep|geany|leafpad' | wc -l)" -gt 2 ] \
-	&& /usr/lib/gtkdialog/box_splash -timeout 3 -bg red -text "$(gettext 'PPM is already running. Exiting.')" \
-		&& exit 0
-
-[ "`whoami`" != "root" ] && exec sudo -A ${0} ${@} #110505
-
 export TEXTDOMAIN=petget___pkg_chooser.sh
 export OUTPUT_CHARSET=UTF-8
 LANG1="${LANG%_*}" #ex: de
 HELPFILE="/usr/local/petget/help.htm"
 [ -f /usr/local/petget/help-${LANG1}.htm ] && HELPFILE="/usr/local/petget/help-${LANG1}.htm"
+
+[ "`whoami`" != "root" ] && exec sudo -A ${0} ${@} #110505
+
+# Do not allow another instance
+sleep 0.3
+[ "$( ps | grep -E '/usr/local/bin/ppm|/usr/local/petget/pkg_chooser' | grep -v -E 'grep|geany|leafpad' | wc -l)" -gt 2 ] \
+	&& /usr/lib/gtkdialog/box_splash -timeout 3 -bg red -text "$(gettext 'PPM is already running. Exiting.')" \
+		&& exit 0
 
 # Set the skip-space flag
 if [ "$(cat /var/local/petget/sc_category)" = "true" ] && \
@@ -36,6 +36,34 @@ if [ -f /root/.packages/download_path ]; then
  . /root/.packages/download_path
  [ ! -d "$DL_PATH" -o ! -w "$DL_PATH" ] && rm -f /root/.packages/download_path
 fi
+
+options_status () {
+	[ -f /root/.packages/skip_space_check ] && \
+	 MSG_SPACE="$(gettext 'Do NOT check available space.')
+	 $(gettext '')"
+	[ -f /root/.packages/download_path ] && [ "$DL_PATH" != "/root" ] && \
+	 MSG_DPATH="$(gettext 'Download packages in ')${DL_PATH}.
+	 $(gettext '')"
+	[ "$(cat /var/local/petget/install_mode)" = "true" ] && \
+	 MSG_TEMPFS="$(gettext 'Save istalled programs when we save to savefile.')
+	 $(gettext '')"
+	[ "$(cat /var/local/petget/nt_category)" = "true" ] && \
+	 MSG_NOTERM="$(gettext 'Do NOT show terminal with PPM activity.')
+	 $(gettext '')"
+	[ "$(cat /var/local/petget/rd_category)" = "true" ] && \
+	 MSG_REDOWNL="$(gettext 'Redownload packages when already downloaded.')
+	 $(gettext '')"
+	[ "$(cat /var/local/petget/nd_category)" = "true" ] && \
+	 MSG_SAVEPKG="$(gettext 'Do NOT delete packages after installation.')
+	 $(gettext '')"
+	[ "$MSG_SPACE" -o "$MSG_DPATH" -o "$MSG_TEMPFS" -o "$MSG_NOTERM" -o \
+	 "$MSG_REDOWNL" -o "$MSG_SAVEPKG" ] && \
+	  /usr/lib/gtkdialog/box_ok "$(gettext 'PPM config options')" info "$(gettext 'PPM is currently running with these configuration options:')
+	  ${MSG_SPACE} ${MSG_DPATH} ${MSG_NOTERM} ${MSG_REDOWNL} ${MSG_SAVEPKG} ${MSG_TEMPFS}"
+}
+export -f options_status
+
+[ "$(cat /var/local/petget/si_category)" = "true" ] && options_status
 
 /usr/lib/gtkdialog/box_splash -close never -text "$(gettext 'Loading Puppy Package Manager...')" &
 SPID=$!

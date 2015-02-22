@@ -161,6 +161,11 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
   <vbox space-expand="true" space-fill="true">
     <frame '$(gettext 'Options')'>
       <checkbox>
+        <label>'$(gettext "Show info with configuration changes as startup")'</label>
+        <variable>CATEGORY_SI</variable>'
+        [ "$(</var/local/petget/si_category)" = "true" ] && S=$S'<default>true</default>'
+      S=$S'</checkbox>      
+      <checkbox>
         <label>'$(gettext "Enable BuildingBlock category (for advanced users only!)")'</label>
         <variable>CATEGORY_BB</variable>'
         [ "$(</var/local/petget/bb_category)" = "true" ] && S=$S'<default>true</default>'
@@ -247,6 +252,7 @@ echo -n "$RETPARAMS" | grep 'CATEGORY_SC' | cut -d= -f2 | tr -d '"' > /var/local
 echo -n "$RETPARAMS" | grep 'CATEGORY_NT' | cut -d= -f2 | tr -d '"' > /var/local/petget/nt_category
 echo -n "$RETPARAMS" | grep 'CATEGORY_RD' | cut -d= -f2 | tr -d '"' > /var/local/petget/rd_category
 echo -n "$RETPARAMS" | grep 'CATEGORY_ND' | cut -d= -f2 | tr -d '"' > /var/local/petget/nd_category
+echo -n "$RETPARAMS" | grep 'CATEGORY_SI' | cut -d= -f2 | tr -d '"' > /var/local/petget/si_category
 
 # handle install mode
 if [ $PUPMODE -eq 3 -o $PUPMODE -eq 7 -o $PUPMODE -eq 13 ]; then
