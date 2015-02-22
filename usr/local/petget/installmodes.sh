@@ -239,7 +239,19 @@ check_total_size () {
   echo "" > /tmp/petget/install_status
  else
   cat /tmp/pkgs_to_install | cut -f1 -d '|' > /tmp/pkgs_to_install_bar
-  echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install_bar /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l)    -   $(gettext 'Required space'): ${NEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
+  if [ -f /tmp/install_pets_quietly -o -f /tmp/install_classic ]; then
+   if [ "$(cat /var/local/petget/nd_category)" != "true" ]; then
+    BARNEEDEDK=$( expr 2 \* ${NEEDEDK} \/ 3 )
+    BARMSG="$(gettext 'to install')"
+   else
+    BARNEEDEDK=${NEEDEDK}
+    BARMSG="$(gettext 'to install (and keep pkgs)')"
+   fi
+  else
+   BARNEEDEDK=${NEEDEDK}
+   BARMSG="$(gettext 'to download')"
+  fi
+  echo "$(gettext 'Packages (with deps)'): $(cat /tmp/pkgs_to_install_bar /tmp/overall_dependencies 2>/dev/null |sort | uniq | wc -l)    -   $(gettext 'Required space') ${BARMSG}: ${BARNEEDEDK}MB   -   $(gettext 'Available'): ${AVAILABLE}MB" > /tmp/petget/install_status
  fi
  #Check if enough space on system
  if [ "$NEEDEDKDOWN" -ge "$SAVEAVAILABLE" -a "$AVAILABLE" -ge "$NEEDEDK" ]; then
