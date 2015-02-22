@@ -190,6 +190,11 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
       S=$S'</checkbox>
       '${IMODE}'
       <checkbox>
+        <label>'$(gettext "Do not warn if package is installed (Dangerous!)")'</label>
+        <variable>CATEGORY_NW</variable>'
+        [ "$(</var/local/petget/nw_category)" = "true" ] && S=$S'<default>true</default>'
+      S=$S'</checkbox>
+      <checkbox>
         <label>'$(gettext "Always redownload packages when they preexist")'</label>
         <variable>CATEGORY_RD</variable>'
         [ "$(</var/local/petget/rd_category)" = "true" ] && S=$S'<default>true</default>'
@@ -253,6 +258,7 @@ echo -n "$RETPARAMS" | grep 'CATEGORY_NT' | cut -d= -f2 | tr -d '"' > /var/local
 echo -n "$RETPARAMS" | grep 'CATEGORY_RD' | cut -d= -f2 | tr -d '"' > /var/local/petget/rd_category
 echo -n "$RETPARAMS" | grep 'CATEGORY_ND' | cut -d= -f2 | tr -d '"' > /var/local/petget/nd_category
 echo -n "$RETPARAMS" | grep 'CATEGORY_SI' | cut -d= -f2 | tr -d '"' > /var/local/petget/si_category
+echo -n "$RETPARAMS" | grep 'CATEGORY_NW' | cut -d= -f2 | tr -d '"' > /var/local/petget/nw_category
 
 # handle install mode
 if [ $PUPMODE -eq 3 -o $PUPMODE -eq 7 -o $PUPMODE -eq 13 ]; then

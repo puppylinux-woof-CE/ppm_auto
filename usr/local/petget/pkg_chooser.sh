@@ -56,10 +56,13 @@ options_status () {
 	[ "$(cat /var/local/petget/nd_category)" = "true" ] && \
 	 MSG_SAVEPKG="$(gettext 'Do NOT delete packages after installation.')
 	 $(gettext '')"
+	[ "$(cat /var/local/petget/nw_category)" = "true" ] && \
+	 MSG_NOWARN="$(gettext 'Do NOT warn if package is already installed (Dangerous!).')
+	 $(gettext '')"
 	[ "$MSG_SPACE" -o "$MSG_DPATH" -o "$MSG_TEMPFS" -o "$MSG_NOTERM" -o \
-	 "$MSG_REDOWNL" -o "$MSG_SAVEPKG" ] && \
+	 "$MSG_REDOWNL" -o "$MSG_SAVEPKG" -o "$MSG_NOWARN" ] && \
 	  /usr/lib/gtkdialog/box_ok "$(gettext 'PPM config options')" info "$(gettext 'PPM is currently running with these configuration options:')
-	  ${MSG_SPACE} ${MSG_DPATH} ${MSG_NOTERM} ${MSG_REDOWNL} ${MSG_SAVEPKG} ${MSG_TEMPFS}"
+	  ${MSG_SPACE} ${MSG_DPATH} ${MSG_NOTERM} ${MSG_REDOWNL} ${MSG_NOWARN} ${MSG_SAVEPKG} ${MSG_TEMPFS}"
 }
 export -f options_status
 
