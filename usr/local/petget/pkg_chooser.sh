@@ -59,7 +59,7 @@ options_status () {
 	[ "$MSG_SPACE" -o "$MSG_DPATH" -o "$MSG_TEMPFS" -o "$MSG_NOTERM" -o \
 	 "$MSG_REDOWNL" -o "$MSG_SAVEPKG" ] && \
 	  /usr/lib/gtkdialog/box_ok "$(gettext 'PPM config options')" info "$(gettext 'PPM is currently running with these configuration options:')
-	  ${MSG_SPACE} ${MSG_DPATH} ${MSG_NOTERM} ${MSG_REDOWNL} ${MSG_SAVEPKG} ${MSG_TEMPFS}"
+	 ${MSG_SPACE}${MSG_DPATH}${MSG_NOTERM}${MSG_REDOWNL}${MSG_SAVEPKG}${MSG_TEMPFS}"
 }
 export -f options_status
 
