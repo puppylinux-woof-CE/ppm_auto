@@ -388,9 +388,6 @@ chmod 777 /tmp/filterversion.sh
 if [ "$(</var/local/petget/ui_choice)" = "Classic" ]; then
 	. /usr/local/petget/ui_Classic
 	exit 0
-elif [ "$(</var/local/petget/ui_choice)" = "ClassicZig" ]; then
-	. /usr/local/petget/ui_ZiggyOLD
-	exit 0
 fi
 
 #tall or wide orientation in the Ziggy UI

@@ -86,33 +86,6 @@ else
  DL_PATH=/root
 fi
 
-# Classic choice
-[ "$( grep Classic /var/local/petget/ui_choice)" != "" ] && \
- UI="`cat /var/local/petget/ui_choice`" || UI=''
-
-if [ "$UI" ]; then
- UI_RADIO="
-<radiobutton>
-  <variable>varUI_${UI}</variable>
-  <label>${UI}</label>
-  <action>ln -sfT \"${MYDIR}/ui_${UI}.png\" /tmp/petget_ui_preview</action>
-  <action>refresh:UI_PREVIEW</action>
-</radiobutton>"
-
- for ONEUI in Classic ClassicZig
- do
-  [ "$ONEUI" = "$UI" ] && continue
-  UI_RADIO="${UI_RADIO}
-<radiobutton>
-   <variable>varUI_${ONEUI}</variable>
-   <label>${ONEUI}</label>
-   <action>ln -sfT \"${MYDIR}/ui_${ONEUI}.png\" /tmp/petget_ui_preview</action>
-   <action>refresh:UI_PREVIEW</action>
- </radiobutton>"
- done
-else
- UI_RADIO=''
-fi
 
 S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="gtk-about">
 <vbox space-expand="true" space-fill="true">
@@ -199,11 +172,10 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
       S=$S'</checkbox>
       <checkbox>
         <label>'$(gettext "Use traditional, non-auto, user interface")'</label>'
-        [ "$(grep Classic /var/local/petget/ui_choice)" != "" ] && S=$S'<default>true</default>'
+        [ "$(</var/local/petget/ui_choice)" = "Classic" ] && S=$S'<default>true</default>'
         S=$S'<action>if true echo Classic > /var/local/petget/ui_choice</action>
         <action>if false echo Ziggy > /var/local/petget/ui_choice</action>
       </checkbox>
-	  '${UI_RADIO}'
       <checkbox>
         <label>'$(gettext "Use the tall version of the new UI (better for small screens)")'</label>'
         [ "$(</var/local/petget/uo_choice)" = "tall" ] && S=$S'<default>true</default>'
@@ -281,12 +253,6 @@ echo -n "$RETPARAMS" | grep 'CATEGORY_NT' | cut -d= -f2 | tr -d '"' > /var/local
 echo -n "$RETPARAMS" | grep 'CATEGORY_RD' | cut -d= -f2 | tr -d '"' > /var/local/petget/rd_category
 echo -n "$RETPARAMS" | grep 'CATEGORY_ND' | cut -d= -f2 | tr -d '"' > /var/local/petget/nd_category
 echo -n "$RETPARAMS" | grep 'CATEGORY_SI' | cut -d= -f2 | tr -d '"' > /var/local/petget/si_category
-
-# handle UI choice
-if [ "$(</var/local/petget/ui_choice)" != "Ziggy" ]; then
-	UI="`echo -n "$RETPARAMS" | grep '^varUI.*true' | cut -f2- -d '_' | cut -f1 -d '='`"
-	[ "$UI" != "" ] && echo -n "$UI" > /var/local/petget/ui_choice
-fi
 
 # handle install mode
 if [ $PUPMODE -eq 3 -o $PUPMODE -eq 7 -o $PUPMODE -eq 13 ]; then
