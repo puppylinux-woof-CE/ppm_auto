@@ -44,6 +44,9 @@ options_status () {
 	[ -f /root/.packages/download_path ] && [ "$DL_PATH" != "/root" ] && \
 	 MSG_DPATH="$(gettext 'Download packages in ')${DL_PATH}.
 	 $(gettext '')"
+	[ "$(cat /var/local/petget/ss_category)" = "true" ] && \
+	 MSG_DEFMODE="$(gettext 'Step-by-Step is set as default mode.')
+	 $(gettext '')"
 	[ "$(cat /var/local/petget/install_mode)" = "true" ] && \
 	 MSG_TEMPFS="$(gettext 'Save istalled programs when we save to savefile.')
 	 $(gettext '')"
@@ -59,7 +62,7 @@ options_status () {
 	[ "$MSG_SPACE" -o "$MSG_DPATH" -o "$MSG_TEMPFS" -o "$MSG_NOTERM" -o \
 	 "$MSG_REDOWNL" -o "$MSG_SAVEPKG" ] && \
 	  /usr/lib/gtkdialog/box_ok "$(gettext 'PPM config options')" info "$(gettext 'PPM is currently running with these configuration options:')
-	 ${MSG_SPACE}${MSG_DPATH}${MSG_NOTERM}${MSG_REDOWNL}${MSG_SAVEPKG}${MSG_TEMPFS}"
+	 ${MSG_DEFMODE}${MSG_SPACE}${MSG_DPATH}${MSG_NOTERM}${MSG_REDOWNL}${MSG_SAVEPKG}${MSG_TEMPFS}"
 }
 export -f options_status
 
@@ -89,7 +92,18 @@ mkdir -p /var/local/petget
 echo -n > /tmp/pkgs_to_install
 echo 0 > /tmp/petget/install_status_percent
 echo "" > /tmp/petget/install_status
-touch /tmp/install_pets_quietly
+
+if [ "$(cat /var/local/petget/ss_category)" = "true" ]; then
+ INSTMODE=install_classic
+ DEFMODE='<item>'$(gettext 'Step by step installation (classic mode)')'</item>
+          <item>'$(gettext 'Auto install')'</item>'
+else
+ INSTMODE=install_pets_quietly
+ DEFMODE='<item>'$(gettext 'Auto install')'</item>
+          <item>'$(gettext 'Step by step installation (classic mode)')'</item>'
+fi
+
+touch /tmp/$INSTMODE
 
 . /etc/DISTRO_SPECS #has DISTRO_BINARY_COMPAT, DISTRO_COMPAT_VERSION
 . /root/.packages/DISTRO_PKGS_SPECS
@@ -111,7 +125,7 @@ add_item (){
 	# Make sure that we have atleast one mode flag
 	[ ! -f /tmp/install_pets_quietly -a ! -f  /tmp/download_only_pet_quietly \
 	 -a ! -f /tmp/download_pets_quietly -a ! -f /tmp/install_classic ] \
-	 && touch /tmp/install_pets_quietly
+	 && touch /tmp/$INSTMODE
 	if [ "$(grep $TREE1 /root/.packages/user-installed-packages)" != "" -a \
 	 -f /tmp/install_pets_quietly ]; then
 		. /usr/lib/gtkdialog/box_yesno "$(gettext 'Package is already installed')" "$(gettext 'This package is already installed! ')" "$(gettext 'If you want to re-install it, first remove it and then install it again. To download only or use the step-by-step classic mode, select No and then change the Auto Install to another option.')" "$(gettext 'To Abort the process now select Yes.')"
@@ -471,8 +485,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
 
         <comboboxtext width-request="150" space-expand="false" space-fill="false">
           <variable>INSTALL_MODE</variable>
-          <item>'$(gettext 'Auto install')'</item>
-          <item>'$(gettext 'Step by step installation (classic mode)')'</item>
+          '${DEFMODE}'
           <item>'$(gettext 'Download packages (no install)')'</item>
           <item>'$(gettext 'Download all (packages and dependencies)')'</item>
           <action>change_mode</action>
