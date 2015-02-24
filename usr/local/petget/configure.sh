@@ -182,11 +182,6 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
         S=$S'<action>if true echo tall > /var/local/petget/uo_choice</action>
         <action>if false echo wide > /var/local/petget/uo_choice</action>
       </checkbox>
-      <checkbox>
-        <label>'$(gettext "Set step-by-step as default mode")'</label>
-        <variable>CATEGORY_SS</variable>'
-        [ "$(</var/local/petget/ss_category)" = "true" ] && S=$S'<default>true</default>'
-      S=$S'</checkbox>
       '${SIZEBOX}'
       <checkbox>
         <label>'$(gettext "Do not show the terminal with PPM actions")'</label>
@@ -258,7 +253,6 @@ echo -n "$RETPARAMS" | grep 'CATEGORY_NT' | cut -d= -f2 | tr -d '"' > /var/local
 echo -n "$RETPARAMS" | grep 'CATEGORY_RD' | cut -d= -f2 | tr -d '"' > /var/local/petget/rd_category
 echo -n "$RETPARAMS" | grep 'CATEGORY_ND' | cut -d= -f2 | tr -d '"' > /var/local/petget/nd_category
 echo -n "$RETPARAMS" | grep 'CATEGORY_SI' | cut -d= -f2 | tr -d '"' > /var/local/petget/si_category
-echo -n "$RETPARAMS" | grep 'CATEGORY_SS' | cut -d= -f2 | tr -d '"' > /var/local/petget/ss_category
 
 # handle install mode
 if [ $PUPMODE -eq 3 -o $PUPMODE -eq 7 -o $PUPMODE -eq 13 ]; then
