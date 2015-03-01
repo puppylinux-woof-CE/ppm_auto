@@ -480,7 +480,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
         <button space-expand="false" space-fill="false">
           <variable>BUTTON_INSTALL</variable>
           '"`/usr/lib/gtkdialog/xml_button-icon package_add`"'
-          <label>" '$(gettext 'Install')' "</label>
+          <label>" '$(gettext 'Do it!')' "</label>
           <sensitive>false</sensitive>
           <action condition="command_is_true(if [ \"$(cat /tmp/pkgs_to_install)\" != \"\" ];then echo true;fi)">disable:VBOX_MAIN</action>
           <action>if [ "$(cat /tmp/forced_install 2>/dev/null)" != "" ]; then touch /tmp/force_install; else rm -f /tmp/force_install; fi </action>
