@@ -115,8 +115,8 @@ do
  [ "$PKGNAMES" = "" -o "$PKGNAMES" = " " ] && continue #100921
   
  #120907 scrollbar...
-if [ ! -f /tmp/install_quietly ]; then
- export PPM_DEPS_DIALOG="<window title=\"$(gettext 'Puppy Package Manager: download')\" icon-name=\"gtk-about\">
+ if [ ! -f /tmp/install_quietly ]; then
+  export PPM_DEPS_DIALOG="<window title=\"$(gettext 'Puppy Package Manager: download')\" icon-name=\"gtk-about\">
 <vbox>
  <text><label>$(gettext 'You have chosen to download these packages:')</label></text>
  <vbox scrollable=\"true\" height=\"100\">
@@ -144,10 +144,10 @@ if [ ! -f /tmp/install_quietly ]; then
 </window>
 " 
 
- RETPARAMS="`gtkdialog -p PPM_DEPS_DIALOG`"
-else
- RETPARAMS='EXIT="BUTTON_PKGS_DOWNLOAD"'
-fi 
+  RETPARAMS="`gtkdialog -p PPM_DEPS_DIALOG`"
+ else
+  RETPARAMS='EXIT="BUTTON_PKGS_DOWNLOAD"'
+ fi
  #RETPARAMS ex:
  #RADIO_URL_LOCAL="false"
  #RADIO_URL_repository.slacky.eu="true"
@@ -174,8 +174,13 @@ fi
   fi
   DOWNLOADFROM="file://${LOCALDIR}"
  else
-  URL_BASIC="`echo "$RETPARAMS" | grep 'RADIO_URL_' | grep '"true"' | cut -f 1 -d '=' | cut -f 3 -d '_'`"
-  DOWNLOADFROM="`cat /tmp/petget_repos | grep "$URL_BASIC" | head -n 1 | cut -f 2 -d '|'`"
+  if [ ! -f /tmp/install_quietly ]; then
+   URL_BASIC="`echo "$RETPARAMS" | grep 'RADIO_URL_' | grep '"true"' | cut -f 1 -d '=' | cut -f 3 -d '_'`"
+   DOWNLOADFROM="`cat /tmp/petget_repos | grep "$URL_BASIC" | head -n 1 | cut -f 2 -d '|'`"
+  else
+   DOWNLOADFROM="`awk '{ if (NR==1) print $0 }' /tmp/petget_repos | cut -f 2 -d '|'`"
+   DOWNLOADFROM_ALT="`awk '{ if (NR==2) print $0 }' /tmp/petget_repos | cut -f 2 -d '|'`"
+  fi
  fi
  
  #now download and install them...
@@ -206,9 +211,20 @@ fi
      ONEFILE="pet_packages-${REPO_DEFAULT_SUBSUBDIR}${ONEFILE}"
     fi
    fi
-   LANG=C wget -4 -t 2 -T 20 --waitretry=20 --spider -S "${DOWNLOADFROM}/${ONEFILE}" > /tmp/download_file_spider.log0 2>&1 #
-   if [ $? -ne 0 ];then
-    DL_BAD_LIST="${DL_BAD_LIST} ${ONEPKGNAME}"
+   if [ ! -f /tmp/install_quietly ]; then
+    LANG=C wget -4 -t 2 -T 20 --waitretry=20 --spider -S "${DOWNLOADFROM}/${ONEFILE}" > /tmp/download_file_spider.log0 2>&1 #
+    if [ $? -ne 0 ];then
+     DL_BAD_LIST="${DL_BAD_LIST} ${ONEPKGNAME}"
+    fi
+   else
+    LANG=C wget -4 -t 2 -T 20 --waitretry=20 --spider -S "${DOWNLOADFROM}/${ONEFILE}" > /tmp/download_file_spider.log0 2>&1 #
+    if [ $? -ne 0 ];then
+     DOWNLOADFROM="${DOWNLOADFROM_ALT}"
+     LANG=C wget -4 -t 2 -T 20 --waitretry=20 --spider -S "${DOWNLOADFROM}/${ONEFILE}" > /tmp/download_file_spider.log0 2>&1 
+     if [ $? -ne 0 ];then
+      DL_BAD_LIST="${DL_BAD_LIST} ${ONEPKGNAME}"
+     fi
+    fi
    fi
   fi 
  done
