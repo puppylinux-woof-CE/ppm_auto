@@ -164,7 +164,7 @@ S='<window title="'$(gettext 'Puppy Package Manager - Configure')'" icon-name="g
         <label>'$(gettext "Show info with configuration changes as startup")'</label>
         <variable>CATEGORY_SI</variable>'
         [ "$(</var/local/petget/si_category)" = "true" ] && S=$S'<default>true</default>'
-      S=$S'</checkbox>      
+      S=$S'</checkbox>
       <checkbox>
         <label>'$(gettext "Enable BuildingBlock category (for advanced users only!)")'</label>
         <variable>CATEGORY_BB</variable>'

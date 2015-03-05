@@ -113,7 +113,7 @@ else
 $(gettext 'The first 5 are')
 $possible5"
  fi
- if [ "$DISPLAY" ];then 
+ if [ "$DISPLAY" ];then
   pupmessage -bg red "$(gettext 'WARNING:')
 $(gettext 'No file named') ${DB_pkgname}.files $(gettext 'found in')
 /root/.packages/ $(gettext 'folder.')
@@ -312,7 +312,7 @@ UPDATE_MENUS=''
 if [ -f /tmp/remove_pets_quietly ]; then
  LEFT=$(cat /tmp/pkgs_left_to_remove | wc -l)
  [ "$LEFT" -le 1 ] && UPDATE_MENUS=yes
-else 
+else
   UPDATE_MENUS=yes
 fi
 
@@ -394,7 +394,7 @@ if [ ! -f /tmp/remove_pets_quietly ]; then
    </hbox>
   </vbox>
  </window>
- " 
+ "
  if [ "$DISPLAY" != "" ];then
   gtkdialog -p REM_DIALOG
  fi

@@ -233,7 +233,7 @@ Do you want to try again, or give up?')" 0 0
   rm -f "$FILENAME"
   exit 2
  fi
- [ ! -f /tmp/install_quietly ] && kill $PID1 || echo 
+ [ ! -f /tmp/install_quietly ] && kill $PID1 || echo
  
  #paranoid, check size of downloaded file...
  SIZEB_LOCAL=`stat --format=%s "${FILENAME}"`
@@ -247,6 +247,6 @@ done
 
 [ -f /tmp/install_quietly ] && echo "PACKAGE: $FILENAME" \
  >> /tmp/overall_package_status_log
- 
+
 exit 0
 ###END###

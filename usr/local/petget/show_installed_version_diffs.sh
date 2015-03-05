@@ -55,7 +55,7 @@ export ppm_versions='<window title="PPM: '$(gettext 'Version differences')'" ico
     </vbox>
   </frame>
   <hbox space-expand="false" space-fill="false">
-    <button can-default="true" has-default="true"> 
+    <button can-default="true" has-default="true">
       <variable>BUTTON_OK</variable>
       <label>'$(gettext 'Ok')'</label>
       <input file stock="gtk-ok"></input>

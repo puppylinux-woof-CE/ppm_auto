@@ -110,7 +110,7 @@ echo "$(gettext 'HIERARCHY OF MISSING DEPENDENCIES OF PACKAGE') $TREE1" > /tmp/p
 echo "$(gettext "Format of each line: 'a-missing-dependent-pkg: missing dependencies of a-missing-dependent-pkg'")" >> /tmp/petget_deps_visualtreelog #w017
 for ONELEVEL in 1 2 3 4 5 6 7 8 9 10 11
 do
- if [ ! -f /tmp/install_quietly ]; then 
+ if [ ! -f /tmp/install_quietly ]; then
   [ $ONELEVEL -gt 1 ] && pupkill $XXPID #120907
   /usr/lib/gtkdialog/box_splash -placement top -close never -fontsize large -text "$(gettext 'Number of missing dependencies:') ${SIZE2}" & #120907
   XXPID=$!
@@ -234,7 +234,7 @@ do
  fi
 done
 
-[ ! -f /tmp/install_quietly ] && kill $X1PID || exit 0 
+[ ! -f /tmp/install_quietly ] && kill $X1PID || exit 0
 
 ###END###
 

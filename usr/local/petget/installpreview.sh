@@ -32,7 +32,7 @@ export OUTPUT_CHARSET=UTF-8
 . /etc/DISTRO_SPECS #has DISTRO_BINARY_COMPAT, DISTRO_COMPAT_VERSION
 . /root/.packages/DISTRO_PKGS_SPECS
 
-if [ ! -f /tmp/install_quietly ]; then 
+if [ ! -f /tmp/install_quietly ]; then
  /usr/lib/gtkdialog/box_splash -close never -text "$(gettext 'Please wait, processing package database files...')" &
  X1PID=$!
 fi
@@ -144,7 +144,7 @@ else
  fi 
 fi
 
-[ ! -f /tmp/install_quietly ] && kill $X1PID || echo 
+[ ! -f /tmp/install_quietly ] && kill $X1PID || echo
 if [ ! -f /tmp/install_quietly ]; then
 export PREVIEW_DIALOG="<window title=\"$(gettext 'Puppy Package Manager: preinstall')\" icon-name=\"gtk-about\">
 <vbox>
@@ -429,7 +429,7 @@ fi
 if [ -f /tmp/install_pets_quietly ]; then
  LEFT=$(cat /tmp/pkgs_left_to_install | wc -l)
  [ "$LEFT" -le 1 ] && UPDATE_MENUS=yes
-else 
+else
   UPDATE_MENUS=yes
 fi
 
@@ -460,17 +460,12 @@ do
    && echo yes >> /tmp/iUPDATE
  fi
 done
-if [ "$UPDATE_MENUS" = "yes" ]; then 
+if [ "$UPDATE_MENUS" = "yes" ]; then
  if [ "$(grep yes /tmp/iUPDATE)" != "" ]; then \
   gtk-update-icon-cache -f /usr/share/icons/hicolor/
   rm -f /tmp/iUPDATE
  fi
 fi
-
-#master help index has to be updated...
-#if [ "$UPDATE_MENUS" = "yes" ]; then 
-# /usr/sbin/indexgen.sh #${WKGDIR}/${APKGNAME}
-#fi
 
 #Reconstruct configuration files for JWM, Fvwm95, IceWM...
 if [ "$UPDATE_MENUS" = "yes" -a "$INSTALLEDCAT" != "none" ];then
@@ -483,7 +478,7 @@ if [ "$UPDATE_MENUS" = "yes" -a "$INSTALLEDCAT" != "none" ];then
   fi
  fi
 fi
-[ ! -f /tmp/install_quietly ] && kill $X3PID || echo 
+[ ! -f /tmp/install_quietly ] && kill $X3PID || echo
 
 #120905 restore...
 #120903 ubuntu, have lots pkgs installed, this takes ages. remove for now, need to rewrite in C...

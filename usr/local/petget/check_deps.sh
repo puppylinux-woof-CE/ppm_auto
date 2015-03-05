@@ -136,7 +136,7 @@ dependcheckfunc() {
   done
   cp -f /tmp/missinglibs_cut.txt /tmp/missinglibs.txt
  fi
- [ ! -f /tmp/install_quietly ] && kill $X1PID || echo 
+ [ ! -f /tmp/install_quietly ] && kill $X1PID || echo
 }
 
 #searches deps of all user-installed pkgs...
@@ -149,7 +149,7 @@ missingpkgsfunc() {
   /usr/local/petget/findmissingpkgs.sh "$USER_DB_dependencies"
   #...returns /tmp/petget_installed_patterns_all, /tmp/petget_pkg_deps_patterns, /tmp/petget_missingpkgs_patterns
   MISSINGDEPS_PATTERNS="`cat /tmp/petget_missingpkgs_patterns`" #v431
-  [ ! -f /tmp/install_quietly ] && kill $X2PID || echo 
+  [ ! -f /tmp/install_quietly ] && kill $X2PID || echo
 }
 
 if [ $1 ];then
@@ -210,7 +210,7 @@ fi
 if [ -f /tmp/install_pets_quietly ]; then
  LEFT=$(cat /tmp/pkgs_left_to_install | wc -l)
  [ "$LEFT" -le 1 ] && missingpkgsfunc
-else 
+else
  missingpkgsfunc
 fi
 
@@ -257,14 +257,14 @@ export DEPS_DIALOG="<window title=\"$(gettext 'Puppy Package Manager')\" icon-na
  </window>
 " 
  RETPARAMS="`gtkdialog4 --center --program=DEPS_DIALOG`"
-else 
+else
  RETPARAMS='EXIT="OK"'
  rm -f /tmp/petget_missing_dbentries-* 2>/dev/null
  cat /tmp/petget_missingpkgs_patterns_with_versioning >> \
   /tmp/overall_petget_missingpkgs_patterns.txt
- rm -f /tmp/petget_missingpkgs_patterns*
+ rm -f /tmp/petget_missingpkgs_patterns* 2>/dev/null
  cat /tmp/missinglibs.txt >> /tmp/overall_missing_libs.txt
  cat /tmp/missinglibs_hidden.txt >> /tmp/overall_missing_libs_hidden.txt
- rm -f /tmp/missinglibs* 2  
+ rm -f /tmp/missinglibs* 2>/dev/null
 fi
 ###END###

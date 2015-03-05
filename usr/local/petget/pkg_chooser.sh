@@ -3,7 +3,7 @@
 #2009 Lesser GPL licence v2 (/usr/share/doc/legal/lgpl-2.1.txt).
 #The Puppy Package Manager main GUI window.
 
-VERSION=1.9.7
+VERSION=1.9.8
 
 #wait for indexgen.sh to finish
 while [ "$(ps | grep indexgen | grep -v grep)" != "" ];do sleep 0.5;done
@@ -117,10 +117,10 @@ add_item (){
 		. /usr/lib/gtkdialog/box_yesno "$(gettext 'Package is already installed')" "$(gettext 'This package is already installed! ')" "$(gettext 'If you want to re-install it, first remove it and then install it again. To download only or use the step-by-step classic mode, select No and then change the Auto Install to another option.')" "$(gettext 'To Abort the process now select Yes.')"
 		if [ "$EXIT" = "yes" ]; then
 			exit 0
-		else 
+		else
 			echo $TREE1 >> /tmp/forced_install
 		fi
-	fi 
+	fi
 	if [ "$TREE1" ] && [ ! "$(grep -F $TREE1 /tmp/pkgs_to_install)" ]; then
 		if [ ! -f /root/.packages/skip_space_check ]; then
 			echo 0 > /tmp/petget/install_status_percent
@@ -203,7 +203,7 @@ change_mode () {
 			rm -f /tmp/*_pet{,s}_quietly
 			echo "" > /tmp/forced_install
 			touch /tmp/install_classic
-		;;	
+		;;
 	esac
 }
 
@@ -488,7 +488,7 @@ S='<window title="'$(gettext 'Puppy Package Manager v')''${VERSION}'" width-requ
           <action condition="command_is_true(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">/usr/local/petget/installmodes.sh "$INSTALL_MODE" &</action>
           <action condition="command_is_false(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">installed_warning &</action>
           <action condition="command_is_false(if [ -f /tmp/force_install -a -f /tmp/install_pets_quietly ]; then echo false; else echo true; fi )">enable:VBOX_MAIN</action>
-        </button> 
+        </button>
       </hbox>
     </vbox>
 

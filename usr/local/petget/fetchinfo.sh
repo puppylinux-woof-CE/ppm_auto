@@ -53,7 +53,7 @@ case $DB_DISTRO in
    esac
    sync
    mv -f PACKAGES.TXT PACKAGES.TXT-${DB_SUB}
-   [ ! -f /tmp/install_quietly ] && kill $X5PID || echo 
+   [ ! -f /tmp/install_quietly ] && kill $X5PID || echo
   fi
   cat /root/.packages/PACKAGES.TXT-${DB_SUB} | tr -s ' ' | sed -e 's% $%%' | tr '%' ' ' | tr '\n' '%' | sed -e 's/%%/@/g' | grep -o "PACKAGE NAME: ${DB_fullfilename}[^@]*" | tr '%' '\n' > /tmp/petget_slackware_pkg_extra_info
   sync
@@ -83,7 +83,7 @@ case $DB_DISTRO in
  scientific) #110523
   ###THIS IS INCOMPLETE###
   if [ ! -f /root/.packages/primary.xml ];then
-   if [ ! -f /tmp/install_quietly ];then 
+   if [ ! -f /tmp/install_quietly ];then
     /usr/lib/gtkdialog/box_splash -close never -text "$(gettext 'Please wait, downloading database file to') /root/.packages/primary.xml..." &
     X5PID=$!
    fi
@@ -91,7 +91,7 @@ case $DB_DISTRO in
    wget http://ftp.scientificlinux.org/linux/scientific/${DISTRO_COMPAT_VERSION}/i386/os/repodata/primary.xml.gz
    sync
    gunzip primary.xml.gz
-   [ ! -f /tmp/install_quietly ] && kill $X5PID || echo 
+   [ ! -f /tmp/install_quietly ] && kill $X5PID || echo
   fi
   sync
   ###TODO: NEED TO EXTRACT INFO ON ONE PKG ONLY###
