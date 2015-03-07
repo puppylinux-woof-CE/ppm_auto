@@ -418,13 +418,13 @@ fi
 
 #now do the actual install...
 PASSEDPRM=""
-[ "`echo "$RETPARAMS" | grep '^EXIT' | grep 'BUTTON_PKGS_DOWNLOADONLY'`" != "" ] && PASSEDPRM="DOWNLOADONLY"
+[ "`echo "$RETPARAMS" | grep '^EXIT' | grep 'BUTTON_PKGS_DOWNLOADONLY'`" != "" ] && PASSEDPRM="DOWNLOADONLY" && touch /tmp/manual_pkg_download
 /usr/local/petget/downloadpkgs.sh $PASSEDPRM
 if [ $? -ne 0 ];then
  [ -f /tmp/petget/current-repo-triad.previous ] && mv -f /tmp/petget/current-repo-triad.previous /tmp/petget/current-repo-triad #120504
  exit 1
 fi
-[ "$PASSEDPRM" = "DOWNLOADONLY" ] && touch /tmp/manual_pkg_download && exit
+[ "$PASSEDPRM" = "DOWNLOADONLY" ] && exit
 
 if [ -f /tmp/install_pets_quietly ]; then
  LEFT=$(cat /tmp/pkgs_left_to_install | wc -l)

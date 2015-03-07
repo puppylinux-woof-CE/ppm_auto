@@ -77,6 +77,7 @@ clean_flags () {
 	rm -f /tmp/ppm_reporting 2>/dev/null
 	rm -f /tmp/force{,d}_install 2>/dev/null
 	rm -f /tmp/pkgs_to_install* 2>/dev/null
+	rm -f /tmp/pkgs_DL_BAD_LIST 2>/dev/null
 }
 export -f clean_flags
 

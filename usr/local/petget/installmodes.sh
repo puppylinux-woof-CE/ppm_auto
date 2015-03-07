@@ -37,6 +37,7 @@ clean_up () {
  rm -f /tmp/pkgs_to_install_bar 2>/dev/null
  rm -f /tmp/manual_pkg_download 2>/dev/null
  rm -f /tmp/ppm_reporting 2>/dev/null
+ rm -f /tmp/pkgs_DL_BAD_LIST 2>/dev/null
  rm -rf /tmp/PPM_LOGs/ 2>/dev/null
  mv $MODE.bak $MODE
  mv /tmp/install_quietly.bak /tmp/install_quietly
@@ -52,7 +53,7 @@ report_results () {
  rm -f /tmp/pgks_failed_to_install 2>/dev/null
  for LINE in $(cat /tmp/pkgs_to_install_done  | cut -f 1 -d '|' | sort | uniq)
  do
-  if [  -f /tmp/download_pets_quietly -o  -f /tmp/download_only_pet_quietly \
+  if [ -f /tmp/download_pets_quietly -o -f /tmp/download_only_pet_quietly \
    -o -f /tmp/manual_pkg_download ];then
    if [ -f /root/.packages/download_path ];then
     . /root/.packages/download_path
@@ -60,18 +61,21 @@ report_results () {
    else
     DOWN_PATH=$HOME
    fi
+   PREVINST=''
    REALLY=$(ls "$DOWN_PATH" | grep $LINE)
-   [ "$REALLY" = "" -a -f /tmp/install_classic ] && \
-    REALLY=$(grep $LINE /tmp/petget/installedpkgs.results)
+   [ "$REALLY" -a "$(grep $LINE /tmp/pkgs_DL_BAD_LIST 2>/dev/null | sort | uniq )" != "" ] && \
+    REALLY='' && PREVINST="$(gettext 'was previously downloaded')"
   else
+   PREVINST=''
    REALLY=$(grep $LINE /tmp/petget/installedpkgs.results)
-   [ "$(grep $LINE /tmp/pgks_failed_to_install_forced 2>/dev/null | sort | uniq )" != "" ] \
-    && PREVINST="$(gettext 'was already installed')" || PREVINST=''
+   [ "$(grep $LINE /tmp/pgks_failed_to_install_forced 2>/dev/null | sort | uniq )" != "" -o \
+    "$(grep $LINE /tmp/pkgs_DL_BAD_LIST 2>/dev/null | sort | uniq )" != "" ] \
+    && REALLY='' && PREVINST="$(gettext 'was already installed')"
   fi
   if [ "$REALLY" != "" ]; then
-   echo $LINE $PREVINST >> /tmp/pgks_really_installed
+   echo $LINE >> /tmp/pgks_really_installed
   else
-   echo $LINE >> /tmp/pgks_failed_to_install
+   echo $LINE $PREVINST >> /tmp/pgks_failed_to_install
   fi
  done
  rm -f /tmp/pgks_failed_to_install_forced

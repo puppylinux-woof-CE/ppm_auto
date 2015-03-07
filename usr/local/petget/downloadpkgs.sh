@@ -238,6 +238,7 @@ do
   BADMSG4="$(gettext 'The installation has been aborted!')"
   
   /usr/lib/gtkdialog/box_ok "$(gettext 'Packages not available')" error "${BADMSG1}" "<b>${DL_BAD_LIST}</b>" "${BADMSG4}" "${BADMSG2} ${BADMSG3}"
+  echo ${DL_BAD_LIST} >> /tmp/pkgs_DL_BAD_LIST
   exit 1
  fi
  
