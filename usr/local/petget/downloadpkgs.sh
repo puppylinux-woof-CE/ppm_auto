@@ -284,8 +284,11 @@ do
     #...appends pkgname and category to /tmp/petget-installed-pkgs-log if successful.
    fi
    if [ $? -ne 0 ];then
-    /usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" error "<b>$(gettext 'Faulty download of') ${DLPKG}</b>"
-    FAILCNT=`expr $FAILCNT + 1` #101118
+    LASTPKG=$(tail -n 1 /tmp/pgks_failed_to_install_forced)
+    if [ $(echo ${DLPKG} | grep ${LASTPKG}) = "" ]; then
+     /usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" error "<b>$(gettext 'Faulty download of') ${DLPKG}</b>"
+     FAILCNT=`expr $FAILCNT + 1` #101118
+    fi
    fi
    #already removed, but take precautions...
   [ "$PASSEDPARAM" != "DOWNLOADONLY" -a "$DL_SAVE_FLAG" != "true" ] && rm -f $DLPKG 2>/dev/null

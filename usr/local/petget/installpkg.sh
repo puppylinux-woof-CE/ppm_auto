@@ -127,9 +127,9 @@ DLPKG_NAME="`cat /tmp/petget_missing_dbentries-Packages-* | grep "$dbPATTERN" | 
 PTN1='^'"$DLPKG_NAME"'|'
 if [ "`grep "$PTN1" /root/.packages/user-installed-packages`" != "" ];then
  if [ ! $DISPLAY ];then
-  dialog --msgbox "$(gettext 'Sorry, this package is already installed. Aborting.')" 0 0
+  dialog --timeout 10 --msgbox "$(gettext 'Sorry, this package is already installed. Aborting.')" 0 0
  else
-  pupmessage -bg '#ff8080' -fg black -title "$(gettext 'Package:') ${DLPKG_NAME}" "$(gettext 'Sorry, but this package is already installed. Cannot install it twice.')"
+  pupmessage -bg '#ff8080' -fg black -timeout 10 -title "$(gettext 'Package:') ${DLPKG_NAME}" "$(gettext 'Sorry, but this package is already installed. Cannot install it twice.')"
   echo ${DLPKG_NAME} >> /tmp/pgks_failed_to_install_forced
  fi
  exit 1

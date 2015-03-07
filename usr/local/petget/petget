@@ -336,7 +336,7 @@ if [ "$DISPLAY"  ]; then
  /usr/lib/gtkdialog/box_splash -text "${RESTARTMSG}" &
  X3PID=$!
 else
- dialog --msgbox "$(gettext 'Done. Updating menus and help pages')" 0 0
+ dialog --timeout 3 --msgbox "$(gettext 'Done. Updating menus and help pages')" 0 0
 fi
 
 #w0910 update image cache...

@@ -66,10 +66,10 @@ report_results () {
   else
    REALLY=$(grep $LINE /tmp/petget/installedpkgs.results)
    [ "$(grep $LINE /tmp/pgks_failed_to_install_forced 2>/dev/null | sort | uniq )" != "" ] \
-    && REALLY=''
+    && PREVINST="$(gettext 'was already installed')" || PREVINST=''
   fi
   if [ "$REALLY" != "" ]; then
-   echo $LINE >> /tmp/pgks_really_installed
+   echo $LINE $PREVINST >> /tmp/pgks_really_installed
   else
    echo $LINE >> /tmp/pgks_failed_to_install
   fi
