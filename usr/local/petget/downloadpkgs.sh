@@ -292,7 +292,9 @@ do
     fi
    fi
    #already removed, but take precautions...
-  [ "$PASSEDPARAM" != "DOWNLOADONLY" -a "$DL_SAVE_FLAG" != "true" ] && rm -f $DLPKG 2>/dev/null
+  [ "$PASSEDPARAM" != "DOWNLOADONLY" -a "$DL_SAVE_FLAG" != "true" \
+   -a "$(grep ${DLPKG} /tmp/pkg_preexists)" = "" ] && rm -f $DLPKG 2>/dev/null
+   rm -f /tmp/pkg_preexists 2>/dev/null
   else
    /usr/lib/gtkdialog/box_ok "$(gettext 'Puppy Package Manager')" error "<b>$(gettext 'Failed to download') ${DLPKG}</b>"
    FAILCNT=`expr $FAILCNT + 1` #101118
